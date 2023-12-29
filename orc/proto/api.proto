@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+option go_package = "github.com/mattgonewild/brutus/orc/proto";
+
+message Budget {
+    string timestamp = 1;
+    int64 balance = 2;
+}
+
+message Workers {
+    string timestamp = 1;
+    repeated Worker workers = 2;
+}
+
+message Worker {
+    string timestamp = 1;
+    string id = 2;
+    string ip = 3;
+    TlsConfig tlsConfig = 4;
+    Proc proc = 5;
+    optional string type = 6;
+}
+
+message TlsConfig {
+    string timestamp = 1;
+    bytes pubKey = 2;
+}
+
+message Proc {
+    string timestamp = 1;
+    CPU cpu = 2;
+    MEM mem = 3;
+    NET net = 4;
+    Uptime uptime = 5;
+    Loadavg loadavg = 6;
+}
+
+message CPU {
+    string timestamp = 1;
+    uint64 idle = 2;
+    uint64 total = 3;
+}
+
+message MEM {
+    string timestamp = 1;
+    uint64 used = 2;
+    uint64 total = 3;
+    uint64 swapUsed = 4;
+    uint64 swapTotal = 5;
+}
+
+message NET {
+    string timestamp = 1;
+    uint64 rx = 2;
+    uint64 tx = 3;
+}
+
+message Uptime {
+    string timestamp = 1;
+    string duration = 2;
+}
+
+message Loadavg {
+    string timestamp = 1;
+    double oneMinute = 2;
+    double fiveMinutes = 3;
+    double fifteenMinutes = 4;
+}
+
+// TODO: pagination and/or stream
+message Log {
+    string timestamp = 1;
+    bytes data = 2;
+}
