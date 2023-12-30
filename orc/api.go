@@ -4,9 +4,12 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"syscall"
 	"time"
 
+	"github.com/google/uuid"
 	orc "github.com/mattgonewild/brutus/orc/proto"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -17,9 +20,26 @@ type APIServer struct {
 	DecryptionWorkerManager  *WorkerManager
 }
 
+type RequestID string
+
+type RequestCTX struct {
+	context.Context
+}
+
+func (c RequestCTX) ID() string {
+	return c.Value(RequestID("request_id")).(uuid.UUID).String()
+}
+
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		next.ServeHTTP(w, r)
+		start, id := time.Now(), uuid.New().String()
+		ctx := &RequestCTX{context.WithValue(r.Context(), RequestID("request_id"), id)}
+		next.ServeHTTP(w, r.WithContext(ctx))
+
+		logger.Info("api request", zap.String("method", r.Method), zap.String("path", r.URL.Path),
+			zap.String("remote_addr", r.RemoteAddr), zap.String("user_agent", r.UserAgent()),
+			zap.Duration("duration", time.Since(start)), zap.String("request_id", id))
+
 	})
 }
 
@@ -32,7 +52,7 @@ func (s *APIServer) handleBudget() http.Handler {
 		case http.MethodGet:
 			time, err := time.Now().MarshalText()
 			if err != nil {
-				// TODO: ...
+				logger.Error("failed to marshal time", zap.Error(err), zap.String("request_id", RequestCTX{r.Context()}.ID()))
 				http.Error(w, "failed to get time", http.StatusInternalServerError)
 				return
 			}
@@ -41,7 +61,7 @@ func (s *APIServer) handleBudget() http.Handler {
 
 			data, err := proto.Marshal(balance)
 			if err != nil {
-				//  TODO: ...
+				logger.Error("failed to encode budget", zap.Error(err), zap.String("request_id", RequestCTX{r.Context()}.ID()))
 				http.Error(w, "failed to encode budget", http.StatusInternalServerError)
 				return
 			}
@@ -50,12 +70,14 @@ func (s *APIServer) handleBudget() http.Handler {
 		case http.MethodPost:
 			body, err := io.ReadAll(r.Body)
 			if err != nil {
+				logger.Error("failed to read request body", zap.Error(err), zap.String("request_id", RequestCTX{r.Context()}.ID()))
 				http.Error(w, "failed to read request body", http.StatusInternalServerError)
 			}
 
 			budget := &orc.Budget{}
 
 			if err := proto.Unmarshal(body, budget); err != nil {
+				logger.Error("failed to decode budget", zap.Error(err), zap.String("request_id", RequestCTX{r.Context()}.ID()))
 				http.Error(w, "failed to decode budget", http.StatusBadRequest)
 				return
 			}
@@ -63,49 +85,159 @@ func (s *APIServer) handleBudget() http.Handler {
 			s.BudgetManager.StoreBalance(budget.Balance)
 			w.WriteHeader(http.StatusNoContent)
 		default:
+			logger.Warn("invalid method", zap.String("method", r.Method), zap.String("request_id", RequestCTX{r.Context()}.ID()))
 			http.Error(w, "invalid method", http.StatusMethodNotAllowed)
 		}
 	})
 }
 func (s *APIServer) handleWorkers() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			workers := &orc.Workers{}
+
+			s.CombinationWorkerManager.Mutex.Lock()
+			for _, worker := range s.CombinationWorkerManager.Workers {
+				// TODO: query metric service for each worker by id and append to workers
+				worker = worker
+			}
+			s.CombinationWorkerManager.Mutex.Unlock()
+
+			s.PermutationWorkerManager.Mutex.Lock()
+			for _, worker := range s.PermutationWorkerManager.Workers {
+				// TODO: query metric service for each worker by id and append to workers
+				worker = worker
+			}
+			s.PermutationWorkerManager.Mutex.Unlock()
+
+			s.DecryptionWorkerManager.Mutex.Lock()
+			for _, worker := range s.DecryptionWorkerManager.Workers {
+				// TODO: query metric service for each worker by id and append to workers
+				worker = worker
+			}
+			s.DecryptionWorkerManager.Mutex.Unlock()
+
+			data, err := proto.Marshal(workers)
+			if err != nil {
+				logger.Error("failed to encode workers", zap.Error(err), zap.String("request_id", RequestCTX{r.Context()}.ID()))
+				http.Error(w, "failed to encode workers", http.StatusInternalServerError)
+				return
+			}
+
+			w.Write(data)
+		default:
+			logger.Warn("invalid method", zap.String("method", r.Method), zap.String("request_id", RequestCTX{r.Context()}.ID()))
+			http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		}
+	})
 }
 func (s *APIServer) handleWorker() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			// TODO: add worker type
+		case http.MethodDelete:
+			// TODO: delete worker by id
+		default:
+			logger.Warn("invalid method", zap.String("method", r.Method), zap.String("request_id", RequestCTX{r.Context()}.ID()))
+			http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		}
+	})
 }
 func (s *APIServer) handleWorkerProc() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			// TODO: query metric service for worker proc by id
+		default:
+			logger.Warn("invalid method", zap.String("method", r.Method), zap.String("request_id", RequestCTX{r.Context()}.ID()))
+			http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		}
+	})
 }
 func (s *APIServer) handleWorkerCpu() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			// TODO: query metric service for worker cpu by id
+		default:
+			logger.Warn("invalid method", zap.String("method", r.Method), zap.String("request_id", RequestCTX{r.Context()}.ID()))
+			http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		}
+	})
 }
 func (s *APIServer) handleWorkerMem() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			// TODO: query metric service for worker mem by id
+		default:
+			logger.Warn("invalid method", zap.String("method", r.Method), zap.String("request_id", RequestCTX{r.Context()}.ID()))
+			http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		}
+	})
 }
 func (s *APIServer) handleWorkerNet() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			// TODO: query metric service for worker net by id
+		default:
+			logger.Warn("invalid method", zap.String("method", r.Method), zap.String("request_id", RequestCTX{r.Context()}.ID()))
+			http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		}
+	})
 }
 func (s *APIServer) handleWorkerUptime() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			// TODO: query metric service for worker uptime by id
+		default:
+			logger.Warn("invalid method", zap.String("method", r.Method), zap.String("request_id", RequestCTX{r.Context()}.ID()))
+			http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		}
+	})
 }
 func (s *APIServer) handleWorkerLoadavg() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			// TODO: query metric service for worker loadavg by id
+		default:
+			logger.Warn("invalid method", zap.String("method", r.Method), zap.String("request_id", RequestCTX{r.Context()}.ID()))
+			http.Error(w, "invalid method", http.StatusMethodNotAllowed)
+		}
+	})
 }
 func (s *APIServer) handleLog() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			// TODO: ...
+		default:
+			logger.Warn("invalid method", zap.String("method", r.Method), zap.String("request_id", RequestCTX{r.Context()}.ID()))
+		}
+	})
 }
 func (s *APIServer) handleShutdown() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodPost:
+			logger.Info("api shutdown request, shutting down...", zap.String("request_id", RequestCTX{r.Context()}.ID()))
+			syscall.Kill(syscall.Getegid(), syscall.SIGTERM)
+		default:
+			logger.Warn("invalid method", zap.String("method", r.Method), zap.String("request_id", RequestCTX{r.Context()}.ID()))
+		}
+	})
 }
 
-func ListenAndServeAPI(addr string, shutdownCtx context.Context) error {
+func ListenAndServeAPI(shutdownCtx context.Context, config *Config, api *APIServer) error {
 	mux := http.NewServeMux()
 	srv := &http.Server{
-		Addr:    addr,
+		Addr:    config.ListenAndServeAPIAddr,
 		Handler: loggingMiddleware(mux),
 	}
-
-	api := APIServer{}
 
 	// register handlers
 	mux.Handle("/", loggingMiddleware(api.handle()))
@@ -124,18 +256,18 @@ func ListenAndServeAPI(addr string, shutdownCtx context.Context) error {
 	// start server in a goroutine so that it doesn't block.
 	go func() {
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			// TODO: error starting or closing listener
+			logger.Fatal("failed to start api server", zap.Error(err))
 		}
 	}()
 
 	<-shutdownCtx.Done()
 
 	// attempt to gracefully shutdown the server
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), config.ListenAndServeAPIMaxShutdownTime)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		// TODO: error from closing listeners, or context timeout:
+		logger.Warn("failed to shutdown api server gracefully", zap.Error(err))
 	}
 
 	return nil

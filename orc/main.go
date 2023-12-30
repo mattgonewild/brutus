@@ -5,11 +5,30 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"go.uber.org/zap"
 )
 
+var logger *zap.Logger
+
 func main() {
+	// initialize logger
+	logger, err := zap.NewProduction()
+	if err != nil {
+		panic(err)
+	}
+
+	defer logger.Sync()
+	zap.RedirectStdLog(logger)
+
+	// parse cmd line args
+	config, err := LoadConfig()
+	if err != nil {
+		logger.Fatal("failed to load config", zap.Error(err))
+	}
+
 	// initialize budget
-	budgetManager := &BudgetManager{Balance: 300}
+	budgetManager := &BudgetManager{Balance: config.Budget}
 
 	// initialize worker factory
 	workerFactory := &WorkerFactory{}
@@ -22,9 +41,12 @@ func main() {
 
 	// initialize services
 	services := []*Service{
-		{Type: Combination, Cost: 1.0, WorkerManager: &WorkerManager{Factory: workerFactory}, BudgetManager: budgetManager, OutChan: combOut},
-		{Type: Permutation, Cost: 1.0, WorkerManager: &WorkerManager{Factory: workerFactory}, BudgetManager: budgetManager, InChan: combOut, OutChan: permOut},
-		{Type: Decryption, Cost: 1.0, WorkerManager: &WorkerManager{Factory: workerFactory}, BudgetManager: budgetManager, InChan: permOut},
+		{Type: Combination, Cost: config.MachineCost, WorkerManager: &WorkerManager{Factory: workerFactory}, BudgetManager: budgetManager,
+			OutChan: combOut},
+		{Type: Permutation, Cost: config.MachineCost, WorkerManager: &WorkerManager{Factory: workerFactory}, BudgetManager: budgetManager,
+			InChan: combOut, OutChan: permOut},
+		{Type: Decryption, Cost: config.MachineCost, WorkerManager: &WorkerManager{Factory: workerFactory}, BudgetManager: budgetManager,
+			InChan: permOut},
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -38,11 +60,17 @@ func main() {
 	// start monitoring budget and load for each service
 	for _, service := range services {
 		service.WorkerManager.AddWorker(service.Type, service.InChan, service.OutChan) // start one worker immediately
-		go service.ManageWorkers(ctx)
+		go service.ManageWorkers(ctx, config)
 	}
 
 	// start serving API
-	go ListenAndServeAPI(":8080", ctx)
+	go ListenAndServeAPI(ctx, config,
+		&APIServer{BudgetManager: budgetManager,
+			CombinationWorkerManager: services[0].WorkerManager,
+			PermutationWorkerManager: services[1].WorkerManager,
+			DecryptionWorkerManager:  services[2].WorkerManager,
+		},
+	)
 
 	signal.Notify(
 		sigCh, os.Interrupt, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM,
