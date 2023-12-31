@@ -40,13 +40,29 @@ func main() {
 	exit := make(chan bool)
 
 	// initialize services
-	services := []*Service{
-		{Type: Combination, Cost: config.MachineCost, WorkerManager: &WorkerManager{Factory: workerFactory}, BudgetManager: budgetManager,
-			OutChan: combOut},
-		{Type: Permutation, Cost: config.MachineCost, WorkerManager: &WorkerManager{Factory: workerFactory}, BudgetManager: budgetManager,
-			InChan: combOut, OutChan: permOut},
-		{Type: Decryption, Cost: config.MachineCost, WorkerManager: &WorkerManager{Factory: workerFactory}, BudgetManager: budgetManager,
-			InChan: permOut},
+	services := map[ServiceType]*Service{
+		Combination: {
+			Type:          Combination,
+			Cost:          config.MachineCost,
+			WorkerManager: &WorkerManager{Factory: workerFactory},
+			BudgetManager: budgetManager,
+			OutChan:       combOut,
+		},
+		Permutation: {
+			Type:          Permutation,
+			Cost:          config.MachineCost,
+			WorkerManager: &WorkerManager{Factory: workerFactory},
+			BudgetManager: budgetManager,
+			InChan:        combOut,
+			OutChan:       permOut,
+		},
+		Decryption: {
+			Type:          Decryption,
+			Cost:          config.MachineCost,
+			WorkerManager: &WorkerManager{Factory: workerFactory},
+			BudgetManager: budgetManager,
+			InChan:        permOut,
+		},
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -65,11 +81,7 @@ func main() {
 
 	// start serving API
 	go ListenAndServeAPI(ctx, config,
-		&APIServer{BudgetManager: budgetManager,
-			CombinationWorkerManager: services[0].WorkerManager,
-			PermutationWorkerManager: services[1].WorkerManager,
-			DecryptionWorkerManager:  services[2].WorkerManager,
-		},
+		&APIServer{BudgetManager: budgetManager, Services: services},
 	)
 
 	signal.Notify(

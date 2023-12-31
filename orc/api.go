@@ -18,11 +18,9 @@ import (
 )
 
 type APIServer struct {
-	BudgetManager            *BudgetManager
-	CombinationWorkerManager *WorkerManager
-	PermutationWorkerManager *WorkerManager
-	DecryptionWorkerManager  *WorkerManager
-	MetricsClient            met.MetClient
+	BudgetManager *BudgetManager
+	Services      map[ServiceType]*Service
+	MetricsClient met.MetClient
 }
 
 type key int
@@ -114,9 +112,10 @@ func (s *APIServer) handleBudget() http.Handler {
 			if err != nil {
 				logger.Error("failed to read request body", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())))
 				http.Error(w, "failed to read request body", http.StatusInternalServerError)
+				return
 			}
 
-			budget := &orc.Budget{}
+			budget := new(orc.Budget)
 			if err := proto.Unmarshal(body, budget); err != nil {
 				logger.Error("failed to decode budget", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())))
 				http.Error(w, "failed to decode budget", http.StatusBadRequest)
@@ -136,40 +135,20 @@ func (s *APIServer) handleWorkers() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			workers := make([]*met.Worker, len(s.CombinationWorkerManager.Workers)+len(s.PermutationWorkerManager.Workers)+len(s.DecryptionWorkerManager.Workers))
+			workers := []*met.Worker{}
 
-			s.CombinationWorkerManager.Mutex.Lock()
-			for _, worker := range s.CombinationWorkerManager.Workers {
-				resp, err := s.MetricsClient.GetWorker(r.Context(), &met.WorkerRequest{Id: worker.UUID()})
-				if err != nil {
-					logger.Error("failed to get worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", worker.UUID()))
-					continue
+			for _, service := range s.Services {
+				service.WorkerManager.Mutex.Lock()
+				for _, worker := range service.WorkerManager.Workers {
+					resp, err := s.MetricsClient.GetWorker(r.Context(), &met.WorkerRequest{Id: worker.UUID()})
+					if err != nil {
+						logger.Error("failed to get worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", worker.UUID()))
+						continue
+					}
+					workers = append(workers, resp.Worker)
 				}
-				workers = append(workers, resp.Worker)
+				service.WorkerManager.Mutex.Unlock()
 			}
-			s.CombinationWorkerManager.Mutex.Unlock()
-
-			s.PermutationWorkerManager.Mutex.Lock()
-			for _, worker := range s.PermutationWorkerManager.Workers {
-				resp, err := s.MetricsClient.GetWorker(r.Context(), &met.WorkerRequest{Id: worker.UUID()})
-				if err != nil {
-					logger.Error("failed to get worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", worker.UUID()))
-					continue
-				}
-				workers = append(workers, resp.Worker)
-			}
-			s.PermutationWorkerManager.Mutex.Unlock()
-
-			s.DecryptionWorkerManager.Mutex.Lock()
-			for _, worker := range s.DecryptionWorkerManager.Workers {
-				resp, err := s.MetricsClient.GetWorker(r.Context(), &met.WorkerRequest{Id: worker.UUID()})
-				if err != nil {
-					logger.Error("failed to get worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", worker.UUID()))
-					continue
-				}
-				workers = append(workers, resp.Worker)
-			}
-			s.DecryptionWorkerManager.Mutex.Unlock()
 
 			data, err := proto.Marshal(&met.WorkersResponse{Workers: workers}) // TODO: ...
 			if err != nil {
@@ -190,9 +169,76 @@ func (s *APIServer) handleWorker() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
-			// TODO: add worker type
+			body, err := io.ReadAll(r.Body)
+			if err != nil {
+				logger.Error("failed to read request body", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())))
+				http.Error(w, "failed to read request body", http.StatusInternalServerError)
+				return
+			}
+
+			worker := new(met.Worker)
+			if err := proto.Unmarshal(body, worker); err != nil {
+				logger.Error("failed to decode worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())))
+				http.Error(w, "failed to decode worker", http.StatusBadRequest)
+				return
+			}
+
+			switch worker.Type {
+			case string(Combination):
+				err := s.Services[Combination].WorkerManager.AddWorker(Combination, s.Services[Combination].InChan, s.Services[Combination].OutChan)
+				if err != nil {
+					logger.Error("failed to add worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())))
+					http.Error(w, "failed to add worker", http.StatusInternalServerError)
+					return
+				}
+				w.WriteHeader(http.StatusCreated)
+			case string(Permutation):
+				err := s.Services[Permutation].WorkerManager.AddWorker(Permutation, s.Services[Permutation].InChan, s.Services[Permutation].OutChan)
+				if err != nil {
+					logger.Error("failed to add worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())))
+					http.Error(w, "failed to add worker", http.StatusInternalServerError)
+					return
+				}
+				w.WriteHeader(http.StatusCreated)
+			case string(Decryption):
+				err := s.Services[Decryption].WorkerManager.AddWorker(Decryption, s.Services[Decryption].InChan, s.Services[Decryption].OutChan)
+				if err != nil {
+					logger.Error("failed to add worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())))
+					http.Error(w, "failed to add worker", http.StatusInternalServerError)
+					return
+				}
+				w.WriteHeader(http.StatusCreated)
+			default:
+				logger.Warn("invalid worker type", zap.String("type", worker.Type), zap.String("request_id", GetRequestID(r.Context())))
+				http.Error(w, "invalid worker type", http.StatusBadRequest)
+				return
+			}
 		case http.MethodDelete:
-			// TODO: delete worker by id
+			for _, service := range s.Services {
+				service.WorkerManager.Mutex.Lock()
+				for _, worker := range service.WorkerManager.Workers {
+					if worker.UUID() == GetWorkerID(r.Context()) {
+						err := worker.Stop()
+						if err != nil {
+							service.WorkerManager.Mutex.Unlock()
+							logger.Error("failed to stop worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", GetWorkerID(r.Context())))
+							http.Error(w, "failed to stop worker", http.StatusInternalServerError)
+							return
+						}
+						delete(service.WorkerManager.Workers, worker.UUID())
+						service.WorkerManager.Mutex.Unlock()
+
+						logger.Info("worker stopped", zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", GetWorkerID(r.Context())))
+						w.WriteHeader(http.StatusNoContent)
+						return
+					}
+				}
+				service.WorkerManager.Mutex.Unlock()
+			}
+
+			logger.Warn("worker not found", zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", GetWorkerID(r.Context())))
+			http.Error(w, "worker not found", http.StatusNotFound)
+			return
 		default:
 			logger.Warn("invalid method", zap.String("method", r.Method), zap.String("request_id", GetRequestID(r.Context())))
 			http.Error(w, "invalid method", http.StatusMethodNotAllowed)
@@ -388,7 +434,7 @@ func ListenAndServeAPI(shutdownCtx context.Context, config *Config, api *APIServ
 	mux.Handle("/log", requestIDMiddleware(loggingMiddleware(api.handleLog())))
 	mux.Handle("/shutdown", requestIDMiddleware(loggingMiddleware(api.handleShutdown())))
 
-	// start server in a goroutine so that it doesn't block.
+	// start server in a goroutine so that it doesn't block
 	go func() {
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 			logger.Fatal("failed to start api server", zap.Error(err))
