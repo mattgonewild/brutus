@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package met;
+
+option go_package = "github.com/mattgonewild/brutus/met/proto";
+
+message Proc {
+    Cpu cpu = 1;
+    Mem mem = 2;
+    Net net = 3;
+    Uptime uptime = 4;
+    LoadAvg loadAvg = 5;
+}
+
+message Cpu {
+    uint64 used = 1;
+    uint64 total = 2;
+}
+
+message Mem {
+    uint64 used = 1;
+    uint64 total = 2;
+    uint64 swapUsed = 3;
+    uint64 swapTotal = 4;
+}
+
+message Net {
+    uint64 rx = 1;
+    uint64 tx = 2;
+}
+
+message Uptime {
+    int64 duration = 1; // duration in seconds
+}
+
+message LoadAvg {
+    double oneMinute = 1;
+    double fiveMinutes = 2;
+    double fifteenMinutes = 3;
+}

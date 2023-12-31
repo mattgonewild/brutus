@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+
+	met "github.com/mattgonewild/brutus/met/proto"
 )
 
 type ServiceType string
@@ -22,10 +24,11 @@ type Service struct {
 	BudgetManager *BudgetManager
 	InChan        chan string
 	OutChan       chan string
+	MetricsClient met.MetClient
 }
 
 func (s *Service) ManageWorkers(ctx context.Context, config *Config) {
-	ticker := time.NewTicker(config.ServiceCheckInterval)
+	ticker, load := time.NewTicker(config.ServiceCheckInterval), 0.0
 	defer ticker.Stop()
 
 	for {
@@ -33,9 +36,12 @@ func (s *Service) ManageWorkers(ctx context.Context, config *Config) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			s.WorkerManager.Mutex.Lock()
-			load := float64(len(s.WorkerManager.Workers)) // TODO: query metric service for load
-			s.WorkerManager.Mutex.Unlock()
+			resp, err := s.MetricsClient.GetPoolLoad(ctx, &met.PoolLoadRequest{Type: string(s.Type)})
+			if err != nil {
+				logger.Warn("failed to get pool load", zap.Error(err), zap.String("type", string(s.Type)))
+			} else {
+				load = resp.Load
+			}
 
 			s.BudgetManager.Deduct(int64(len(s.WorkerManager.Workers)) * s.Cost)
 

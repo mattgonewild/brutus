@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package met;
+
+import "proc.proto";
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/mattgonewild/brutus/met/proto";
+
+message Worker {
+    string id = 1;
+    google.protobuf.Timestamp time = 2; // time when the data was collected
+    string ip = 3;
+    string type = 4;
+    Proc proc = 5;
+    int64 ops = 6;
+}

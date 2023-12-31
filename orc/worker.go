@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/tls"
 	"errors"
 	"net/netip"
 	"sync"
@@ -16,29 +15,21 @@ type Worker interface {
 	Stop() error
 	UUID() string
 	IP() netip.Addr
-	TlsConfig() *tls.Config
-	Proc() Proc
 }
 
 type CombinationWorker struct {
-	id        string
-	ip        netip.Addr
-	tlsConfig *tls.Config
-	proc      Proc
+	id string
+	ip netip.Addr
 }
 
 type PermutationWorker struct {
-	id        string
-	ip        netip.Addr
-	tlsConfig *tls.Config
-	proc      Proc
+	id string
+	ip netip.Addr
 }
 
 type DecryptionWorker struct {
-	id        string
-	ip        netip.Addr
-	tlsConfig *tls.Config
-	proc      Proc
+	id string
+	ip netip.Addr
 }
 
 func (w *CombinationWorker) Start(in chan string, out chan string) error {
@@ -70,25 +61,19 @@ func (w *CombinationWorker) Start(in chan string, out chan string) error {
 	return err
 }
 
-func (w *CombinationWorker) Stop() error            { return nil }
-func (w *CombinationWorker) UUID() string           { return w.id }
-func (w *CombinationWorker) IP() netip.Addr         { return w.ip }
-func (w *CombinationWorker) TlsConfig() *tls.Config { return w.tlsConfig }
-func (w *CombinationWorker) Proc() Proc             { return w.proc }
+func (w *CombinationWorker) Stop() error    { return nil }
+func (w *CombinationWorker) UUID() string   { return w.id }
+func (w *CombinationWorker) IP() netip.Addr { return w.ip }
 
 func (w *PermutationWorker) Start(in chan string, out chan string) error { return nil }
 func (w *PermutationWorker) Stop() error                                 { return nil }
 func (w *PermutationWorker) UUID() string                                { return w.id }
 func (w *PermutationWorker) IP() netip.Addr                              { return w.ip }
-func (w *PermutationWorker) TlsConfig() *tls.Config                      { return w.tlsConfig }
-func (w *PermutationWorker) Proc() Proc                                  { return w.proc }
 
 func (w *DecryptionWorker) Start(in chan string, out chan string) error { return nil }
 func (w *DecryptionWorker) Stop() error                                 { return nil }
 func (w *DecryptionWorker) UUID() string                                { return w.id }
 func (w *DecryptionWorker) IP() netip.Addr                              { return w.ip }
-func (w *DecryptionWorker) TlsConfig() *tls.Config                      { return w.tlsConfig }
-func (w *DecryptionWorker) Proc() Proc                                  { return w.proc }
 
 type WorkerFactory struct{}
 
