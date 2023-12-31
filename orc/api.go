@@ -58,26 +58,34 @@ func GetRequestID(ctx context.Context) string {
 	return requestID
 }
 
-func loggingMiddleware(next http.Handler) http.Handler {
+func requestIDMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
 		requestID := uuid.New().String()
-
 		ctx := WithRequestID(r.Context(), requestID)
+		r = r.WithContext(ctx)
+		next.ServeHTTP(w, r)
+	})
+}
 
+func workerIDMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		pathSegments := strings.Split(r.URL.Path, "/")
 		if len(pathSegments) >= 3 && pathSegments[1] == "workers" {
 			workerID := pathSegments[2]
-			ctx = WithWorkerID(ctx, workerID)
+			ctx := WithWorkerID(r.Context(), workerID)
+			r = r.WithContext(ctx)
 		}
-
-		r = r.WithContext(ctx)
-
 		next.ServeHTTP(w, r)
+	})
+}
 
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		next.ServeHTTP(w, r)
 		logger.Info("api request", zap.String("method", r.Method), zap.String("path", r.URL.Path),
 			zap.String("remote_addr", r.RemoteAddr), zap.String("user_agent", r.UserAgent()),
-			zap.Duration("duration", time.Since(start)), zap.String("request_id", requestID))
+			zap.Duration("duration", time.Since(start)), zap.String("request_id", GetRequestID(r.Context())))
 	})
 }
 
@@ -367,18 +375,18 @@ func ListenAndServeAPI(shutdownCtx context.Context, config *Config, api *APIServ
 	}
 
 	// register handlers
-	mux.Handle("/", loggingMiddleware(api.handle()))
-	mux.Handle("/budget", loggingMiddleware(api.handleBudget()))
-	mux.Handle("/workers", loggingMiddleware(api.handleWorkers()))
-	mux.Handle("/workers/{id}", loggingMiddleware(api.handleWorker()))
-	mux.Handle("/workers/{id}/proc", loggingMiddleware(api.handleWorkerProc()))
-	mux.Handle("/workers/{id}/proc/cpu", loggingMiddleware(api.handleWorkerCpu()))
-	mux.Handle("/workers/{id}/proc/mem", loggingMiddleware(api.handleWorkerMem()))
-	mux.Handle("/workers/{id}/proc/net", loggingMiddleware(api.handleWorkerNet()))
-	mux.Handle("/workers/{id}/proc/uptime", loggingMiddleware(api.handleWorkerUptime()))
-	mux.Handle("/workers/{id}/proc/loadavg", loggingMiddleware(api.handleWorkerLoadavg()))
-	mux.Handle("/log", loggingMiddleware(api.handleLog()))
-	mux.Handle("/shutdown", loggingMiddleware(api.handleShutdown()))
+	mux.Handle("/", requestIDMiddleware(loggingMiddleware(api.handle())))
+	mux.Handle("/budget", requestIDMiddleware(loggingMiddleware(api.handleBudget())))
+	mux.Handle("/workers", requestIDMiddleware(loggingMiddleware(api.handleWorkers())))
+	mux.Handle("/workers/{id}", requestIDMiddleware(workerIDMiddleware(loggingMiddleware(api.handleWorker()))))
+	mux.Handle("/workers/{id}/proc", requestIDMiddleware(workerIDMiddleware(loggingMiddleware(api.handleWorkerProc()))))
+	mux.Handle("/workers/{id}/proc/cpu", requestIDMiddleware(workerIDMiddleware(loggingMiddleware(api.handleWorkerCpu()))))
+	mux.Handle("/workers/{id}/proc/mem", requestIDMiddleware(workerIDMiddleware(loggingMiddleware(api.handleWorkerMem()))))
+	mux.Handle("/workers/{id}/proc/net", requestIDMiddleware(workerIDMiddleware(loggingMiddleware(api.handleWorkerNet()))))
+	mux.Handle("/workers/{id}/proc/uptime", requestIDMiddleware(workerIDMiddleware(loggingMiddleware(api.handleWorkerUptime()))))
+	mux.Handle("/workers/{id}/proc/loadavg", requestIDMiddleware(workerIDMiddleware(loggingMiddleware(api.handleWorkerLoadavg()))))
+	mux.Handle("/log", requestIDMiddleware(loggingMiddleware(api.handleLog())))
+	mux.Handle("/shutdown", requestIDMiddleware(loggingMiddleware(api.handleShutdown())))
 
 	// start server in a goroutine so that it doesn't block.
 	go func() {
