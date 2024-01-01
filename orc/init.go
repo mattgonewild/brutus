@@ -18,7 +18,7 @@ type Config struct {
 }
 
 func LoadConfig() (*Config, error) {
-	apiAddr := flag.String("apiAddr", "127.0.0.1:8080", "IP:PORT to listen for API requests")
+	apiAddr := flag.String("apiAddr", "127.0.0.1:54932", "IP:PORT to listen for API requests")
 	maxShutdownTime := flag.String("maxShutdownTime", "5s", "max time to wait for shutdown (valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\")")
 	budget := flag.Float64("budget", 300.00, "budget")
 	machineCost := flag.Float64("machineCost", 1.00, "machine cost per second") // TODO: ...

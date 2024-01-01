@@ -5,11 +5,13 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net"
 	"sync"
 	"time"
 
 	"github.com/mattgonewild/brutus/met/proto"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -41,21 +43,19 @@ type MetServer struct {
 	mu       sync.RWMutex
 	Pools    map[string]map[string]*ReportsDB
 	IDToPool map[string]string
-	stopCh   chan bool
 }
 
-func NewMetServer() *MetServer {
+func NewMetServer(ctx context.Context) *MetServer {
 	s := &MetServer{
 		Pools:    make(map[string]map[string]*ReportsDB),
 		IDToPool: make(map[string]string),
-		stopCh:   make(chan bool),
 	}
 
 	// monitor
-	go func(stopCh chan bool) {
+	go func(ctx context.Context) {
 		for {
 			select {
-			case <-stopCh:
+			case <-ctx.Done():
 				return
 			case <-time.After(3 * time.Second):
 				s.mu.Lock()
@@ -80,9 +80,49 @@ func NewMetServer() *MetServer {
 				s.mu.Unlock()
 			}
 		}
-	}(s.stopCh)
+	}(ctx)
 
 	return s
+}
+
+func ListenAndServeAPI(shutdownCtx context.Context, config *Config, api *MetServer) {
+	// initialize grpc server
+	grpcServer := grpc.NewServer()
+
+	// register services
+	proto.RegisterMetServer(grpcServer, api)
+
+	// start grpc server
+	go func() {
+		lis, err := net.Listen("tcp", config.ListenAndServeAPIAddr)
+		if err != nil {
+			logger.Fatal("failed to listen", zap.Error(err))
+		}
+		if err := grpcServer.Serve(lis); err != nil {
+			logger.Fatal("failed to serve", zap.Error(err))
+		}
+	}()
+
+	<-shutdownCtx.Done()
+
+	// attempt to gracefully shutdown the server
+	ctx, cancel := context.WithTimeout(context.Background(), config.ListenAndServeAPIMaxShutdownTime)
+	defer cancel()
+
+	done := make(chan bool)
+
+	go func() {
+		grpcServer.GracefulStop()
+		close(done)
+	}()
+
+	select {
+	case <-ctx.Done():
+		logger.Warn("exceeded ListenAndServeAPIMaxShutdownTime: graceful shutdown failed")
+		grpcServer.Stop()
+	case <-done:
+		return
+	}
 }
 
 func (s *MetServer) GetWorkerLastReport(id string) (*proto.Worker, error) {
@@ -136,14 +176,14 @@ func (s *MetServer) GetWorkerCpu(ctx context.Context, req *proto.WorkerRequest) 
 	return &proto.CpuResponse{Cpu: reports.Proc.Cpu}, nil
 }
 
-func (s *MetServer) GetWorkerLoadavg(ctx context.Context, req *proto.WorkerRequest) (*proto.LoadavgResponse, error) {
+func (s *MetServer) GetWorkerLoadavg(ctx context.Context, req *proto.WorkerRequest) (*proto.LoadAvgResponse, error) {
 	reports, err := s.GetWorkerLastReport(req.Id)
 	if err != nil {
 		logger.Error("error getting worker", zap.Error(err))
 		return nil, err
 	}
 
-	return &proto.LoadavgResponse{LoadAvg: reports.Proc.LoadAvg}, nil
+	return &proto.LoadAvgResponse{LoadAvg: reports.Proc.LoadAvg}, nil
 }
 
 func (s *MetServer) GetWorkerMem(ctx context.Context, req *proto.WorkerRequest) (*proto.MemResponse, error) {

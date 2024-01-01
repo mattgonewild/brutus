@@ -370,7 +370,7 @@ func (s *APIServer) handleWorkerLoadavg() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			resp, err := s.MetricsClient.GetWorkerLoadavg(r.Context(), &met.WorkerRequest{Id: GetWorkerID(r.Context())})
+			resp, err := s.MetricsClient.GetWorkerLoadAvg(r.Context(), &met.WorkerRequest{Id: GetWorkerID(r.Context())})
 			if err != nil {
 				logger.Error("failed to get worker load averages", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", GetWorkerID(r.Context())))
 				http.Error(w, "failed to get worker load averages", http.StatusInternalServerError)
@@ -413,7 +413,7 @@ func (s *APIServer) handleShutdown() http.Handler {
 	})
 }
 
-func ListenAndServeAPI(shutdownCtx context.Context, config *Config, api *APIServer) error {
+func ListenAndServeAPI(shutdownCtx context.Context, config *Config, api *APIServer) {
 	mux := http.NewServeMux()
 	srv := &http.Server{
 		Addr:    config.ListenAndServeAPIAddr,
@@ -450,6 +450,4 @@ func ListenAndServeAPI(shutdownCtx context.Context, config *Config, api *APIServ
 	if err := srv.Shutdown(ctx); err != nil {
 		logger.Warn("failed to shutdown api server gracefully", zap.Error(err))
 	}
-
-	return nil
 }

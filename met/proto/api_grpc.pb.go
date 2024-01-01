@@ -28,7 +28,7 @@ const (
 	Met_GetWorkerMem_FullMethodName     = "/met.Met/GetWorkerMem"
 	Met_GetWorkerNet_FullMethodName     = "/met.Met/GetWorkerNet"
 	Met_GetWorkerUptime_FullMethodName  = "/met.Met/GetWorkerUptime"
-	Met_GetWorkerLoadavg_FullMethodName = "/met.Met/GetWorkerLoadavg"
+	Met_GetWorkerLoadAvg_FullMethodName = "/met.Met/GetWorkerLoadAvg"
 	Met_GetPoolLoad_FullMethodName      = "/met.Met/GetPoolLoad"
 )
 
@@ -44,7 +44,7 @@ type MetClient interface {
 	GetWorkerMem(ctx context.Context, in *WorkerRequest, opts ...grpc.CallOption) (*MemResponse, error)
 	GetWorkerNet(ctx context.Context, in *WorkerRequest, opts ...grpc.CallOption) (*NetResponse, error)
 	GetWorkerUptime(ctx context.Context, in *WorkerRequest, opts ...grpc.CallOption) (*UptimeResponse, error)
-	GetWorkerLoadavg(ctx context.Context, in *WorkerRequest, opts ...grpc.CallOption) (*LoadavgResponse, error)
+	GetWorkerLoadAvg(ctx context.Context, in *WorkerRequest, opts ...grpc.CallOption) (*LoadAvgResponse, error)
 	GetPoolLoad(ctx context.Context, in *PoolLoadRequest, opts ...grpc.CallOption) (*PoolLoadResponse, error)
 }
 
@@ -150,9 +150,9 @@ func (c *metClient) GetWorkerUptime(ctx context.Context, in *WorkerRequest, opts
 	return out, nil
 }
 
-func (c *metClient) GetWorkerLoadavg(ctx context.Context, in *WorkerRequest, opts ...grpc.CallOption) (*LoadavgResponse, error) {
-	out := new(LoadavgResponse)
-	err := c.cc.Invoke(ctx, Met_GetWorkerLoadavg_FullMethodName, in, out, opts...)
+func (c *metClient) GetWorkerLoadAvg(ctx context.Context, in *WorkerRequest, opts ...grpc.CallOption) (*LoadAvgResponse, error) {
+	out := new(LoadAvgResponse)
+	err := c.cc.Invoke(ctx, Met_GetWorkerLoadAvg_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ type MetServer interface {
 	GetWorkerMem(context.Context, *WorkerRequest) (*MemResponse, error)
 	GetWorkerNet(context.Context, *WorkerRequest) (*NetResponse, error)
 	GetWorkerUptime(context.Context, *WorkerRequest) (*UptimeResponse, error)
-	GetWorkerLoadavg(context.Context, *WorkerRequest) (*LoadavgResponse, error)
+	GetWorkerLoadAvg(context.Context, *WorkerRequest) (*LoadAvgResponse, error)
 	GetPoolLoad(context.Context, *PoolLoadRequest) (*PoolLoadResponse, error)
 	mustEmbedUnimplementedMetServer()
 }
@@ -213,8 +213,8 @@ func (UnimplementedMetServer) GetWorkerNet(context.Context, *WorkerRequest) (*Ne
 func (UnimplementedMetServer) GetWorkerUptime(context.Context, *WorkerRequest) (*UptimeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWorkerUptime not implemented")
 }
-func (UnimplementedMetServer) GetWorkerLoadavg(context.Context, *WorkerRequest) (*LoadavgResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetWorkerLoadavg not implemented")
+func (UnimplementedMetServer) GetWorkerLoadAvg(context.Context, *WorkerRequest) (*LoadAvgResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWorkerLoadAvg not implemented")
 }
 func (UnimplementedMetServer) GetPoolLoad(context.Context, *PoolLoadRequest) (*PoolLoadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPoolLoad not implemented")
@@ -384,20 +384,20 @@ func _Met_GetWorkerUptime_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Met_GetWorkerLoadavg_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Met_GetWorkerLoadAvg_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(WorkerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MetServer).GetWorkerLoadavg(ctx, in)
+		return srv.(MetServer).GetWorkerLoadAvg(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Met_GetWorkerLoadavg_FullMethodName,
+		FullMethod: Met_GetWorkerLoadAvg_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MetServer).GetWorkerLoadavg(ctx, req.(*WorkerRequest))
+		return srv.(MetServer).GetWorkerLoadAvg(ctx, req.(*WorkerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -456,8 +456,8 @@ var Met_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Met_GetWorkerUptime_Handler,
 		},
 		{
-			MethodName: "GetWorkerLoadavg",
-			Handler:    _Met_GetWorkerLoadavg_Handler,
+			MethodName: "GetWorkerLoadAvg",
+			Handler:    _Met_GetWorkerLoadAvg_Handler,
 		},
 		{
 			MethodName: "GetPoolLoad",

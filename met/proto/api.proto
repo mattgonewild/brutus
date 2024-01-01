@@ -18,7 +18,7 @@ service Met {
   rpc GetWorkerMem (WorkerRequest) returns (MemResponse);
   rpc GetWorkerNet (WorkerRequest) returns (NetResponse);
   rpc GetWorkerUptime (WorkerRequest) returns (UptimeResponse);
-  rpc GetWorkerLoadavg (WorkerRequest) returns (LoadavgResponse);
+  rpc GetWorkerLoadAvg (WorkerRequest) returns (LoadAvgResponse);
   rpc GetPoolLoad (PoolLoadRequest) returns (PoolLoadResponse);
 }
 
@@ -59,7 +59,7 @@ message UptimeResponse {
   Uptime uptime = 1;
 }
 
-message LoadavgResponse {
+message LoadAvgResponse {
   LoadAvg LoadAvg = 1;
 }
 

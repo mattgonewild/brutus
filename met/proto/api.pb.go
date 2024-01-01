@@ -452,7 +452,7 @@ func (x *UptimeResponse) GetUptime() *Uptime {
 	return nil
 }
 
-type LoadavgResponse struct {
+type LoadAvgResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -460,8 +460,8 @@ type LoadavgResponse struct {
 	LoadAvg *LoadAvg `protobuf:"bytes,1,opt,name=LoadAvg,proto3" json:"LoadAvg,omitempty"`
 }
 
-func (x *LoadavgResponse) Reset() {
-	*x = LoadavgResponse{}
+func (x *LoadAvgResponse) Reset() {
+	*x = LoadAvgResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_api_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -469,13 +469,13 @@ func (x *LoadavgResponse) Reset() {
 	}
 }
 
-func (x *LoadavgResponse) String() string {
+func (x *LoadAvgResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*LoadavgResponse) ProtoMessage() {}
+func (*LoadAvgResponse) ProtoMessage() {}
 
-func (x *LoadavgResponse) ProtoReflect() protoreflect.Message {
+func (x *LoadAvgResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -487,12 +487,12 @@ func (x *LoadavgResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use LoadavgResponse.ProtoReflect.Descriptor instead.
-func (*LoadavgResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use LoadAvgResponse.ProtoReflect.Descriptor instead.
+func (*LoadAvgResponse) Descriptor() ([]byte, []int) {
 	return file_api_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *LoadavgResponse) GetLoadAvg() *LoadAvg {
+func (x *LoadAvgResponse) GetLoadAvg() *LoadAvg {
 	if x != nil {
 		return x.LoadAvg
 	}
@@ -628,7 +628,7 @@ var file_api_proto_rawDesc = []byte{
 	0x6e, 0x73, 0x65, 0x12, 0x23, 0x0a, 0x06, 0x75, 0x70, 0x74, 0x69, 0x6d, 0x65, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x6d, 0x65, 0x74, 0x2e, 0x55, 0x70, 0x74, 0x69, 0x6d, 0x65,
 	0x52, 0x06, 0x75, 0x70, 0x74, 0x69, 0x6d, 0x65, 0x22, 0x39, 0x0a, 0x0f, 0x4c, 0x6f, 0x61, 0x64,
-	0x61, 0x76, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x26, 0x0a, 0x07, 0x4c,
+	0x41, 0x76, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x26, 0x0a, 0x07, 0x4c,
 	0x6f, 0x61, 0x64, 0x41, 0x76, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x6d,
 	0x65, 0x74, 0x2e, 0x4c, 0x6f, 0x61, 0x64, 0x41, 0x76, 0x67, 0x52, 0x07, 0x4c, 0x6f, 0x61, 0x64,
 	0x41, 0x76, 0x67, 0x22, 0x25, 0x0a, 0x0f, 0x50, 0x6f, 0x6f, 0x6c, 0x4c, 0x6f, 0x61, 0x64, 0x52,
@@ -664,9 +664,9 @@ var file_api_proto_rawDesc = []byte{
 	0x65, 0x12, 0x12, 0x2e, 0x6d, 0x65, 0x74, 0x2e, 0x57, 0x6f, 0x72, 0x6b, 0x65, 0x72, 0x52, 0x65,
 	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e, 0x6d, 0x65, 0x74, 0x2e, 0x55, 0x70, 0x74, 0x69,
 	0x6d, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3c, 0x0a, 0x10, 0x47, 0x65,
-	0x74, 0x57, 0x6f, 0x72, 0x6b, 0x65, 0x72, 0x4c, 0x6f, 0x61, 0x64, 0x61, 0x76, 0x67, 0x12, 0x12,
+	0x74, 0x57, 0x6f, 0x72, 0x6b, 0x65, 0x72, 0x4c, 0x6f, 0x61, 0x64, 0x41, 0x76, 0x67, 0x12, 0x12,
 	0x2e, 0x6d, 0x65, 0x74, 0x2e, 0x57, 0x6f, 0x72, 0x6b, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x1a, 0x14, 0x2e, 0x6d, 0x65, 0x74, 0x2e, 0x4c, 0x6f, 0x61, 0x64, 0x61, 0x76, 0x67,
+	0x73, 0x74, 0x1a, 0x14, 0x2e, 0x6d, 0x65, 0x74, 0x2e, 0x4c, 0x6f, 0x61, 0x64, 0x41, 0x76, 0x67,
 	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3a, 0x0a, 0x0b, 0x47, 0x65, 0x74, 0x50,
 	0x6f, 0x6f, 0x6c, 0x4c, 0x6f, 0x61, 0x64, 0x12, 0x14, 0x2e, 0x6d, 0x65, 0x74, 0x2e, 0x50, 0x6f,
 	0x6f, 0x6c, 0x4c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x15, 0x2e,
@@ -700,7 +700,7 @@ var file_api_proto_goTypes = []interface{}{
 	(*MemResponse)(nil),      // 6: met.MemResponse
 	(*NetResponse)(nil),      // 7: met.NetResponse
 	(*UptimeResponse)(nil),   // 8: met.UptimeResponse
-	(*LoadavgResponse)(nil),  // 9: met.LoadavgResponse
+	(*LoadAvgResponse)(nil),  // 9: met.LoadAvgResponse
 	(*PoolLoadRequest)(nil),  // 10: met.PoolLoadRequest
 	(*PoolLoadResponse)(nil), // 11: met.PoolLoadResponse
 	(*Worker)(nil),           // 12: met.Worker
@@ -720,7 +720,7 @@ var file_api_proto_depIdxs = []int32{
 	15, // 4: met.MemResponse.mem:type_name -> met.Mem
 	16, // 5: met.NetResponse.net:type_name -> met.Net
 	17, // 6: met.UptimeResponse.uptime:type_name -> met.Uptime
-	18, // 7: met.LoadavgResponse.LoadAvg:type_name -> met.LoadAvg
+	18, // 7: met.LoadAvgResponse.LoadAvg:type_name -> met.LoadAvg
 	12, // 8: met.Met.Report:input_type -> met.Worker
 	19, // 9: met.Met.GetWorkers:input_type -> google.protobuf.Empty
 	2,  // 10: met.Met.GetWorker:input_type -> met.WorkerRequest
@@ -729,7 +729,7 @@ var file_api_proto_depIdxs = []int32{
 	2,  // 13: met.Met.GetWorkerMem:input_type -> met.WorkerRequest
 	2,  // 14: met.Met.GetWorkerNet:input_type -> met.WorkerRequest
 	2,  // 15: met.Met.GetWorkerUptime:input_type -> met.WorkerRequest
-	2,  // 16: met.Met.GetWorkerLoadavg:input_type -> met.WorkerRequest
+	2,  // 16: met.Met.GetWorkerLoadAvg:input_type -> met.WorkerRequest
 	10, // 17: met.Met.GetPoolLoad:input_type -> met.PoolLoadRequest
 	0,  // 18: met.Met.Report:output_type -> met.Status
 	1,  // 19: met.Met.GetWorkers:output_type -> met.WorkersResponse
@@ -739,7 +739,7 @@ var file_api_proto_depIdxs = []int32{
 	6,  // 23: met.Met.GetWorkerMem:output_type -> met.MemResponse
 	7,  // 24: met.Met.GetWorkerNet:output_type -> met.NetResponse
 	8,  // 25: met.Met.GetWorkerUptime:output_type -> met.UptimeResponse
-	9,  // 26: met.Met.GetWorkerLoadavg:output_type -> met.LoadavgResponse
+	9,  // 26: met.Met.GetWorkerLoadAvg:output_type -> met.LoadAvgResponse
 	11, // 27: met.Met.GetPoolLoad:output_type -> met.PoolLoadResponse
 	18, // [18:28] is the sub-list for method output_type
 	8,  // [8:18] is the sub-list for method input_type
@@ -865,7 +865,7 @@ func file_api_proto_init() {
 			}
 		}
 		file_api_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*LoadavgResponse); i {
+			switch v := v.(*LoadAvgResponse); i {
 			case 0:
 				return &v.state
 			case 1:

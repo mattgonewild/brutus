@@ -40,6 +40,7 @@ func (w *CombinationWorker) Start(in chan string, out chan string) error {
 			APIMachineConfig: models.APIMachineConfig{
 				AutoDestroy: true,
 				Image:       "mattgonewild/combination-service",
+				Env:         make(map[string]string),
 			},
 		},
 	}})

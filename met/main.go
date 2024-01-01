@@ -2,15 +2,11 @@ package main
 
 import (
 	"context"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
-
-	"github.com/mattgonewild/brutus/met/proto"
 )
 
 var logger *zap.Logger
@@ -25,6 +21,12 @@ func main() {
 	defer logger.Sync()
 	zap.RedirectStdLog(logger)
 
+	// parse cmd line args
+	config, err := LoadConfig()
+	if err != nil {
+		logger.Fatal("failed to load config", zap.Error(err))
+	}
+
 	// initialize channels
 	sigCh := make(chan os.Signal, 1)
 	exit := make(chan bool)
@@ -35,22 +37,8 @@ func main() {
 		close(exit)
 	})
 
-	// initialize grpc server
-	grpcServer := grpc.NewServer()
-
-	// register services
-	proto.RegisterMetServer(grpcServer, NewMetServer())
-
-	// start grpc server
-	go func() {
-		lis, err := net.Listen("tcp", ":8080")
-		if err != nil {
-			logger.Fatal("failed to listen", zap.Error(err))
-		}
-		if err := grpcServer.Serve(lis); err != nil {
-			logger.Fatal("failed to serve", zap.Error(err))
-		}
-	}()
+	// start serving API
+	go ListenAndServeAPI(ctx, config, NewMetServer(ctx))
 
 	signal.Notify(
 		sigCh, os.Interrupt, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM,

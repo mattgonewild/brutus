@@ -13,7 +13,7 @@ message Proc {
 }
 
 message Cpu {
-    uint64 used = 1;
+    uint64 idle = 1;
     uint64 total = 2;
 }
 
