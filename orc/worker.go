@@ -8,6 +8,7 @@ import (
 	fly "github.com/mattgonewild/fly/client"
 	"github.com/mattgonewild/fly/client/machines"
 	"github.com/mattgonewild/fly/models"
+	"go.uber.org/zap"
 )
 
 type Worker interface {
@@ -122,5 +123,19 @@ func (m *WorkerManager) RemoveWorker() error {
 			return nil
 		}
 	}
-	return errors.New("could not stop worker")
+	return errors.New("could not remove worker")
+}
+
+func (m *WorkerManager) StopAllWorkers() {
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
+	for _, worker := range m.Workers {
+		err := worker.Stop()
+		if err != nil {
+			logger.Error("failed to stop worker", zap.Error(err),
+				zap.String("uuid", worker.UUID()), zap.String("ip", worker.IP().String()))
+			continue
+		}
+		delete(m.Workers, worker.UUID())
+	}
 }

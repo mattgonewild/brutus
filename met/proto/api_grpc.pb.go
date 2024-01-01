@@ -30,6 +30,7 @@ const (
 	Met_GetWorkerUptime_FullMethodName  = "/met.Met/GetWorkerUptime"
 	Met_GetWorkerLoadAvg_FullMethodName = "/met.Met/GetWorkerLoadAvg"
 	Met_GetPoolLoad_FullMethodName      = "/met.Met/GetPoolLoad"
+	Met_Shutdown_FullMethodName         = "/met.Met/Shutdown"
 )
 
 // MetClient is the client API for Met service.
@@ -46,6 +47,7 @@ type MetClient interface {
 	GetWorkerUptime(ctx context.Context, in *WorkerRequest, opts ...grpc.CallOption) (*UptimeResponse, error)
 	GetWorkerLoadAvg(ctx context.Context, in *WorkerRequest, opts ...grpc.CallOption) (*LoadAvgResponse, error)
 	GetPoolLoad(ctx context.Context, in *PoolLoadRequest, opts ...grpc.CallOption) (*PoolLoadResponse, error)
+	Shutdown(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type metClient struct {
@@ -168,6 +170,15 @@ func (c *metClient) GetPoolLoad(ctx context.Context, in *PoolLoadRequest, opts .
 	return out, nil
 }
 
+func (c *metClient) Shutdown(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Met_Shutdown_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MetServer is the server API for Met service.
 // All implementations must embed UnimplementedMetServer
 // for forward compatibility
@@ -182,6 +193,7 @@ type MetServer interface {
 	GetWorkerUptime(context.Context, *WorkerRequest) (*UptimeResponse, error)
 	GetWorkerLoadAvg(context.Context, *WorkerRequest) (*LoadAvgResponse, error)
 	GetPoolLoad(context.Context, *PoolLoadRequest) (*PoolLoadResponse, error)
+	Shutdown(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedMetServer()
 }
 
@@ -218,6 +230,9 @@ func (UnimplementedMetServer) GetWorkerLoadAvg(context.Context, *WorkerRequest) 
 }
 func (UnimplementedMetServer) GetPoolLoad(context.Context, *PoolLoadRequest) (*PoolLoadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPoolLoad not implemented")
+}
+func (UnimplementedMetServer) Shutdown(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Shutdown not implemented")
 }
 func (UnimplementedMetServer) mustEmbedUnimplementedMetServer() {}
 
@@ -420,6 +435,24 @@ func _Met_GetPoolLoad_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Met_Shutdown_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MetServer).Shutdown(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Met_Shutdown_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MetServer).Shutdown(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Met_ServiceDesc is the grpc.ServiceDesc for Met service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -462,6 +495,10 @@ var Met_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPoolLoad",
 			Handler:    _Met_GetPoolLoad_Handler,
+		},
+		{
+			MethodName: "Shutdown",
+			Handler:    _Met_Shutdown_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

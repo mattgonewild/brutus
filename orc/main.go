@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"go.uber.org/zap"
@@ -37,7 +38,6 @@ func main() {
 	combOut := make(chan string)
 	permOut := make(chan string)
 	sigCh := make(chan os.Signal, 1)
-	exit := make(chan bool)
 
 	// initialize services
 	services := map[ServiceType]*Service{
@@ -70,19 +70,28 @@ func main() {
 		close(combOut)
 		close(permOut)
 		close(sigCh)
-		close(exit)
 	})
+
+	var wg sync.WaitGroup
 
 	// start monitoring budget and load for each service
 	for _, service := range services {
 		service.WorkerManager.AddWorker(service.Type, service.InChan, service.OutChan) // start one worker immediately
-		go service.ManageWorkers(ctx, config)
+		wg.Add(1)
+		go func(service *Service) {
+			defer wg.Done()
+			service.ManageWorkers(ctx, config)
+		}(service)
 	}
 
 	// start serving API
-	go ListenAndServeAPI(ctx, config,
-		&APIServer{BudgetManager: budgetManager, Services: services},
-	)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		ListenAndServeAPI(ctx, config,
+			&APIServer{BudgetManager: budgetManager, Services: services},
+		)
+	}()
 
 	signal.Notify(
 		sigCh, os.Interrupt, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM,
@@ -95,6 +104,6 @@ func main() {
 		break
 	}
 
-	<-exit
+	wg.Wait()
 
 }

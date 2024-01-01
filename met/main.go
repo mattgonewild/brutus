@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"go.uber.org/zap"
@@ -29,16 +30,20 @@ func main() {
 
 	// initialize channels
 	sigCh := make(chan os.Signal, 1)
-	exit := make(chan bool)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	context.AfterFunc(ctx, func() {
 		close(sigCh)
-		close(exit)
 	})
 
+	var wg sync.WaitGroup
+
 	// start serving API
-	go ListenAndServeAPI(ctx, config, NewMetServer(ctx))
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		ListenAndServeAPI(ctx, config, NewMetServer(ctx))
+	}()
 
 	signal.Notify(
 		sigCh, os.Interrupt, syscall.SIGHUP, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM,
@@ -51,5 +56,5 @@ func main() {
 		break
 	}
 
-	<-exit
+	wg.Wait()
 }

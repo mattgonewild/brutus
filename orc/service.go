@@ -34,6 +34,7 @@ func (s *Service) ManageWorkers(ctx context.Context, config *Config) {
 	for {
 		select {
 		case <-ctx.Done():
+			s.Shutdown()
 			return
 		case <-ticker.C:
 			resp, err := s.MetricsClient.GetPoolLoad(ctx, &met.PoolLoadRequest{Type: string(s.Type)})
@@ -76,4 +77,8 @@ func (s *Service) ManageWorkers(ctx context.Context, config *Config) {
 			}
 		}
 	}
+}
+
+func (s *Service) Shutdown() {
+	s.WorkerManager.StopAllWorkers()
 }

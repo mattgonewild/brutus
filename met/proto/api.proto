@@ -20,6 +20,7 @@ service Met {
   rpc GetWorkerUptime (WorkerRequest) returns (UptimeResponse);
   rpc GetWorkerLoadAvg (WorkerRequest) returns (LoadAvgResponse);
   rpc GetPoolLoad (PoolLoadRequest) returns (PoolLoadResponse);
+  rpc Shutdown (google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
 message Status {
