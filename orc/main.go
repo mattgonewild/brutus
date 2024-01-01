@@ -41,28 +41,33 @@ func main() {
 
 	// initialize services
 	services := map[ServiceType]*Service{
-		Combination: {
-			Type:          Combination,
-			Cost:          config.MachineCost,
-			WorkerManager: &WorkerManager{Factory: workerFactory},
-			BudgetManager: budgetManager,
-			OutChan:       combOut,
-		},
-		Permutation: {
-			Type:          Permutation,
-			Cost:          config.MachineCost,
-			WorkerManager: &WorkerManager{Factory: workerFactory},
-			BudgetManager: budgetManager,
-			InChan:        combOut,
-			OutChan:       permOut,
-		},
-		Decryption: {
-			Type:          Decryption,
-			Cost:          config.MachineCost,
-			WorkerManager: &WorkerManager{Factory: workerFactory},
-			BudgetManager: budgetManager,
-			InChan:        permOut,
-		},
+		Combination: NewService(
+			Combination,
+			config.MachineCost,
+			&WorkerManager{Factory: workerFactory},
+			budgetManager,
+			nil,
+			combOut,
+			config.MetAddr,
+		),
+		Permutation: NewService(
+			Permutation,
+			config.MachineCost,
+			&WorkerManager{Factory: workerFactory},
+			budgetManager,
+			combOut,
+			permOut,
+			config.MetAddr,
+		),
+		Decryption: NewService(
+			Decryption,
+			config.MachineCost,
+			&WorkerManager{Factory: workerFactory},
+			budgetManager,
+			permOut,
+			nil,
+			config.MetAddr,
+		),
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

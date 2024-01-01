@@ -15,6 +15,7 @@ type Config struct {
 	MachineCost                      int64
 	LoadThreshold                    float64
 	ServiceCheckInterval             time.Duration
+	MetAddr                          netip.AddrPort
 }
 
 func LoadConfig() (*Config, error) {
@@ -24,6 +25,7 @@ func LoadConfig() (*Config, error) {
 	machineCost := flag.Float64("machineCost", 1.00, "machine cost per second") // TODO: ...
 	loadThreshold := flag.Float64("loadThreshold", 1.0, "load threshold... above which a new worker is started, below which a worker is stopped")
 	serviceCheckInterval := flag.String("serviceCheckInterval", "1s", "how often the budget and machine loads are checked (valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\")")
+	metAddr := flag.String("metAddr", "127.0.0.1:54931", "IP:PORT of metric service")
 
 	flag.Parse()
 
@@ -50,6 +52,11 @@ func LoadConfig() (*Config, error) {
 		return nil, fmt.Errorf("invalid service check interval: %w", err)
 	}
 
+	met, err := netip.ParseAddrPort(*metAddr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid address: %w", err)
+	}
+
 	return &Config{
 		ListenAndServeAPIAddr:            addr.String(),
 		ListenAndServeAPIMaxShutdownTime: msdt,
@@ -57,5 +64,6 @@ func LoadConfig() (*Config, error) {
 		MachineCost:                      int64(*machineCost * 100),
 		LoadThreshold:                    *loadThreshold,
 		ServiceCheckInterval:             sci,
+		MetAddr:                          met,
 	}, nil
 }

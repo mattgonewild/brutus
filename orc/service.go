@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"net/netip"
 	"time"
 
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 
 	met "github.com/mattgonewild/brutus/met/proto"
 )
@@ -25,6 +27,21 @@ type Service struct {
 	InChan        chan string
 	OutChan       chan string
 	MetricsClient met.MetClient
+	Conn          *grpc.ClientConn
+}
+
+func NewService(serviceType ServiceType, cost int64, workerManager *WorkerManager, budgetManager *BudgetManager, inChan chan string, outChan chan string, metAddr netip.AddrPort) *Service {
+	conn, _ := grpc.Dial(metAddr.String(), grpc.WithInsecure()) // TODO: ...
+	return &Service{
+		Type:          serviceType,
+		Cost:          cost,
+		WorkerManager: workerManager,
+		BudgetManager: budgetManager,
+		InChan:        inChan,
+		OutChan:       outChan,
+		MetricsClient: met.NewMetClient(conn),
+		Conn:          conn,
+	}
 }
 
 func (s *Service) ManageWorkers(ctx context.Context, config *Config) {
@@ -81,4 +98,5 @@ func (s *Service) ManageWorkers(ctx context.Context, config *Config) {
 
 func (s *Service) Shutdown() {
 	s.WorkerManager.StopAllWorkers()
+	s.Conn.Close()
 }
