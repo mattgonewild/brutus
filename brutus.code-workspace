@@ -7,7 +7,8 @@
 	"settings": {
 		"conventionalCommits.scopes": [
 			"orc",
-			"met"
+			"met",
+			"comb"
 		]
 	}
 }

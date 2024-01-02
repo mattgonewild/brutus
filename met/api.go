@@ -275,5 +275,5 @@ func (s *MetServer) Report(stream proto.Met_ReportServer) error {
 func (s *MetServer) Shutdown(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	logger.Info("api shutdown request, shutting down...")
 	syscall.Kill(syscall.Getegid(), syscall.SIGTERM)
-	return nil, nil
+	return new(emptypb.Empty), nil
 }
