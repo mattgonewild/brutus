@@ -98,7 +98,7 @@ func (s *DecryptServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, str
 	}
 }
 
-// proto.PermServer interface
+// proto.DecryptServer interface
 
 func (s *DecryptServer) Connect(stream proto.Decrypt_ConnectServer) error {
 	var wg sync.WaitGroup
