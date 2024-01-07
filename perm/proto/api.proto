@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package perm;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/mattgonewild/brutus/perm/proto";
+
+service Perm {
+    rpc Connect (stream Combination) returns (stream Permutation);
+    rpc Shutdown (google.protobuf.Empty) returns (google.protobuf.Empty);
+}
+
+message Element {
+    string id = 1;
+    string value = 2;
+}
+
+message Combination {
+    repeated Element elements = 1;
+}
+
+message Permutation {
+    string value = 1;
+}

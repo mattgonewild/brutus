@@ -8,4 +8,6 @@ use (
 	./met/reporter
 	./orc
 	./orc/proto
+	./perm
+	./perm/proto
 )
