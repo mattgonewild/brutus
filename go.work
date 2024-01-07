@@ -3,6 +3,8 @@ go 1.21.5
 use (
 	./comb
 	./comb/proto
+	./decrypt
+	./decrypt/proto
 	./met
 	./met/proto
 	./met/reporter

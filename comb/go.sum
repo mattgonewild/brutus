@@ -6,10 +6,8 @@ github.com/golang/protobuf v1.5.3/go.mod h1:XVQd3VNwM+JqD3oG2Ue2ip4fOMUkwXdXDdiu
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
-github.com/mackerelio/go-osstat v0.2.4 h1:qxGbdPkFo65PXOb/F/nhDKpF2nGmGaCFDLXoZjJTtUs=
-github.com/mackerelio/go-osstat v0.2.4/go.mod h1:Zy+qzGdZs3A9cuIqmgbJvwbmLQH9dJvtio5ZjJTbdlQ=
-github.com/mattgonewild/brutus/met/proto v0.0.0-20240107213618-2faef23b0e08 h1:Oxh5HdysSDz4zG0Q3u089iRXUGrhGJxWNmZq6iDAkZc=
-github.com/mattgonewild/brutus/met/proto v0.0.0-20240107213618-2faef23b0e08/go.mod h1:lsez+6UVETu1dhlvj6dHpVSGvb60RPDmSNaxAFAu46E=
+github.com/mattgonewild/brutus/comb/proto v0.0.0-20240107213618-2faef23b0e08 h1:wUqa0Jo+lLEVc1a6a0lDNRGD2NFQ2yrWt1qAxCMZcK4=
+github.com/mattgonewild/brutus/comb/proto v0.0.0-20240107213618-2faef23b0e08/go.mod h1:2wCRfG7peIFnIlHO2NN8FYyZMtsFHiXnmNJeKeYMhTY=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.8.1 h1:w7B6lhMri9wdJUVmEZPGGhZzrYTPvgJArz7wNPgYKsk=
