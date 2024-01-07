@@ -25,7 +25,7 @@ func LoadConfig() (*Config, error) {
 	machineCost := flag.Float64("machineCost", 1.00, "machine cost per second") // TODO: ...
 	loadThreshold := flag.Float64("loadThreshold", 1.0, "load threshold... above which a new worker is started, below which a worker is stopped")
 	serviceCheckInterval := flag.String("serviceCheckInterval", "1s", "how often the budget and machine loads are checked (valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\")")
-	metAddr := flag.String("metAddr", "127.0.0.1:54931", "IP:PORT of metric service")
+	metAddr := flag.String("metAddr", "127.0.0.1:54933", "IP:PORT of metric service")
 
 	flag.Parse()
 

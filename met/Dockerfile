@@ -14,5 +14,5 @@ RUN upx --best --lzma metric-service
 # out
 FROM gcr.io/distroless/static-debian11
 COPY --from=builder /app/orchestration-service /orchestration-service
-EXPOSE 54932
+EXPOSE 54933
 ENTRYPOINT ["/metric-service"]
