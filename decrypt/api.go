@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/ProtonMail/gopenpgp/v2/crypto"
 	"github.com/mattgonewild/brutus/decrypt/proto"
@@ -70,7 +71,18 @@ func ListenAndServeAPI(shutdownCtx context.Context, config *Config, api *Decrypt
 	}
 }
 
-func (s *DecryptServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, stream proto.Decrypt_ConnectServer) {
+type Stream struct {
+	mu     sync.Mutex
+	stream proto.Decrypt_ConnectServer
+}
+
+func (s *Stream) Send(msg *proto.Result) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.stream.Send(msg)
+}
+
+func (s *DecryptServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, stream *Stream) {
 	defer wg.Done()
 	for {
 		select {
@@ -78,6 +90,7 @@ func (s *DecryptServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, str
 			return
 		default:
 			if s.target == nil {
+				time.Sleep(1 * time.Second)
 				continue
 			}
 			perm, ok := s.Permutations.Dequeue()
@@ -102,10 +115,11 @@ func (s *DecryptServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, str
 
 func (s *DecryptServer) Connect(stream proto.Decrypt_ConnectServer) error {
 	var wg sync.WaitGroup
+	str := &Stream{stream: stream}
 
 	for i := 0; i < runtime.NumCPU(); i++ {
 		wg.Add(1)
-		go s.QueueWorker(stream.Context(), &wg, stream)
+		go s.QueueWorker(stream.Context(), &wg, str)
 	}
 
 	// receive
