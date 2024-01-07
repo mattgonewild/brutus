@@ -71,18 +71,7 @@ func ListenAndServeAPI(shutdownCtx context.Context, config *Config, api *Decrypt
 	}
 }
 
-type Stream struct {
-	mu     sync.Mutex
-	stream proto.Decrypt_ConnectServer
-}
-
-func (s *Stream) Send(msg *proto.Result) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.stream.Send(msg)
-}
-
-func (s *DecryptServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, stream *Stream) {
+func (s *DecryptServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, out chan *proto.Result) {
 	defer wg.Done()
 	for {
 		select {
@@ -101,12 +90,10 @@ func (s *DecryptServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, str
 			_, err := crypto.DecryptMessageWithPassword(s.target, perm.Value)
 			s.mu.RUnlock()
 			if err != nil {
+				out <- &proto.Result{Success: false, Value: perm.Value}
 				continue
 			}
-			if err := stream.Send(&proto.Result{Success: true, Value: perm.Value}); err != nil {
-				logger.Error("error sending message", zap.Error(err))
-				return
-			}
+			out <- &proto.Result{Success: true, Value: perm.Value}
 		}
 	}
 }
@@ -114,12 +101,14 @@ func (s *DecryptServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, str
 // proto.DecryptServer interface
 
 func (s *DecryptServer) Connect(stream proto.Decrypt_ConnectServer) error {
-	var wg sync.WaitGroup
-	str := &Stream{stream: stream}
+	var (
+		wg       sync.WaitGroup
+		resultCh = make(chan *proto.Result, 256)
+	)
 
 	for i := 0; i < runtime.NumCPU(); i++ {
 		wg.Add(1)
-		go s.QueueWorker(stream.Context(), &wg, str)
+		go s.QueueWorker(stream.Context(), &wg, resultCh)
 	}
 
 	// receive
@@ -137,6 +126,18 @@ func (s *DecryptServer) Connect(stream proto.Decrypt_ConnectServer) error {
 				return
 			}
 			s.Permutations.Enqueue(in)
+		}
+	}()
+
+	// send
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for result := range resultCh {
+			if err := stream.Send(result); err != nil {
+				logger.Error("error sending message", zap.Error(err))
+				return
+			}
 		}
 	}()
 
