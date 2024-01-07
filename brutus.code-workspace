@@ -10,7 +10,8 @@
 			"orc",
 			"met",
 			"comb",
-			"perm"
+			"perm",
+			"decrypt"
 		]
 	}
 }

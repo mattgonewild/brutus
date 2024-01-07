@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package decrypt;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/mattgonewild/brutus/decrypt/proto";
+
+service Decrypt {
+    rpc Set (Target) returns (google.protobuf.Empty);
+    rpc Connect (stream Permutation) returns (stream Result);
+    rpc Shutdown (google.protobuf.Empty) returns (google.protobuf.Empty);
+}
+
+message Target {
+    bytes value = 1;
+}
+
+message Permutation {
+    bytes value = 1;
+}
+
+message Result {
+    bool success = 1;
+    bytes value = 2;
+}
