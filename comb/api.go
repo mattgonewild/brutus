@@ -4,6 +4,8 @@ import (
 	"context"
 	"io"
 	"net"
+	"slices"
+	"strings"
 	"sync"
 	"syscall"
 
@@ -17,13 +19,13 @@ type CombServer struct {
 	proto.UnimplementedCombServer
 	mu       sync.RWMutex
 	Elements map[string]*proto.Element
-	SentComb map[*proto.Combination]bool
+	SentComb map[string]bool
 }
 
 func NewCombServer(ctx context.Context) *CombServer {
 	return &CombServer{
 		Elements: make(map[string]*proto.Element),
-		SentComb: make(map[*proto.Combination]bool),
+		SentComb: make(map[string]bool),
 	}
 }
 
@@ -144,18 +146,38 @@ func (s *CombServer) Connect(stream proto.Comb_ConnectServer) error {
 	go func() {
 		defer wg.Done()
 		for comb := range combCh {
+			s.mu.Lock()
+			flattenedComb := FlattenCombination(comb)
+			if s.SentComb[flattenedComb] {
+				s.mu.Unlock()
+				continue
+			}
 			if err := stream.Send(&proto.Combination{Elements: comb}); err != nil {
+				s.mu.Unlock()
 				logger.Error("error sending message", zap.Error(err))
 				return
 			}
-			s.mu.Lock()
-			s.SentComb[&proto.Combination{Elements: comb}] = true
+			s.SentComb[flattenedComb] = true
 			s.mu.Unlock()
 		}
 	}()
 
 	wg.Wait()
 	return nil
+}
+
+func FlattenCombination(comb []*proto.Element) string {
+	elements := make([]string, 0, len(comb))
+	for _, e := range comb {
+		elements = append(elements, e.Value)
+	}
+	slices.Sort(elements)
+
+	var builder strings.Builder
+	for _, element := range elements {
+		builder.WriteString(element)
+	}
+	return builder.String()
 }
 
 func (s *CombServer) Shutdown(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
