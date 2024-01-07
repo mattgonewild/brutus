@@ -6,6 +6,7 @@
 	],
 	"settings": {
 		"conventionalCommits.scopes": [
+			"brutus",
 			"orc",
 			"met",
 			"comb",

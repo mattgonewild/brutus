@@ -169,7 +169,7 @@ func (s *CombServer) Connect(stream proto.Comb_ConnectServer) error {
 func FlattenCombination(comb []*proto.Element) string {
 	elements := make([]string, 0, len(comb))
 	for _, e := range comb {
-		elements = append(elements, e.Value)
+		elements = append(elements, string(e.Value))
 	}
 	slices.Sort(elements)
 

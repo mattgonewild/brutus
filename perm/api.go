@@ -86,7 +86,7 @@ func (s *PermServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, out ch
 func Decode(comb *proto.Combination) []string {
 	elements := make([]string, 0, len(comb.Elements))
 	for _, element := range comb.Elements {
-		elements = append(elements, element.Value)
+		elements = append(elements, string(element.Value))
 	}
 	return elements
 }
@@ -127,7 +127,7 @@ func (s *PermServer) Connect(stream proto.Perm_ConnectServer) error {
 	go func() {
 		defer wg.Done()
 		for perm := range permCh {
-			if err := stream.Send(&proto.Permutation{Value: perm}); err != nil {
+			if err := stream.Send(&proto.Permutation{Value: []byte(perm)}); err != nil {
 				logger.Error("error sending message", zap.Error(err))
 				return
 			}
