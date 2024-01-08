@@ -5,6 +5,10 @@ import (
 	"errors"
 	"net/netip"
 	"sync"
+	"time"
+
+	transport "github.com/go-openapi/runtime/client"
+	"github.com/google/uuid"
 
 	fly "github.com/mattgonewild/fly/client"
 	"github.com/mattgonewild/fly/client/machines"
@@ -12,6 +16,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	comb "github.com/mattgonewild/brutus/comb/proto"
 	decrypt "github.com/mattgonewild/brutus/decrypt/proto"
@@ -19,15 +24,17 @@ import (
 )
 
 type Worker interface {
-	Start(ctx context.Context, in chan []byte, out chan []byte) error
+	Start(ctx context.Context, in chan []byte, out chan []byte, port string) error
 	Stop() error
 	UUID() string
 	IP() netip.Addr
 }
 
 type BaseWorker struct {
-	id string
-	ip netip.Addr
+	machineID string
+	uuid      string
+	ip        netip.Addr
+	port      string
 }
 
 type CombClient interface {
@@ -60,15 +67,46 @@ type DecryptStream interface {
 	Recv() (*decrypt.Result, error)
 }
 
-func (w *BaseWorker) Start(ctx context.Context, in chan []byte, out chan []byte, appName string, image string, clientFunc func(conn *grpc.ClientConn) interface{}, serviceType ServiceType) error {
-	flyClient := fly.New(nil, nil)
+func (w *BaseWorker) Stop(workerType ServiceType, clientFunc func(conn *grpc.ClientConn) interface{}) error {
+	conn, err := grpc.DialContext(context.TODO(), w.ip.String()+":"+w.port, grpc.WithInsecure())
+	if err != nil {
+		logger.Error("error dialing service", zap.Error(err), zap.String("type", string(workerType)), zap.String("ip", w.ip.String()))
+		return err
+	}
+	defer conn.Close()
 
+	client := clientFunc(conn).(interface {
+		Shutdown(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	})
+
+	_, err = client.Shutdown(context.TODO(), &emptypb.Empty{})
+	if err != nil {
+		logger.Error("error shutting down service gracefully", zap.Error(err), zap.String("type", string(workerType)), zap.String("ip", w.ip.String()))
+	} else {
+		time.Sleep(2 * time.Second) // TODO: ...
+	}
+
+	flyClient := fly.New(transport.New("api.machines.dev", "/v1", []string{"https"}), nil)
+	_, err = flyClient.Machines.MachinesDelete(&machines.MachinesDeleteParams{MachineID: w.machineID}) // TODO: stop, not delete
+	return err
+}
+
+func (w *BaseWorker) Start(ctx context.Context, in chan []byte, out chan []byte, appName string, image string, clientFunc func(conn *grpc.ClientConn) interface{}, serviceType ServiceType, port string) error {
+	uuid := uuid.New().String()
+	if uuid == "" {
+		return errors.New("failed to generate uuid")
+	}
+
+	w.uuid = uuid
+
+	flyClient := fly.New(transport.New("api.machines.dev", "/v1", []string{"https"}), nil)
 	resp, err := flyClient.Machines.MachinesCreate(&machines.MachinesCreateParams{AppName: appName, Request: &models.CreateMachineRequest{
 		Config: struct{ models.APIMachineConfig }{
 			APIMachineConfig: models.APIMachineConfig{
+				Checks:      map[string]models.APIMachineCheck{"headers": {Headers: []*models.APIMachineHTTPHeader{{Name: "Authorization", Values: []string{""}}}}},
 				AutoDestroy: true,
 				Image:       image,
-				Env:         make(map[string]string),
+				Env:         map[string]string{"WORKER_UUID": w.uuid, "WORKER_TYPE": string(serviceType)},
 			},
 		},
 	}})
@@ -76,15 +114,17 @@ func (w *BaseWorker) Start(ctx context.Context, in chan []byte, out chan []byte,
 		return err
 	}
 
-	w.id = resp.Payload.ID
+	w.machineID = resp.Payload.ID
 
 	w.ip, err = netip.ParseAddr(resp.Payload.PrivateIP)
 	if err != nil {
 		return err
 	}
 
+	w.port = port
+
 	// this should block for at most 60 seconds
-	_, err = flyClient.Machines.MachinesWait(&machines.MachinesWaitParams{MachineID: w.id})
+	_, err = flyClient.Machines.MachinesWait(&machines.MachinesWaitParams{MachineID: w.machineID})
 	if err != nil {
 		logger.Error("error waiting for machine", zap.Error(err), zap.String("type", string(serviceType)), zap.String("ip", w.ip.String()))
 		return err
@@ -95,7 +135,7 @@ func (w *BaseWorker) Start(ctx context.Context, in chan []byte, out chan []byte,
 	}
 
 	// TODO: https://grpc.io/docs/guides/health-checking/
-	conn, err := grpc.DialContext(ctx, w.ip.String(), grpc.WithInsecure())
+	conn, err := grpc.DialContext(ctx, w.ip.String()+":"+w.port, grpc.WithInsecure())
 	if err != nil {
 		logger.Error("error dialing service", zap.Error(err), zap.String("type", string(serviceType)), zap.String("ip", w.ip.String()))
 		return err
@@ -231,62 +271,63 @@ type DecryptionWorker struct {
 	BaseWorker
 }
 
-func (w *CombinationWorker) Start(ctx context.Context, in chan []byte, out chan []byte) error {
-	return w.BaseWorker.Start(ctx, in, out, "combination-service", "mattgonewild/combination-service", func(conn *grpc.ClientConn) interface{} { return comb.NewCombClient(conn) }, Combination)
+func (w *CombinationWorker) Start(ctx context.Context, in chan []byte, out chan []byte, port string) error {
+	return w.BaseWorker.Start(ctx, in, out, "combination-service", "mattgonewild/combination-service", func(conn *grpc.ClientConn) interface{} { return comb.NewCombClient(conn) }, Combination, port)
 }
 
 func (w *CombinationWorker) Stop() error {
-	flyClient := fly.New(nil, nil)
-	_, err := flyClient.Machines.MachinesDelete(&machines.MachinesDeleteParams{MachineID: w.id}) // TODO: stop, not delete
-	return err
+	return w.BaseWorker.Stop(Combination, func(conn *grpc.ClientConn) interface{} { return comb.NewCombClient(conn) })
 }
 
-func (w *CombinationWorker) UUID() string   { return w.id }
+func (w *CombinationWorker) UUID() string   { return w.uuid }
 func (w *CombinationWorker) IP() netip.Addr { return w.ip }
 
-func (w *PermutationWorker) Start(ctx context.Context, in chan []byte, out chan []byte) error {
-	return w.BaseWorker.Start(ctx, in, out, "permutation-service", "mattgonewild/permutation-service", func(conn *grpc.ClientConn) interface{} { return perm.NewPermClient(conn) }, Permutation)
+func (w *PermutationWorker) Start(ctx context.Context, in chan []byte, out chan []byte, port string) error {
+	return w.BaseWorker.Start(ctx, in, out, "permutation-service", "mattgonewild/permutation-service", func(conn *grpc.ClientConn) interface{} { return perm.NewPermClient(conn) }, Permutation, port)
 }
 
 func (w *PermutationWorker) Stop() error {
-	flyClient := fly.New(nil, nil)
-	_, err := flyClient.Machines.MachinesDelete(&machines.MachinesDeleteParams{MachineID: w.id}) // TODO: stop, not delete
-	return err
+	return w.BaseWorker.Stop(Permutation, func(conn *grpc.ClientConn) interface{} { return perm.NewPermClient(conn) })
 }
 
-func (w *PermutationWorker) UUID() string   { return w.id }
+func (w *PermutationWorker) UUID() string   { return w.uuid }
 func (w *PermutationWorker) IP() netip.Addr { return w.ip }
 
-func (w *DecryptionWorker) Start(ctx context.Context, in chan []byte, out chan []byte) error {
-	return w.BaseWorker.Start(ctx, in, out, "decryption-service", "mattgonewild/decryption-service", func(conn *grpc.ClientConn) interface{} { return decrypt.NewDecryptClient(conn) }, Decryption)
+func (w *DecryptionWorker) Start(ctx context.Context, in chan []byte, out chan []byte, port string) error {
+	return w.BaseWorker.Start(ctx, in, out, "decryption-service", "mattgonewild/decryption-service", func(conn *grpc.ClientConn) interface{} { return decrypt.NewDecryptClient(conn) }, Decryption, port)
 }
 
 func (w *DecryptionWorker) Stop() error {
-	flyClient := fly.New(nil, nil)
-	_, err := flyClient.Machines.MachinesDelete(&machines.MachinesDeleteParams{MachineID: w.id}) // TODO: stop, not delete
-	return err
+	return w.BaseWorker.Stop(Decryption, func(conn *grpc.ClientConn) interface{} { return decrypt.NewDecryptClient(conn) })
 }
 
-func (w *DecryptionWorker) UUID() string   { return w.id }
+func (w *DecryptionWorker) UUID() string   { return w.uuid }
 func (w *DecryptionWorker) IP() netip.Addr { return w.ip }
 
 type WorkerFactory struct {
-	ctx context.Context
+	ctx  context.Context
+	conf *Config
 }
 
 func (f *WorkerFactory) NewWorker(t ServiceType, in chan []byte, out chan []byte) (Worker, error) {
-	var worker Worker
+	var (
+		worker Worker
+		port   string
+	)
 	switch t {
 	case Combination:
 		worker = new(CombinationWorker)
+		port = f.conf.CombPort
 	case Permutation:
 		worker = new(PermutationWorker)
+		port = f.conf.PermPort
 	case Decryption:
 		worker = new(DecryptionWorker)
+		port = f.conf.DecryptPort
 	default:
 		return nil, errors.New("invalid service type")
 	}
-	err := worker.Start(f.ctx, in, out)
+	err := worker.Start(f.ctx, in, out, port)
 	if err != nil {
 		return nil, err
 	}

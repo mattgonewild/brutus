@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"net/netip"
+	"strconv"
 	"time"
 )
 
@@ -16,6 +17,9 @@ type Config struct {
 	LoadThreshold                    float64
 	ServiceCheckInterval             time.Duration
 	MetAddr                          netip.AddrPort
+	CombPort                         string
+	PermPort                         string
+	DecryptPort                      string
 }
 
 func LoadConfig() (*Config, error) {
@@ -26,6 +30,9 @@ func LoadConfig() (*Config, error) {
 	loadThreshold := flag.Float64("loadThreshold", 1.0, "load threshold... above which a new worker is started, below which a worker is stopped")
 	serviceCheckInterval := flag.String("serviceCheckInterval", "1s", "how often the budget and machine loads are checked (valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\")")
 	metAddr := flag.String("metAddr", "127.0.0.1:54933", "IP:PORT of metric service")
+	combPort := flag.String("combPort", "54934", "the port combination-service uses")
+	permPort := flag.String("permPort", "54935", "the port permutation-service uses")
+	decryptPort := flag.String("decryptPort", "54936", "the port decryption-service uses")
 
 	flag.Parse()
 
@@ -57,6 +64,21 @@ func LoadConfig() (*Config, error) {
 		return nil, fmt.Errorf("invalid address: %w", err)
 	}
 
+	_, err = strconv.Atoi(*combPort)
+	if err != nil {
+		return nil, fmt.Errorf("invalid port: %w", err)
+	}
+
+	_, err = strconv.Atoi(*permPort)
+	if err != nil {
+		return nil, fmt.Errorf("invalid port: %w", err)
+	}
+
+	_, err = strconv.Atoi(*decryptPort)
+	if err != nil {
+		return nil, fmt.Errorf("invalid port: %w", err)
+	}
+
 	return &Config{
 		ListenAndServeAPIAddr:            addr.String(),
 		ListenAndServeAPIMaxShutdownTime: msdt,
@@ -65,5 +87,8 @@ func LoadConfig() (*Config, error) {
 		LoadThreshold:                    *loadThreshold,
 		ServiceCheckInterval:             sci,
 		MetAddr:                          met,
+		CombPort:                         *combPort,
+		PermPort:                         *permPort,
+		DecryptPort:                      *decryptPort,
 	}, nil
 }

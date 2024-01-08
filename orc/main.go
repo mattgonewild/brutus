@@ -45,7 +45,7 @@ func main() {
 	budgetManager := &BudgetManager{Balance: config.Budget}
 
 	// initialize worker factory
-	workerFactory := &WorkerFactory{ctx: ctx}
+	workerFactory := &WorkerFactory{ctx: ctx, conf: config}
 
 	// initialize services
 	services := map[ServiceType]*Service{
