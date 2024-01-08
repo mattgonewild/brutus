@@ -81,7 +81,7 @@ func (w *BaseWorker) Stop(workerType ServiceType, clientFunc func(conn *grpc.Cli
 
 	_, err = client.Shutdown(context.TODO(), &emptypb.Empty{})
 	if err != nil {
-		logger.Error("error shutting down service gracefully", zap.Error(err), zap.String("type", string(workerType)), zap.String("ip", w.ip.String()))
+		logger.Error("error shutting down worker gracefully", zap.Error(err), zap.String("type", string(workerType)), zap.String("ip", w.ip.String()))
 	} else {
 		time.Sleep(2 * time.Second) // TODO: ...
 	}
