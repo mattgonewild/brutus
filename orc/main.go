@@ -28,16 +28,24 @@ func main() {
 		logger.Fatal("failed to load config", zap.Error(err))
 	}
 
+	// initialize channels
+	combOut := make(chan []byte)
+	permOut := make(chan []byte)
+	sigCh := make(chan os.Signal, 1)
+
+	// initialize context
+	ctx, cancel := context.WithCancel(context.Background())
+	context.AfterFunc(ctx, func() {
+		close(combOut)
+		close(permOut)
+		close(sigCh)
+	})
+
 	// initialize budget
 	budgetManager := &BudgetManager{Balance: config.Budget}
 
 	// initialize worker factory
-	workerFactory := &WorkerFactory{}
-
-	// initialize channels
-	combOut := make(chan string)
-	permOut := make(chan string)
-	sigCh := make(chan os.Signal, 1)
+	workerFactory := &WorkerFactory{ctx: ctx}
 
 	// initialize services
 	services := map[ServiceType]*Service{
@@ -69,13 +77,6 @@ func main() {
 			config.MetAddr,
 		),
 	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	context.AfterFunc(ctx, func() {
-		close(combOut)
-		close(permOut)
-		close(sigCh)
-	})
 
 	var wg sync.WaitGroup
 

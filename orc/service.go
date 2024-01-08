@@ -24,13 +24,13 @@ type Service struct {
 	Cost          int64
 	WorkerManager *WorkerManager
 	BudgetManager *BudgetManager
-	InChan        chan string
-	OutChan       chan string
+	InChan        chan []byte
+	OutChan       chan []byte
 	MetricsClient met.MetClient
 	Conn          *grpc.ClientConn
 }
 
-func NewService(serviceType ServiceType, cost int64, workerManager *WorkerManager, budgetManager *BudgetManager, inChan chan string, outChan chan string, metAddr netip.AddrPort) *Service {
+func NewService(serviceType ServiceType, cost int64, workerManager *WorkerManager, budgetManager *BudgetManager, inChan chan []byte, outChan chan []byte, metAddr netip.AddrPort) *Service {
 	conn, _ := grpc.Dial(metAddr.String(), grpc.WithInsecure()) // TODO: ...
 	return &Service{
 		Type:          serviceType,
