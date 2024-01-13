@@ -42,7 +42,7 @@ func main() {
 	})
 
 	// initialize budget
-	budgetManager := &BudgetManager{Balance: config.Budget}
+	budgetManager := &BudgetManager{Balance: uint64(config.Budget)}
 
 	// initialize worker factory
 	workerFactory := &WorkerFactory{ctx: ctx, conf: config}

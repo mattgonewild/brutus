@@ -1,3 +1,4 @@
+// TODO: go through all this again
 package main
 
 import (
@@ -131,6 +132,24 @@ func (s *APIServer) handleBudget() http.Handler {
 	})
 }
 
+func (s *APIServer) handleElements() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// TODO:
+	})
+}
+
+func (s *APIServer) handleTarget() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// TODO:
+	})
+}
+
+func (s *APIServer) handleMachine() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// TODO:
+	})
+}
+
 func (s *APIServer) handleWorkers() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -139,10 +158,10 @@ func (s *APIServer) handleWorkers() http.Handler {
 
 			for _, service := range s.Services {
 				service.WorkerManager.Mutex.Lock()
-				for _, worker := range service.WorkerManager.Workers {
-					resp, err := s.MetricsClient.GetWorker(r.Context(), &met.WorkerRequest{Id: worker.UUID()})
+				for _, worker := range service.WorkerManager.ActiveWorkers {
+					resp, err := s.MetricsClient.GetWorker(r.Context(), &met.WorkerRequest{Id: worker.uuid})
 					if err != nil {
-						logger.Error("failed to get worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", worker.UUID()))
+						logger.Error("failed to get worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", worker.uuid))
 						continue
 					}
 					workers = append(workers, resp.Worker)
@@ -216,16 +235,15 @@ func (s *APIServer) handleWorker() http.Handler {
 		case http.MethodDelete:
 			for _, service := range s.Services {
 				service.WorkerManager.Mutex.Lock()
-				for _, worker := range service.WorkerManager.Workers {
-					if worker.UUID() == GetWorkerID(r.Context()) {
-						err := worker.Stop()
+				for _, worker := range service.WorkerManager.ActiveWorkers {
+					if worker.uuid == GetWorkerID(r.Context()) {
+						err := service.WorkerManager.StopWorker(worker.uuid)
 						if err != nil {
 							service.WorkerManager.Mutex.Unlock()
 							logger.Error("failed to stop worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", GetWorkerID(r.Context())))
 							http.Error(w, "failed to stop worker", http.StatusInternalServerError)
 							return
 						}
-						delete(service.WorkerManager.Workers, worker.UUID())
 						service.WorkerManager.Mutex.Unlock()
 
 						logger.Info("worker stopped", zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", GetWorkerID(r.Context())))
@@ -423,6 +441,9 @@ func ListenAndServeAPI(shutdownCtx context.Context, config *Config, api *APIServ
 	// register handlers
 	mux.Handle("/", requestIDMiddleware(loggingMiddleware(api.handle())))
 	mux.Handle("/budget", requestIDMiddleware(loggingMiddleware(api.handleBudget())))
+	mux.Handle("/elements", requestIDMiddleware(loggingMiddleware(api.handleElements())))
+	mux.Handle("/target", requestIDMiddleware(loggingMiddleware(api.handleTarget())))
+	mux.Handle("/machine", requestIDMiddleware(loggingMiddleware(api.handleMachine())))
 	mux.Handle("/workers", requestIDMiddleware(loggingMiddleware(api.handleWorkers())))
 	mux.Handle("/workers/{id}", requestIDMiddleware(workerIDMiddleware(loggingMiddleware(api.handleWorker()))))
 	mux.Handle("/workers/{id}/proc", requestIDMiddleware(workerIDMiddleware(loggingMiddleware(api.handleWorkerProc()))))

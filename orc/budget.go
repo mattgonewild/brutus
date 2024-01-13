@@ -1,23 +1,32 @@
 package main
 
-import "sync/atomic"
+import (
+	"math"
+	"sync/atomic"
+)
 
 type BudgetManager struct {
-	Balance int64
+	Balance uint64
 }
 
-func (m *BudgetManager) CanAfford(cost int64) bool {
-	return atomic.LoadInt64(&m.Balance) >= int64(cost)
+func (m *BudgetManager) CanAfford(cost float64) bool {
+	return math.Float64frombits(atomic.LoadUint64(&m.Balance)) >= cost
 }
 
-func (m *BudgetManager) Deduct(cost int64) {
-	atomic.AddInt64(&m.Balance, -int64(cost))
+func (m *BudgetManager) Deduct(cost float64) {
+	for {
+		old := atomic.LoadUint64(&m.Balance)
+		new := math.Float64bits(math.Float64frombits(old) - cost)
+		if atomic.CompareAndSwapUint64(&m.Balance, old, new) {
+			return
+		}
+	}
 }
 
-func (m *BudgetManager) StoreBalance(amount int64) {
-	atomic.StoreInt64(&m.Balance, amount)
+func (m *BudgetManager) StoreBalance(amount float64) {
+	atomic.StoreUint64(&m.Balance, math.Float64bits(amount))
 }
 
-func (m *BudgetManager) LoadBalance() int64 {
-	return atomic.LoadInt64(&m.Balance)
+func (m *BudgetManager) LoadBalance() float64 {
+	return math.Float64frombits(atomic.LoadUint64(&m.Balance))
 }

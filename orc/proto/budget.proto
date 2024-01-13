@@ -8,5 +8,5 @@ option go_package = "github.com/mattgonewild/brutus/orc/proto";
 
 message Budget {
     google.protobuf.Timestamp timestamp = 1;
-    int64 balance = 2;
+    double balance = 2;
 }

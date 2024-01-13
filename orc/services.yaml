@@ -1,0 +1,14 @@
+---
+services:
+  combination:
+    appName: combination-service
+    image: mattgonewild/combination-service
+    port: 54934
+  permutation:
+    appName: permutation-service
+    image: mattgonewild/permutation-service
+    port: 54935
+  decryption:
+    appName: decryption-service
+    image: mattgonewild/decryption-service
+    port: 54936
