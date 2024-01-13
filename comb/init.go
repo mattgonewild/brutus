@@ -11,11 +11,13 @@ import (
 type Config struct {
 	ListenAndServeAPIAddr            string
 	ListenAndServeAPIMaxShutdownTime time.Duration
+	MetAddr                          netip.AddrPort
 }
 
 func LoadConfig() (*Config, error) {
 	apiAddr := flag.String("apiAddr", "127.0.0.1:54934", "IP:PORT to listen for API requests")
 	maxShutdownTime := flag.String("maxShutdownTime", "5s", "max time to wait for shutdown (valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\")")
+	metAddr := flag.String("metAddr", "127.0.0.1:54933", "IP:PORT of metric service")
 
 	flag.Parse()
 
@@ -33,8 +35,14 @@ func LoadConfig() (*Config, error) {
 		return nil, fmt.Errorf("invalid max shutdown time: %w", err)
 	}
 
+	met, err := netip.ParseAddrPort(*metAddr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid address: %w", err)
+	}
+
 	return &Config{
 		ListenAndServeAPIAddr:            addr.String(),
 		ListenAndServeAPIMaxShutdownTime: msdt,
+		MetAddr:                          met,
 	}, nil
 }

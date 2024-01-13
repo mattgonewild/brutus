@@ -1,14 +1,8 @@
-/*
-
-This package should probably be using fly.io's metric endpoints, but for now a more general approach...
-
-*/
-
+// TODO: network IO
 package reporter
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/netip"
 	"os"
@@ -24,7 +18,6 @@ import (
 	"github.com/mackerelio/go-osstat/cpu"
 	"github.com/mackerelio/go-osstat/loadavg"
 	"github.com/mackerelio/go-osstat/memory"
-	"github.com/mackerelio/go-osstat/network"
 	"github.com/mackerelio/go-osstat/uptime"
 )
 
@@ -52,11 +45,6 @@ func NewReporter(ctx context.Context, logger *zap.Logger, inter time.Duration, m
 		logger.Error("error getting worker uuid")
 	}
 
-	ip, ok := os.LookupEnv("WORKER_IP")
-	if !ok {
-		logger.Error("error getting worker ip")
-	}
-
 	t, ok := os.LookupEnv("WORKER_TYPE")
 	if !ok {
 		logger.Error("error getting worker type")
@@ -71,20 +59,13 @@ func NewReporter(ctx context.Context, logger *zap.Logger, inter time.Duration, m
 		conn:      conn,
 		report: &proto.Worker{
 			Id:   id,
-			Ip:   ip,
 			Type: t,
 		},
 		netIf: netIf,
 	}, nil
 }
 
-func (r *Reporter) Stop() {
-	r.cancel()
-	r.conn.Close()
-}
-
-// TODO: ... I'm not sure about this
-func (r *Reporter) Start(bCh chan bool) error {
+func (r *Reporter) Start(opsCh chan bool) error {
 	defer r.Stop()
 
 	var wg sync.WaitGroup
@@ -111,7 +92,7 @@ func (r *Reporter) Start(bCh chan bool) error {
 			select {
 			case <-r.ctx.Done():
 				return
-			case <-bCh:
+			case <-opsCh:
 				atomic.AddInt64(&r.report.Ops, 1)
 			}
 		}
@@ -160,6 +141,11 @@ func (r *Reporter) Start(bCh chan bool) error {
 	return err
 }
 
+func (r *Reporter) Stop() {
+	r.cancel()
+	r.conn.Close()
+}
+
 func (r *Reporter) BuildReport() *proto.Worker {
 	cpuStats, err := cpu.Get()
 	if err != nil {
@@ -171,11 +157,6 @@ func (r *Reporter) BuildReport() *proto.Worker {
 	if err != nil {
 		r.logger.Error("error getting memory stats", zap.Error(err))
 		memStats = &memory.Stats{Used: 0, Total: 0, SwapUsed: 0, SwapTotal: 0}
-	}
-
-	rx, tx, err := GetNetworkIO(r.netIf)
-	if err != nil {
-		r.logger.Error("error getting network stats", zap.Error(err))
 	}
 
 	uptime, err := uptime.Get()
@@ -205,10 +186,6 @@ func (r *Reporter) BuildReport() *proto.Worker {
 				SwapUsed:  memStats.SwapUsed,
 				SwapTotal: memStats.SwapTotal,
 			},
-			Net: &proto.Net{
-				Rx: rx,
-				Tx: tx,
-			},
 			Uptime: &proto.Uptime{
 				Duration: int64(uptime),
 			},
@@ -220,17 +197,4 @@ func (r *Reporter) BuildReport() *proto.Worker {
 		},
 		Ops: atomic.LoadInt64(&r.report.Ops),
 	}
-}
-
-func GetNetworkIO(netIf string) (rx, tx uint64, err error) {
-	stats, err := network.Get()
-	if err != nil {
-		return 0, 0, err
-	}
-	for i := range stats {
-		if stats[i].Name == netIf {
-			return stats[i].RxBytes, stats[i].TxBytes, nil
-		}
-	}
-	return 0, 0, fmt.Errorf("interface %s not found", netIf)
 }

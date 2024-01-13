@@ -18,11 +18,13 @@ import (
 
 type PermServer struct {
 	proto.UnimplementedPermServer
+	opsCh        chan<- bool
 	Combinations *lane.Queue[*proto.Combination]
 }
 
-func NewPermServer(ctx context.Context) *PermServer {
+func NewPermServer(opsCh chan bool) *PermServer {
 	return &PermServer{
+		opsCh:        opsCh,
 		Combinations: lane.NewQueue[*proto.Combination](),
 	}
 }
@@ -131,6 +133,7 @@ func (s *PermServer) Connect(stream proto.Perm_ConnectServer) error {
 				logger.Error("error sending message", zap.Error(err))
 				return
 			}
+			s.opsCh <- true
 		}
 	}()
 

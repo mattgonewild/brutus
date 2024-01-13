@@ -17,13 +17,15 @@ import (
 
 type CombServer struct {
 	proto.UnimplementedCombServer
+	opsCh    chan<- bool
 	mu       sync.RWMutex
 	Elements map[string]*proto.Element
 	SentComb map[string]bool
 }
 
-func NewCombServer(ctx context.Context) *CombServer {
+func NewCombServer(opsCh chan bool) *CombServer {
 	return &CombServer{
+		opsCh:    opsCh,
 		Elements: make(map[string]*proto.Element),
 		SentComb: make(map[string]bool),
 	}
@@ -109,9 +111,8 @@ func (s *CombServer) Connect(stream proto.Comb_ConnectServer) error {
 		combCh                    = make(chan []*proto.Element)
 	)
 
-	wg.Add(2)
-
 	// receive
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		for {
@@ -143,6 +144,7 @@ func (s *CombServer) Connect(stream proto.Comb_ConnectServer) error {
 	}()
 
 	// send
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		for comb := range combCh {
@@ -159,6 +161,7 @@ func (s *CombServer) Connect(stream proto.Comb_ConnectServer) error {
 			}
 			s.SentComb[flattenedComb] = true
 			s.mu.Unlock()
+			s.opsCh <- true
 		}
 	}()
 

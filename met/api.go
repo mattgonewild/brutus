@@ -154,7 +154,7 @@ func (s *MetServer) GetWorkerLastReport(id string) (*proto.Worker, error) {
 // met.MetServer interface
 
 func (s *MetServer) GetPoolLoad(ctx context.Context, req *proto.PoolLoadRequest) (*proto.PoolLoadResponse, error) {
-	return nil, nil
+	return &proto.PoolLoadResponse{Load: 1.0}, nil // TODO: load calculation
 }
 
 func (s *MetServer) GetWorker(ctx context.Context, req *proto.WorkerRequest) (*proto.WorkerResponse, error) {

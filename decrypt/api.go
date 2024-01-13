@@ -20,13 +20,15 @@ import (
 
 type DecryptServer struct {
 	proto.UnimplementedDecryptServer
+	opsCh        chan<- bool
 	mu           sync.RWMutex
 	target       *crypto.PGPMessage
 	Permutations *lane.Queue[*proto.Permutation]
 }
 
-func NewDecryptServer(ctx context.Context) *DecryptServer {
+func NewDecryptServer(opsCh chan bool) *DecryptServer {
 	return &DecryptServer{
+		opsCh:        opsCh,
 		Permutations: lane.NewQueue[*proto.Permutation](),
 	}
 }
@@ -138,6 +140,7 @@ func (s *DecryptServer) Connect(stream proto.Decrypt_ConnectServer) error {
 				logger.Error("error sending message", zap.Error(err))
 				return
 			}
+			s.opsCh <- true
 		}
 	}()
 
