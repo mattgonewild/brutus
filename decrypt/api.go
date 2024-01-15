@@ -10,7 +10,10 @@ import (
 	"time"
 
 	"github.com/ProtonMail/gopenpgp/v2/crypto"
+
 	"github.com/mattgonewild/brutus/decrypt/proto"
+	brutus "github.com/mattgonewild/brutus/proto/go"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -23,13 +26,13 @@ type DecryptServer struct {
 	opsCh        chan<- bool
 	mu           sync.RWMutex
 	target       *crypto.PGPMessage
-	Permutations *lane.Queue[*proto.Permutation]
+	Permutations *lane.Queue[*brutus.Permutation]
 }
 
 func NewDecryptServer(opsCh chan bool) *DecryptServer {
 	return &DecryptServer{
 		opsCh:        opsCh,
-		Permutations: lane.NewQueue[*proto.Permutation](),
+		Permutations: lane.NewQueue[*brutus.Permutation](),
 	}
 }
 
@@ -73,7 +76,7 @@ func ListenAndServeAPI(shutdownCtx context.Context, config *Config, api *Decrypt
 	}
 }
 
-func (s *DecryptServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, out chan *proto.Result) {
+func (s *DecryptServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, out chan *brutus.Result) {
 	defer wg.Done()
 	for {
 		select {
@@ -92,10 +95,10 @@ func (s *DecryptServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, out
 			_, err := crypto.DecryptMessageWithPassword(s.target, perm.Value)
 			s.mu.RUnlock()
 			if err != nil {
-				out <- &proto.Result{Success: false, Value: perm.Value}
+				out <- &brutus.Result{Success: false, Value: perm.Value}
 				continue
 			}
-			out <- &proto.Result{Success: true, Value: perm.Value}
+			out <- &brutus.Result{Success: true, Value: perm.Value}
 		}
 	}
 }
@@ -105,7 +108,7 @@ func (s *DecryptServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, out
 func (s *DecryptServer) Connect(stream proto.Decrypt_ConnectServer) error {
 	var (
 		wg       sync.WaitGroup
-		resultCh = make(chan *proto.Result, 256)
+		resultCh = make(chan *brutus.Result, 256)
 	)
 
 	for i := 0; i < runtime.NumCPU(); i++ {
@@ -148,7 +151,7 @@ func (s *DecryptServer) Connect(stream proto.Decrypt_ConnectServer) error {
 	return nil
 }
 
-func (s *DecryptServer) Set(ctx context.Context, req *proto.Target) (*emptypb.Empty, error) {
+func (s *DecryptServer) Set(ctx context.Context, req *brutus.Target) (*emptypb.Empty, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	target, err := crypto.NewPGPMessageFromArmored(string(req.Value))

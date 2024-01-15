@@ -19,6 +19,7 @@ import (
 	comb "github.com/mattgonewild/brutus/comb/proto"
 	decrypt "github.com/mattgonewild/brutus/decrypt/proto"
 	perm "github.com/mattgonewild/brutus/perm/proto"
+	brutus "github.com/mattgonewild/brutus/proto/go"
 )
 
 type Worker struct {
@@ -34,8 +35,8 @@ type CombClient interface {
 
 type CombStream interface {
 	grpc.ClientStream
-	Send(*comb.Request) error
-	Recv() (*comb.Combination, error)
+	Send(*brutus.Request) error
+	Recv() (*brutus.Combination, error)
 }
 
 type PermClient interface {
@@ -54,8 +55,8 @@ type DecryptClient interface {
 
 type DecryptStream interface {
 	grpc.ClientStream
-	Send(*decrypt.Permutation) error
-	Recv() (*decrypt.Result, error)
+	Send(*brutus.Permutation) error
+	Recv() (*brutus.Result, error)
 }
 
 func (w *Worker) Init(ctx context.Context, machineCPU string, machineRAM int64, appName string, image string, serviceType ServiceType) error {
@@ -137,7 +138,7 @@ func (w *Worker) Start(ctx context.Context, in chan []byte, out chan []byte) err
 				// process bytes
 				switch t := stream.(type) {
 				case CombStream:
-					req := new(comb.Request)
+					req := new(brutus.Request)
 					err := proto.Unmarshal(bytes, req)
 					if err != nil {
 						logger.Error("failed to unmarshal request", zap.Error(err), zap.String("type", string(w.class)), zap.String("ip", w.addr.String()))
@@ -159,7 +160,7 @@ func (w *Worker) Start(ctx context.Context, in chan []byte, out chan []byte) err
 						return
 					}
 				case DecryptStream:
-					req := new(decrypt.Permutation)
+					req := new(brutus.Permutation)
 					err := proto.Unmarshal(bytes, req)
 					if err != nil {
 						logger.Error("failed to unmarshal request", zap.Error(err), zap.String("type", string(w.class)), zap.String("ip", w.addr.String()))

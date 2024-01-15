@@ -8,6 +8,7 @@ package proto
 
 import (
 	context "context"
+	_go "github.com/mattgonewild/brutus/proto/go"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -50,8 +51,8 @@ func (c *combClient) Connect(ctx context.Context, opts ...grpc.CallOption) (Comb
 }
 
 type Comb_ConnectClient interface {
-	Send(*Request) error
-	Recv() (*Combination, error)
+	Send(*_go.Request) error
+	Recv() (*_go.Combination, error)
 	grpc.ClientStream
 }
 
@@ -59,12 +60,12 @@ type combConnectClient struct {
 	grpc.ClientStream
 }
 
-func (x *combConnectClient) Send(m *Request) error {
+func (x *combConnectClient) Send(m *_go.Request) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *combConnectClient) Recv() (*Combination, error) {
-	m := new(Combination)
+func (x *combConnectClient) Recv() (*_go.Combination, error) {
+	m := new(_go.Combination)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -117,8 +118,8 @@ func _Comb_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
 }
 
 type Comb_ConnectServer interface {
-	Send(*Combination) error
-	Recv() (*Request, error)
+	Send(*_go.Combination) error
+	Recv() (*_go.Request, error)
 	grpc.ServerStream
 }
 
@@ -126,12 +127,12 @@ type combConnectServer struct {
 	grpc.ServerStream
 }
 
-func (x *combConnectServer) Send(m *Combination) error {
+func (x *combConnectServer) Send(m *_go.Combination) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *combConnectServer) Recv() (*Request, error) {
-	m := new(Request)
+func (x *combConnectServer) Recv() (*_go.Request, error) {
+	m := new(_go.Request)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}

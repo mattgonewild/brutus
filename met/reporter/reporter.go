@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/mattgonewild/brutus/met/proto"
+	brutus "github.com/mattgonewild/brutus/proto/go"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -28,7 +30,7 @@ type Reporter struct {
 	logger *zap.Logger
 	inter  time.Duration
 	conn   *grpc.ClientConn
-	report *proto.Worker
+	report *brutus.Worker
 	netIf  string
 }
 
@@ -57,7 +59,7 @@ func NewReporter(ctx context.Context, logger *zap.Logger, inter time.Duration, m
 		logger:    logger,
 		inter:     inter,
 		conn:      conn,
-		report: &proto.Worker{
+		report: &brutus.Worker{
 			Id:   id,
 			Type: t,
 		},
@@ -146,7 +148,7 @@ func (r *Reporter) Stop() {
 	r.conn.Close()
 }
 
-func (r *Reporter) BuildReport() *proto.Worker {
+func (r *Reporter) BuildReport() *brutus.Worker {
 	cpuStats, err := cpu.Get()
 	if err != nil {
 		r.logger.Error("error getting cpu stats", zap.Error(err))
@@ -170,26 +172,26 @@ func (r *Reporter) BuildReport() *proto.Worker {
 		loadStats = &loadavg.Stats{Loadavg1: 0, Loadavg5: 0, Loadavg15: 0}
 	}
 
-	return &proto.Worker{
+	return &brutus.Worker{
 		Id:   r.report.Id,
 		Time: timestamppb.Now(),
 		Ip:   r.report.Ip,
 		Type: r.report.Type,
-		Proc: &proto.Proc{
-			Cpu: &proto.Cpu{
+		Proc: &brutus.Proc{
+			Cpu: &brutus.Cpu{
 				Idle:  cpuStats.Idle,
 				Total: cpuStats.Total,
 			},
-			Mem: &proto.Mem{
+			Mem: &brutus.Mem{
 				Used:      memStats.Used,
 				Total:     memStats.Total,
 				SwapUsed:  memStats.SwapUsed,
 				SwapTotal: memStats.SwapTotal,
 			},
-			Uptime: &proto.Uptime{
+			Uptime: &brutus.Uptime{
 				Duration: int64(uptime),
 			},
-			LoadAvg: &proto.LoadAvg{
+			LoadAvg: &brutus.LoadAvg{
 				OneMinute:      loadStats.Loadavg1,
 				FiveMinutes:    loadStats.Loadavg5,
 				FifteenMinutes: loadStats.Loadavg15,

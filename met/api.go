@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/mattgonewild/brutus/met/proto"
+	brutus "github.com/mattgonewild/brutus/proto/go"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -18,7 +20,7 @@ import (
 
 type ReportsDB struct {
 	mu          sync.RWMutex
-	latest      *proto.Worker
+	latest      *brutus.Worker
 	lastUpdated time.Time
 	history     *ring.Ring
 }
@@ -29,7 +31,7 @@ func NewReportsDB() *ReportsDB {
 	}
 }
 
-func (db *ReportsDB) Add(report *proto.Worker) {
+func (db *ReportsDB) Add(report *brutus.Worker) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
@@ -126,7 +128,7 @@ func ListenAndServeAPI(shutdownCtx context.Context, config *Config, api *MetServ
 	}
 }
 
-func (s *MetServer) GetWorkerLastReport(id string) (*proto.Worker, error) {
+func (s *MetServer) GetWorkerLastReport(id string) (*brutus.Worker, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -153,85 +155,85 @@ func (s *MetServer) GetWorkerLastReport(id string) (*proto.Worker, error) {
 
 // met.MetServer interface
 
-func (s *MetServer) GetPoolLoad(ctx context.Context, req *proto.PoolLoadRequest) (*proto.PoolLoadResponse, error) {
-	return &proto.PoolLoadResponse{Load: 1.0}, nil // TODO: load calculation
+func (s *MetServer) GetPoolLoad(ctx context.Context, req *brutus.PoolLoadRequest) (*brutus.PoolLoadResponse, error) {
+	return &brutus.PoolLoadResponse{Load: 1.0}, nil // TODO: load calculation
 }
 
-func (s *MetServer) GetWorker(ctx context.Context, req *proto.WorkerRequest) (*proto.WorkerResponse, error) {
+func (s *MetServer) GetWorker(ctx context.Context, req *brutus.WorkerRequest) (*brutus.WorkerResponse, error) {
 	reports, err := s.GetWorkerLastReport(req.Id)
 	if err != nil {
 		logger.Error("error getting worker", zap.Error(err))
 		return nil, err
 	}
 
-	return &proto.WorkerResponse{Worker: reports}, nil
+	return &brutus.WorkerResponse{Worker: reports}, nil
 }
 
-func (s *MetServer) GetWorkerCpu(ctx context.Context, req *proto.WorkerRequest) (*proto.CpuResponse, error) {
+func (s *MetServer) GetWorkerCpu(ctx context.Context, req *brutus.WorkerRequest) (*brutus.CpuResponse, error) {
 	reports, err := s.GetWorkerLastReport(req.Id)
 	if err != nil {
 		logger.Error("error getting worker", zap.Error(err))
 		return nil, err
 	}
 
-	return &proto.CpuResponse{Cpu: reports.Proc.Cpu}, nil
+	return &brutus.CpuResponse{Cpu: reports.Proc.Cpu}, nil
 }
 
-func (s *MetServer) GetWorkerLoadavg(ctx context.Context, req *proto.WorkerRequest) (*proto.LoadAvgResponse, error) {
+func (s *MetServer) GetWorkerLoadavg(ctx context.Context, req *brutus.WorkerRequest) (*brutus.LoadAvgResponse, error) {
 	reports, err := s.GetWorkerLastReport(req.Id)
 	if err != nil {
 		logger.Error("error getting worker", zap.Error(err))
 		return nil, err
 	}
 
-	return &proto.LoadAvgResponse{LoadAvg: reports.Proc.LoadAvg}, nil
+	return &brutus.LoadAvgResponse{LoadAvg: reports.Proc.LoadAvg}, nil
 }
 
-func (s *MetServer) GetWorkerMem(ctx context.Context, req *proto.WorkerRequest) (*proto.MemResponse, error) {
+func (s *MetServer) GetWorkerMem(ctx context.Context, req *brutus.WorkerRequest) (*brutus.MemResponse, error) {
 	reports, err := s.GetWorkerLastReport(req.Id)
 	if err != nil {
 		logger.Error("error getting worker", zap.Error(err))
 		return nil, err
 	}
 
-	return &proto.MemResponse{Mem: reports.Proc.Mem}, nil
+	return &brutus.MemResponse{Mem: reports.Proc.Mem}, nil
 }
 
-func (s *MetServer) GetWorkerNet(ctx context.Context, req *proto.WorkerRequest) (*proto.NetResponse, error) {
+func (s *MetServer) GetWorkerNet(ctx context.Context, req *brutus.WorkerRequest) (*brutus.NetResponse, error) {
 	reports, err := s.GetWorkerLastReport(req.Id)
 	if err != nil {
 		logger.Error("error getting worker", zap.Error(err))
 		return nil, err
 	}
 
-	return &proto.NetResponse{Net: reports.Proc.Net}, nil
+	return &brutus.NetResponse{Net: reports.Proc.Net}, nil
 }
 
-func (s *MetServer) GetWorkerProc(ctx context.Context, req *proto.WorkerRequest) (*proto.ProcResponse, error) {
+func (s *MetServer) GetWorkerProc(ctx context.Context, req *brutus.WorkerRequest) (*brutus.ProcResponse, error) {
 	reports, err := s.GetWorkerLastReport(req.Id)
 	if err != nil {
 		logger.Error("error getting worker", zap.Error(err))
 		return nil, err
 	}
 
-	return &proto.ProcResponse{Proc: reports.Proc}, nil
+	return &brutus.ProcResponse{Proc: reports.Proc}, nil
 }
 
-func (s *MetServer) GetWorkerUptime(ctx context.Context, req *proto.WorkerRequest) (*proto.UptimeResponse, error) {
+func (s *MetServer) GetWorkerUptime(ctx context.Context, req *brutus.WorkerRequest) (*brutus.UptimeResponse, error) {
 	reports, err := s.GetWorkerLastReport(req.Id)
 	if err != nil {
 		logger.Error("error getting worker", zap.Error(err))
 		return nil, err
 	}
 
-	return &proto.UptimeResponse{Uptime: reports.Proc.Uptime}, nil
+	return &brutus.UptimeResponse{Uptime: reports.Proc.Uptime}, nil
 }
 
-func (s *MetServer) GetWorkers(ctx context.Context, req *emptypb.Empty) (*proto.WorkersResponse, error) {
+func (s *MetServer) GetWorkers(ctx context.Context, req *emptypb.Empty) (*brutus.WorkersResponse, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	workers := make([]*proto.Worker, 0, 12)
+	workers := make([]*brutus.Worker, 0, 12)
 	for _, pool := range s.Pools {
 		for _, reportDB := range pool {
 			reportDB.mu.RLock()
@@ -242,7 +244,7 @@ func (s *MetServer) GetWorkers(ctx context.Context, req *emptypb.Empty) (*proto.
 		}
 	}
 
-	return &proto.WorkersResponse{Workers: workers}, nil
+	return &brutus.WorkersResponse{Workers: workers}, nil
 }
 
 func (s *MetServer) Report(stream proto.Met_ReportServer) error {

@@ -8,6 +8,7 @@ package proto
 
 import (
 	context "context"
+	_go "github.com/mattgonewild/brutus/proto/go"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -29,7 +30,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DecryptClient interface {
-	Set(ctx context.Context, in *Target, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Set(ctx context.Context, in *_go.Target, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Connect(ctx context.Context, opts ...grpc.CallOption) (Decrypt_ConnectClient, error)
 	Shutdown(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -42,7 +43,7 @@ func NewDecryptClient(cc grpc.ClientConnInterface) DecryptClient {
 	return &decryptClient{cc}
 }
 
-func (c *decryptClient) Set(ctx context.Context, in *Target, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *decryptClient) Set(ctx context.Context, in *_go.Target, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Decrypt_Set_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -61,8 +62,8 @@ func (c *decryptClient) Connect(ctx context.Context, opts ...grpc.CallOption) (D
 }
 
 type Decrypt_ConnectClient interface {
-	Send(*Permutation) error
-	Recv() (*Result, error)
+	Send(*_go.Permutation) error
+	Recv() (*_go.Result, error)
 	grpc.ClientStream
 }
 
@@ -70,12 +71,12 @@ type decryptConnectClient struct {
 	grpc.ClientStream
 }
 
-func (x *decryptConnectClient) Send(m *Permutation) error {
+func (x *decryptConnectClient) Send(m *_go.Permutation) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *decryptConnectClient) Recv() (*Result, error) {
-	m := new(Result)
+func (x *decryptConnectClient) Recv() (*_go.Result, error) {
+	m := new(_go.Result)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -95,7 +96,7 @@ func (c *decryptClient) Shutdown(ctx context.Context, in *emptypb.Empty, opts ..
 // All implementations must embed UnimplementedDecryptServer
 // for forward compatibility
 type DecryptServer interface {
-	Set(context.Context, *Target) (*emptypb.Empty, error)
+	Set(context.Context, *_go.Target) (*emptypb.Empty, error)
 	Connect(Decrypt_ConnectServer) error
 	Shutdown(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedDecryptServer()
@@ -105,7 +106,7 @@ type DecryptServer interface {
 type UnimplementedDecryptServer struct {
 }
 
-func (UnimplementedDecryptServer) Set(context.Context, *Target) (*emptypb.Empty, error) {
+func (UnimplementedDecryptServer) Set(context.Context, *_go.Target) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Set not implemented")
 }
 func (UnimplementedDecryptServer) Connect(Decrypt_ConnectServer) error {
@@ -128,7 +129,7 @@ func RegisterDecryptServer(s grpc.ServiceRegistrar, srv DecryptServer) {
 }
 
 func _Decrypt_Set_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Target)
+	in := new(_go.Target)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -140,7 +141,7 @@ func _Decrypt_Set_Handler(srv interface{}, ctx context.Context, dec func(interfa
 		FullMethod: Decrypt_Set_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DecryptServer).Set(ctx, req.(*Target))
+		return srv.(DecryptServer).Set(ctx, req.(*_go.Target))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -150,8 +151,8 @@ func _Decrypt_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
 }
 
 type Decrypt_ConnectServer interface {
-	Send(*Result) error
-	Recv() (*Permutation, error)
+	Send(*_go.Result) error
+	Recv() (*_go.Permutation, error)
 	grpc.ServerStream
 }
 
@@ -159,12 +160,12 @@ type decryptConnectServer struct {
 	grpc.ServerStream
 }
 
-func (x *decryptConnectServer) Send(m *Result) error {
+func (x *decryptConnectServer) Send(m *_go.Result) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *decryptConnectServer) Recv() (*Permutation, error) {
-	m := new(Permutation)
+func (x *decryptConnectServer) Recv() (*_go.Permutation, error) {
+	m := new(_go.Permutation)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}

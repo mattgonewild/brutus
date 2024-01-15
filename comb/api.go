@@ -10,6 +10,8 @@ import (
 	"syscall"
 
 	"github.com/mattgonewild/brutus/comb/proto"
+	brutus "github.com/mattgonewild/brutus/proto/go"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -19,14 +21,14 @@ type CombServer struct {
 	proto.UnimplementedCombServer
 	opsCh    chan<- bool
 	mu       sync.RWMutex
-	Elements map[string]*proto.Element
+	Elements map[string]*brutus.Element
 	SentComb map[string]bool
 }
 
 func NewCombServer(opsCh chan bool) *CombServer {
 	return &CombServer{
 		opsCh:    opsCh,
-		Elements: make(map[string]*proto.Element),
+		Elements: make(map[string]*brutus.Element),
 		SentComb: make(map[string]bool),
 	}
 }
@@ -71,21 +73,21 @@ func ListenAndServeAPI(shutdownCtx context.Context, config *Config, api *CombSer
 	}
 }
 
-func (s *CombServer) AddElement(e *proto.Element) {
+func (s *CombServer) AddElement(e *brutus.Element) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.Elements[e.Id] = e
 }
 
-func (s *CombServer) RemoveElement(e *proto.Element) {
+func (s *CombServer) RemoveElement(e *brutus.Element) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	delete(s.Elements, e.Id)
 }
 
-func (s *CombServer) GenerateCombinations(ctx context.Context, combCh chan<- []*proto.Element) {
+func (s *CombServer) GenerateCombinations(ctx context.Context, combCh chan<- []*brutus.Element) {
 	s.mu.RLock()
-	elements := make([]*proto.Element, 0, len(s.Elements))
+	elements := make([]*brutus.Element, 0, len(s.Elements))
 	for _, e := range s.Elements {
 		elements = append(elements, e)
 	}
@@ -108,7 +110,7 @@ func (s *CombServer) Connect(stream proto.Comb_ConnectServer) error {
 	var (
 		wg     sync.WaitGroup
 		cancel context.CancelFunc = func() {}
-		combCh                    = make(chan []*proto.Element)
+		combCh                    = make(chan []*brutus.Element)
 	)
 
 	// receive
@@ -154,7 +156,7 @@ func (s *CombServer) Connect(stream proto.Comb_ConnectServer) error {
 				s.mu.Unlock()
 				continue
 			}
-			if err := stream.Send(&proto.Combination{Elements: comb}); err != nil {
+			if err := stream.Send(&brutus.Combination{Elements: comb}); err != nil {
 				s.mu.Unlock()
 				logger.Error("error sending message", zap.Error(err))
 				return
@@ -169,7 +171,7 @@ func (s *CombServer) Connect(stream proto.Comb_ConnectServer) error {
 	return nil
 }
 
-func FlattenCombination(comb []*proto.Element) string {
+func FlattenCombination(comb []*brutus.Element) string {
 	elements := make([]string, 0, len(comb))
 	for _, e := range comb {
 		elements = append(elements, string(e.Value))

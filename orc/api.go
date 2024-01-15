@@ -15,7 +15,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	met "github.com/mattgonewild/brutus/met/proto"
-	orc "github.com/mattgonewild/brutus/orc/proto"
+	brutus "github.com/mattgonewild/brutus/proto/go"
 )
 
 type APIServer struct {
@@ -98,7 +98,7 @@ func (s *APIServer) handleBudget() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			balance := &orc.Budget{Timestamp: timestamppb.Now(), Balance: s.BudgetManager.LoadBalance()}
+			balance := &brutus.Budget{Timestamp: timestamppb.Now(), Balance: s.BudgetManager.LoadBalance()}
 
 			data, err := proto.Marshal(balance)
 			if err != nil {
@@ -116,7 +116,7 @@ func (s *APIServer) handleBudget() http.Handler {
 				return
 			}
 
-			budget := new(orc.Budget)
+			budget := new(brutus.Budget)
 			if err := proto.Unmarshal(body, budget); err != nil {
 				logger.Error("failed to decode budget", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())))
 				http.Error(w, "failed to decode budget", http.StatusBadRequest)
@@ -154,12 +154,12 @@ func (s *APIServer) handleWorkers() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			workers := []*met.Worker{}
+			workers := []*brutus.Worker{}
 
 			for _, service := range s.Services {
 				service.WorkerManager.Mutex.Lock()
 				for _, worker := range service.WorkerManager.ActiveWorkers {
-					resp, err := s.MetricsClient.GetWorker(r.Context(), &met.WorkerRequest{Id: worker.uuid})
+					resp, err := s.MetricsClient.GetWorker(r.Context(), &brutus.WorkerRequest{Id: worker.uuid})
 					if err != nil {
 						logger.Error("failed to get worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", worker.uuid))
 						continue
@@ -169,7 +169,7 @@ func (s *APIServer) handleWorkers() http.Handler {
 				service.WorkerManager.Mutex.Unlock()
 			}
 
-			data, err := proto.Marshal(&met.WorkersResponse{Workers: workers}) // TODO: ...
+			data, err := proto.Marshal(&brutus.WorkersResponse{Workers: workers}) // TODO: ...
 			if err != nil {
 				logger.Error("failed to encode workers", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())))
 				http.Error(w, "failed to encode workers", http.StatusInternalServerError)
@@ -195,7 +195,7 @@ func (s *APIServer) handleWorker() http.Handler {
 				return
 			}
 
-			worker := new(met.Worker)
+			worker := new(brutus.Worker)
 			if err := proto.Unmarshal(body, worker); err != nil {
 				logger.Error("failed to decode worker", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())))
 				http.Error(w, "failed to decode worker", http.StatusBadRequest)
@@ -268,7 +268,7 @@ func (s *APIServer) handleWorkerProc() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			resp, err := s.MetricsClient.GetWorkerProc(r.Context(), &met.WorkerRequest{Id: GetWorkerID(r.Context())})
+			resp, err := s.MetricsClient.GetWorkerProc(r.Context(), &brutus.WorkerRequest{Id: GetWorkerID(r.Context())})
 			if err != nil {
 				logger.Error("failed to get worker proc", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", GetWorkerID(r.Context())))
 				http.Error(w, "failed to get worker proc", http.StatusInternalServerError)
@@ -292,7 +292,7 @@ func (s *APIServer) handleWorkerCpu() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			resp, err := s.MetricsClient.GetWorkerCpu(r.Context(), &met.WorkerRequest{Id: GetWorkerID(r.Context())})
+			resp, err := s.MetricsClient.GetWorkerCpu(r.Context(), &brutus.WorkerRequest{Id: GetWorkerID(r.Context())})
 			if err != nil {
 				logger.Error("failed to get worker cpu", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", GetWorkerID(r.Context())))
 				http.Error(w, "failed to get worker cpu", http.StatusInternalServerError)
@@ -316,7 +316,7 @@ func (s *APIServer) handleWorkerMem() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			resp, err := s.MetricsClient.GetWorkerMem(r.Context(), &met.WorkerRequest{Id: GetWorkerID(r.Context())})
+			resp, err := s.MetricsClient.GetWorkerMem(r.Context(), &brutus.WorkerRequest{Id: GetWorkerID(r.Context())})
 			if err != nil {
 				logger.Error("failed to get worker mem", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", GetWorkerID(r.Context())))
 				http.Error(w, "failed to get worker mem", http.StatusInternalServerError)
@@ -340,7 +340,7 @@ func (s *APIServer) handleWorkerNet() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			resp, err := s.MetricsClient.GetWorkerNet(r.Context(), &met.WorkerRequest{Id: GetWorkerID(r.Context())})
+			resp, err := s.MetricsClient.GetWorkerNet(r.Context(), &brutus.WorkerRequest{Id: GetWorkerID(r.Context())})
 			if err != nil {
 				logger.Error("failed to get worker net", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", GetWorkerID(r.Context())))
 				http.Error(w, "failed to get worker net", http.StatusInternalServerError)
@@ -364,7 +364,7 @@ func (s *APIServer) handleWorkerUptime() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			resp, err := s.MetricsClient.GetWorkerUptime(r.Context(), &met.WorkerRequest{Id: GetWorkerID(r.Context())})
+			resp, err := s.MetricsClient.GetWorkerUptime(r.Context(), &brutus.WorkerRequest{Id: GetWorkerID(r.Context())})
 			if err != nil {
 				logger.Error("failed to get worker uptime", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", GetWorkerID(r.Context())))
 				http.Error(w, "failed to get worker uptime", http.StatusInternalServerError)
@@ -388,7 +388,7 @@ func (s *APIServer) handleWorkerLoadavg() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			resp, err := s.MetricsClient.GetWorkerLoadAvg(r.Context(), &met.WorkerRequest{Id: GetWorkerID(r.Context())})
+			resp, err := s.MetricsClient.GetWorkerLoadAvg(r.Context(), &brutus.WorkerRequest{Id: GetWorkerID(r.Context())})
 			if err != nil {
 				logger.Error("failed to get worker load averages", zap.Error(err), zap.String("request_id", GetRequestID(r.Context())), zap.String("worker_id", GetWorkerID(r.Context())))
 				http.Error(w, "failed to get worker load averages", http.StatusInternalServerError)

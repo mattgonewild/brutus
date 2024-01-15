@@ -2,72 +2,21 @@ syntax = "proto3";
 
 package met;
 
-import "worker.proto";
-import "proc.proto";
-
+import "brutus/proto/message.proto";
 import "google/protobuf/empty.proto";
 
 option go_package = "github.com/mattgonewild/brutus/met/proto";
 
 service Met {
-  rpc Report(stream Worker) returns (stream Status);
-  rpc GetWorkers (google.protobuf.Empty) returns (WorkersResponse); // TODO: ...
-  rpc GetWorker (WorkerRequest) returns (WorkerResponse);
-  rpc GetWorkerProc (WorkerRequest) returns (ProcResponse);
-  rpc GetWorkerCpu (WorkerRequest) returns (CpuResponse);
-  rpc GetWorkerMem (WorkerRequest) returns (MemResponse);
-  rpc GetWorkerNet (WorkerRequest) returns (NetResponse);
-  rpc GetWorkerUptime (WorkerRequest) returns (UptimeResponse);
-  rpc GetWorkerLoadAvg (WorkerRequest) returns (LoadAvgResponse);
-  rpc GetPoolLoad (PoolLoadRequest) returns (PoolLoadResponse);
+  rpc Report(stream brutus.Worker) returns (stream brutus.Status);
+  rpc GetWorkers (google.protobuf.Empty) returns (brutus.WorkersResponse); // TODO: ...
+  rpc GetWorker (brutus.WorkerRequest) returns (brutus.WorkerResponse);
+  rpc GetWorkerProc (brutus.WorkerRequest) returns (brutus.ProcResponse);
+  rpc GetWorkerCpu (brutus.WorkerRequest) returns (brutus.CpuResponse);
+  rpc GetWorkerMem (brutus.WorkerRequest) returns (brutus.MemResponse);
+  rpc GetWorkerNet (brutus.WorkerRequest) returns (brutus.NetResponse);
+  rpc GetWorkerUptime (brutus.WorkerRequest) returns (brutus.UptimeResponse);
+  rpc GetWorkerLoadAvg (brutus.WorkerRequest) returns (brutus.LoadAvgResponse);
+  rpc GetPoolLoad (brutus.PoolLoadRequest) returns (brutus.PoolLoadResponse);
   rpc Shutdown (google.protobuf.Empty) returns (google.protobuf.Empty);
-}
-
-message Status {
-  int32 code = 1;
-  string message = 2;
-}
-
-message WorkersResponse {
-  repeated Worker workers = 1;
-}
-
-message WorkerRequest {
-  string id = 1;
-}
-
-message WorkerResponse {
-  Worker worker = 1;
-}
-
-message ProcResponse {
-  Proc proc = 1;
-}
-
-message CpuResponse {
-  Cpu cpu = 1;
-}
-
-message MemResponse {
-  Mem mem = 1;
-}
-
-message NetResponse {
-  Net net = 1;
-}
-
-message UptimeResponse {
-  Uptime uptime = 1;
-}
-
-message LoadAvgResponse {
-  LoadAvg LoadAvg = 1;
-}
-
-message PoolLoadRequest {
-  string type = 1;
-}
-
-message PoolLoadResponse {
-  double load = 1;
 }

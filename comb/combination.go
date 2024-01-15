@@ -1,7 +1,9 @@
 // https://github.com/carlmjohnson/go-utils/blob/master/combinations/combinations.go
 package main
 
-import "github.com/mattgonewild/brutus/comb/proto"
+import (
+	brutus "github.com/mattgonewild/brutus/proto/go"
+)
 
 // Iterator iterates through the length K combinations of
 // an N sized set. E.g. for K = 2 and N = 3, it sets Comb to {0, 1},
@@ -59,13 +61,13 @@ func (c *Iterator) Next() bool {
 //
 // E.g. For "abc", 2; Comb is set to "ab", "ac", and "bc" succesively.
 type ElementCombinatorK struct {
-	Comb []*proto.Element
-	src  []*proto.Element
+	Comb []*brutus.Element
+	src  []*brutus.Element
 	// This is private because it violates the law of Demeter
 	i Iterator
 }
 
-func NewElementCombinatorK(src []*proto.Element, k int) ElementCombinatorK {
+func NewElementCombinatorK(src []*brutus.Element, k int) ElementCombinatorK {
 	return ElementCombinatorK{
 		src: src,
 		i: Iterator{
@@ -81,7 +83,7 @@ func (s *ElementCombinatorK) Next() bool {
 	}
 
 	src := s.src
-	comb := make([]*proto.Element, len(s.i.Comb))
+	comb := make([]*brutus.Element, len(s.i.Comb))
 	for i, v := range s.i.Comb {
 		comb[i] = src[v]
 	}
@@ -94,10 +96,10 @@ func (s *ElementCombinatorK) Next() bool {
 // from shortest to longest.
 type ElementCombinator struct {
 	sk   ElementCombinatorK
-	Comb []*proto.Element
+	Comb []*brutus.Element
 }
 
-func NewElementCombinator(src []*proto.Element) ElementCombinator {
+func NewElementCombinator(src []*brutus.Element) ElementCombinator {
 	return ElementCombinator{
 		sk: NewElementCombinatorK(src, 1),
 	}

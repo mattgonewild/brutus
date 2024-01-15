@@ -1,0 +1,132 @@
+syntax = "proto3";
+
+package brutus;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/mattgonewild/brutus/proto/go";
+
+message Budget {
+    google.protobuf.Timestamp timestamp = 1;
+    double balance = 2;
+}
+
+message Request {
+    bool add = 1;
+    Element element = 2;
+}
+
+message Element {
+    string id = 1;
+    bytes value = 2;
+}
+
+message Combination {
+    repeated Element elements = 1;
+}
+
+message Permutation {
+    bytes value = 1;
+}
+
+message Target {
+    bytes value = 1;
+}
+
+message Result {
+    bool success = 1;
+    bytes value = 2;
+}
+
+message Status {
+    int32 code = 1;
+    string message = 2;
+}
+
+message WorkersResponse {
+    repeated Worker workers = 1;
+}
+
+message WorkerRequest {
+    string id = 1;
+}
+
+message WorkerResponse {
+    Worker worker = 1;
+}
+
+message ProcResponse {
+    Proc proc = 1;
+}
+
+message CpuResponse {
+    Cpu cpu = 1;
+}
+
+message MemResponse {
+    Mem mem = 1;
+}
+
+message NetResponse {
+    Net net = 1;
+}
+
+message UptimeResponse {
+    Uptime uptime = 1;
+}
+
+message LoadAvgResponse {
+    LoadAvg LoadAvg = 1;
+}
+
+message PoolLoadRequest {
+    string type = 1;
+}
+
+message PoolLoadResponse {
+    double load = 1;
+}
+
+message Proc {
+    Cpu cpu = 1;
+    Mem mem = 2;
+    Net net = 3;
+    Uptime uptime = 4;
+    LoadAvg loadAvg = 5;
+}
+
+message Cpu {
+    uint64 idle = 1;
+    uint64 total = 2;
+}
+
+message Mem {
+    uint64 used = 1;
+    uint64 total = 2;
+    uint64 swapUsed = 3;
+    uint64 swapTotal = 4;
+}
+
+message Net {
+    uint64 rx = 1;
+    uint64 tx = 2;
+}
+
+message Uptime {
+    int64 duration = 1; // duration in seconds
+}
+
+message LoadAvg {
+    double oneMinute = 1;
+    double fiveMinutes = 2;
+    double fifteenMinutes = 3;
+}
+
+message Worker {
+    string id = 1;
+    google.protobuf.Timestamp time = 2; // time when the data was collected
+    string ip = 3;
+    string type = 4;
+    Proc proc = 5;
+    int64 ops = 6;
+}

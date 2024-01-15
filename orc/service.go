@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 
 	met "github.com/mattgonewild/brutus/met/proto"
+	brutus "github.com/mattgonewild/brutus/proto/go"
 )
 
 type ServiceType string
@@ -54,7 +55,7 @@ func (s *Service) ManageWorkers(ctx context.Context, config *Config) {
 			s.Shutdown()
 			return
 		case <-ticker.C:
-			resp, err := s.MetricsClient.GetPoolLoad(ctx, &met.PoolLoadRequest{Type: string(s.Type)})
+			resp, err := s.MetricsClient.GetPoolLoad(ctx, &brutus.PoolLoadRequest{Type: string(s.Type)})
 			if err != nil {
 				logger.Warn("failed to get pool load", zap.Error(err), zap.String("type", string(s.Type)))
 				continue // something's not right, try again

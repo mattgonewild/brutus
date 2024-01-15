@@ -9,7 +9,7 @@ use (
 	./met/proto
 	./met/reporter
 	./orc
-	./orc/proto
 	./perm
 	./perm/proto
+	./proto/go
 )
