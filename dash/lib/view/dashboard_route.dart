@@ -1,3 +1,7 @@
+import 'package:dash/view/widget/panel_chart.dart';
+import 'package:dash/view/widget/panel_interactive_info.dart';
+import 'package:dash/view/widget/rail_node.dart';
+import 'package:dash/view/widget/rail_action.dart';
 import 'package:flutter/material.dart';
 
 class DashboardRoute extends StatelessWidget {
@@ -60,13 +64,13 @@ class DashboardDesktopLandscape extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
-      Expanded(flex: 1, child: Container(color: Colors.red)),
+    return const Row(children: [
+      Expanded(flex: 1, child: ActionRail()),
       Expanded(flex: 10, child: Row(children: [
-          Expanded(flex: 2, child: Container(color: Colors.green)),
+          Expanded(flex: 2, child: NodeRail()),
           Expanded(flex: 7, child: Column(children: [
-              Expanded(flex: 10, child: Container(color: Colors.yellow)),
-              Expanded(flex: 7, child: Container(color: Colors.pink)),
+              Expanded(flex: 10, child: ChartPanel()),
+              Expanded(flex: 7, child: InteractiveInfoPanel()),
     ]))]))]);
   }
 }
