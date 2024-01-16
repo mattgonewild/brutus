@@ -11,7 +11,7 @@ class DashboardRoute extends StatelessWidget {
 }
 
 Widget pickLayout(BuildContext context, BoxConstraints constraints) {
-  if (constraints.maxWidth < 1080) {
+  if (constraints.maxWidth < 1080 || constraints.maxHeight < 800) {
     // mobile
     if (MediaQuery.of(context).orientation == Orientation.portrait) {
       return const DashboardMobilePortrait();
@@ -60,6 +60,13 @@ class DashboardDesktopLandscape extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(color: Colors.red);
+    return Row(children: [
+      Expanded(flex: 1, child: Container(color: Colors.red)),
+      Expanded(flex: 10, child: Row(children: [
+          Expanded(flex: 2, child: Container(color: Colors.green)),
+          Expanded(flex: 7, child: Column(children: [
+              Expanded(flex: 10, child: Container(color: Colors.yellow)),
+              Expanded(flex: 7, child: Container(color: Colors.pink)),
+    ]))]))]);
   }
 }
