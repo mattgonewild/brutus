@@ -14,6 +14,17 @@
 			"perm",
 			"decrypt"
 		]
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "brutus dash debug",
+				"request": "launch",
+				"type": "dart",
+				"flutterMode": "debug",
+				"program": "dash/lib/main.dart"
+			}
+		]
 	}
 }
-
