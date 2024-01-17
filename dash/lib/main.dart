@@ -1,6 +1,7 @@
 import 'package:dash/bloc/conf/conf_bloc.dart';
 import 'package:dash/bloc/node/node_bloc.dart';
 import 'package:dash/bloc/sys/sys_bloc.dart';
+import 'package:dash/bloc/ui/ui_bloc.dart';
 import 'package:dash/repo/conf_repo.dart';
 import 'package:dash/repo/node_repo.dart';
 import 'package:dash/repo/sys_repo.dart';
@@ -19,6 +20,7 @@ void main() {
         BlocProvider<ConfBloc>(create: (context) => ConfBloc(confRepo: context.read<ConfRepo>())),
         BlocProvider<NodeBloc>(create: (context) => NodeBloc(nodeRepo: context.read<NodeRepo>())),
         BlocProvider<SysBloc>(create: (context) => SysBloc(sysRepo: context.read<SysRepo>())),
+        BlocProvider<UIBloc>(create: (context) => UIBloc()),
       ],
       child: MaterialApp(initialRoute: 'dashboard',
       routes: {
