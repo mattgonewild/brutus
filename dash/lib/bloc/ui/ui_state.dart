@@ -2,46 +2,48 @@
 
 part of 'ui_bloc.dart';
 
+enum ARBState { unselected, loading, selected }
+
 final class UIState extends Equatable {
   const UIState({
-    this.ARBStart = false,
+    this.ARBStart = ARBState.unselected,
     this.ARBStartButtonStyle = const ButtonStyle(),
     this.ARBStartTextStyle = const TextStyle(),
-    this.ARBStop = false,
+    this.ARBStop = ARBState.unselected,
     this.ARBStopButtonStyle = const ButtonStyle(),
     this.ARBStopTextStyle = const TextStyle(),
-    this.ARBLog = false,
+    this.ARBLog = ARBState.unselected,
     this.ARBLogButtonStyle = const ButtonStyle(),
     this.ARBLogTextStyle = const TextStyle(),
-    this.ARBSettings = false,
+    this.ARBSettings = ARBState.unselected,
     this.ARBSettingsButtonStyle = const ButtonStyle(),
     this.ARBSettingsTextStyle = const TextStyle()
   });
 
-  final bool ARBStart;
+  final ARBState ARBStart;
   final ButtonStyle ARBStartButtonStyle;
   final TextStyle ARBStartTextStyle;
-  final bool ARBStop;
+  final ARBState ARBStop;
   final ButtonStyle ARBStopButtonStyle;
   final TextStyle ARBStopTextStyle;
-  final bool ARBLog;
+  final ARBState ARBLog;
   final ButtonStyle ARBLogButtonStyle;
   final TextStyle ARBLogTextStyle;
-  final bool ARBSettings;
+  final ARBState ARBSettings;
   final ButtonStyle ARBSettingsButtonStyle;
   final TextStyle ARBSettingsTextStyle;
 
   UIState copyWith({
-    bool? ARBStart,
+    ARBState? ARBStart,
     ButtonStyle? ARBStartButtonStyle,
     TextStyle? ARBStartTextStyle,
-    bool? ARBStop,
+    ARBState? ARBStop,
     ButtonStyle? ARBStopButtonStyle,
     TextStyle? ARBStopTextStyle,
-    bool? ARBLog,
+    ARBState? ARBLog,
     ButtonStyle? ARBLogButtonStyle,
     TextStyle? ARBLogTextStyle,
-    bool? ARBSettings,
+    ARBState? ARBSettings,
     ButtonStyle? ARBSettingsButtonStyle,
     TextStyle? ARBSettingsTextStyle
   }) => UIState(
