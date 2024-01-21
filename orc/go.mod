@@ -5,11 +5,11 @@ go 1.21.5
 require (
 	github.com/go-openapi/runtime v0.26.2
 	github.com/google/uuid v1.5.0
-	github.com/mattgonewild/brutus/comb/proto v0.0.0-20240115004440-5df6969cb662
-	github.com/mattgonewild/brutus/decrypt/proto v0.0.0-20240115004440-5df6969cb662
-	github.com/mattgonewild/brutus/met/proto v0.0.0-20240115004440-5df6969cb662
-	github.com/mattgonewild/brutus/perm/proto v0.0.0-20240115004440-5df6969cb662
-	github.com/mattgonewild/brutus/proto/go v0.0.0-20240115004440-5df6969cb662
+	github.com/mattgonewild/brutus/comb/proto v0.0.0-20240118090549-56c624f95c7f
+	github.com/mattgonewild/brutus/decrypt/proto v0.0.0-20240118090549-56c624f95c7f
+	github.com/mattgonewild/brutus/met/proto v0.0.0-20240118090549-56c624f95c7f
+	github.com/mattgonewild/brutus/perm/proto v0.0.0-20240118090549-56c624f95c7f
+	github.com/mattgonewild/brutus/proto/go v0.0.0-20240118090549-56c624f95c7f
 	go.uber.org/zap v1.26.0
 	google.golang.org/grpc v1.60.1
 	google.golang.org/protobuf v1.32.0
@@ -36,13 +36,13 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	go.mongodb.org/mongo-driver v1.13.1 // indirect
-	go.opentelemetry.io/otel v1.21.0 // indirect
-	go.opentelemetry.io/otel/metric v1.21.0 // indirect
-	go.opentelemetry.io/otel/trace v1.21.0 // indirect
+	go.opentelemetry.io/otel v1.22.0 // indirect
+	go.opentelemetry.io/otel/metric v1.22.0 // indirect
+	go.opentelemetry.io/otel/trace v1.22.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240108191215-35c7eff3a6b1 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240116215550-a9fa1716bcac // indirect
 )
 
 require (
