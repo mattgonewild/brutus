@@ -17,6 +17,7 @@ dependencies:
       url: https://github.com/mattgonewild/brutus.git
       path: proto/dart
       ref: master
+  fixnum: ^1.1.0
 
 dev_dependencies:
   flutter_test:

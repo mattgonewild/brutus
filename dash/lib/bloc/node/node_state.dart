@@ -8,31 +8,35 @@ int _compareWorkerLoad5(Worker a, Worker b) => a.proc.loadAvg.fiveMinutes > b.pr
 
 final class NodeState extends Equatable {
   NodeState({
-    this.nodeCount = 0,
     SplayTreeSet<Worker>? nodes,
-    this.comparator = compareNodeTimestamp
-  }) : nodes = nodes ?? SplayTreeSet<Worker>(comparator);
+    this.comparator = compareNodeTimestamp,
+    HashMap<String, Proc>? last,
+  }) : nodes = nodes ?? SplayTreeSet<Worker>(comparator), last = last ?? HashMap<String, Proc>();
 
-  final int nodeCount;
   final SplayTreeSet<Worker> nodes;
   final Comparator<Worker> comparator;
+  final HashMap<String, Proc> last;
 
   NodeState copyWith({
-    int? nodeCount, 
     SplayTreeSet<Worker>? nodes, 
-    Comparator<Worker>? comparator
+    Comparator<Worker>? comparator,
   }) {
+    if (nodes != null) {
+      for (final Worker node in nodes) {
+        last[node.id] = node.proc;
+      }
+    }
     nodes ??= this.nodes;
     if (comparator != null && comparator != this.comparator) {
       nodes = SplayTreeSet<Worker>(comparator)..addAll(nodes);
     }
     return NodeState(
-      nodeCount: nodeCount ?? this.nodeCount,
       nodes: nodes,
-      comparator: comparator ?? this.comparator
+      comparator: comparator ?? this.comparator,
+      last: last,
     );
   }
 
   @override
-  List<Object> get props => [nodeCount, nodes];
+  List<Object> get props => [nodes, last];
 }
