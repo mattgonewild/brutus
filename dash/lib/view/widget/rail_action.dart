@@ -22,7 +22,7 @@ class ActionRail extends StatelessWidget {
 }
 
 class ActionRailButton extends StatelessWidget {
-  const ActionRailButton({super.key, required icon, required label, required onPressed, required buttonStyle, required textStyle}) : _icon = icon, _label = label, _onPressed = onPressed, _buttonStyle = buttonStyle, _textStyle = textStyle;
+  const ActionRailButton({super.key, required Widget icon, required String label, required VoidCallback onPressed, required ButtonStyle buttonStyle, required TextStyle textStyle}) : _icon = icon, _label = label, _onPressed = onPressed, _buttonStyle = buttonStyle, _textStyle = textStyle;
 
   final Widget _icon;
   final String _label;
