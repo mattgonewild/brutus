@@ -1,6 +1,6 @@
 import 'package:dash/view/widget/panel_chart.dart';
 import 'package:dash/view/widget/panel_interactive_info.dart';
-import 'package:dash/view/widget/rail_node.dart';
+import 'package:dash/view/widget/panel_node.dart';
 import 'package:dash/view/widget/rail_action.dart';
 import 'package:flutter/material.dart';
 
@@ -67,10 +67,11 @@ class DashboardDesktopLandscape extends StatelessWidget {
     return const Row(children: [
       Expanded(flex: 1, child: ActionRail()),
       Expanded(flex: 10, child: Row(children: [
-          Expanded(flex: 2, child: NodeRail()),
-          Expanded(flex: 7, child: Column(children: [
-              Expanded(flex: 10, child: ChartPanel()),
-              Expanded(flex: 7, child: InteractiveInfoPanel()),
-    ]))]))]);
+          Expanded(flex: 2, child: Column(children: [
+            AspectRatio(aspectRatio: 1.1, child: ChartPanel()),
+            Expanded(flex: 1, child: InteractiveInfoPanel()),
+          ])),
+          Expanded(flex: 7, child: NodePanel()),
+    ]))]);
   }
 }

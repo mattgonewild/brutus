@@ -6,21 +6,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // TODO: add sortable header
-class NodeRail extends StatelessWidget {
-  const NodeRail({super.key});
+class NodePanel extends StatelessWidget {
+  const NodePanel({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<NodeBloc, NodeState>(buildWhen: (previous, current) => previous != current,
-      builder: (context, state) => ListView.builder(itemCount: state.nodes.length,
-        itemBuilder: (context, index) => AspectRatio(aspectRatio: 1.2, child: AnimatedSwitcher(duration: const Duration(milliseconds: 200), child: NodeRailCard(node: state.nodes.elementAt(index), last: state.last[state.nodes.elementAt(index).id] ?? Proc()))) // TODO: ...
+      builder: (context, state) => GridView.builder(itemCount: state.nodes.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5, crossAxisSpacing: 11, mainAxisSpacing: 11),
+        itemBuilder: (context, index) => AnimatedSwitcher(duration: const Duration(milliseconds: 200), child: NodeCard(node: state.nodes.elementAt(index), last: state.last[state.nodes.elementAt(index).id] ?? Proc())) // TODO: ...
       )
     );
   }
 }
 
-class NodeRailCard extends StatelessWidget {
-  const NodeRailCard({super.key, required Worker node, required Proc last}) : _node = node, _last = last;
+class NodeCard extends StatelessWidget {
+  const NodeCard({super.key, required Worker node, required Proc last}) : _node = node, _last = last;
 
   final Worker _node;
   final Proc _last; // TODO: ...
