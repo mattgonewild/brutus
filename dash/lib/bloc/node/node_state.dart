@@ -21,9 +21,9 @@ final class NodeState extends Equatable {
 
   NodeState addNode(Worker node) { ids[node.id] = node; return _copyWith(nodes: nodes..add(node)); }
 
-  NodeState removeNode(Worker node) { ids.remove(node.id); return _copyWith(nodes: nodes..remove(node)); }
+  NodeState removeNode(String id) => _copyWith(nodes: nodes..remove(ids.remove(id))); // TODO: ...
 
-  NodeState updateNode(Worker node) { removeNode(node); return addNode(node); } // TODO: ...
+  NodeState updateNode(Worker node) { removeNode(node.id); return addNode(node); } // TODO: ...
 
   NodeState updateComparator(Comparator<Worker> comparator) => _copyWith(comparator: comparator);
 

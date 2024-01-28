@@ -15,11 +15,11 @@ class NodeBloc extends Bloc<NodeEvent, NodeState> {
   }
 
   Future<void> _onNodeRemoved(NodeRemoved event, Emitter<NodeState> emit) async {
-    emit(state.removeNode(event.node));
+    emit(state.removeNode(event.node.id));
   }
 
   Future<void> _onNodeDestroyed(NodeDestroyed event, Emitter<NodeState> emit) async {
-    emit(state.removeNode(event.node));
+    emit(state.removeNode(event.node.id));
   }
 
   Future<void> _onNodeMetrics(NodeMetrics event, Emitter<NodeState> emit) async {
