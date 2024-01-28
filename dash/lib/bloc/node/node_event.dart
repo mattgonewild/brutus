@@ -8,17 +8,37 @@ sealed class NodeEvent extends Equatable {
 }
 
 final class NodeAdded extends NodeEvent {
-  const NodeAdded();
+  const NodeAdded({required this.node});
+
+  final Worker node;
+
+  @override
+  List<Object> get props => [node];
 }
 
 final class NodeRemoved extends NodeEvent {
-  const NodeRemoved();
+  const NodeRemoved({required this.node});
+
+  final Worker node;
+
+  @override
+  List<Object> get props => [node];
 }
 
 final class NodeDestroyed extends NodeEvent {
-  const NodeDestroyed();
+  const NodeDestroyed({required this.node});
+
+  final Worker node;
+
+  @override
+  List<Object> get props => [node];
 }
 
 final class NodeMetrics extends NodeEvent {
-  const NodeMetrics();
+  const NodeMetrics({required this.node});
+
+  final Worker node;
+
+  @override
+  List<Object> get props => [node];
 }

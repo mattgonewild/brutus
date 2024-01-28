@@ -10,14 +10,24 @@ final class NodeState extends Equatable {
   NodeState({
     SplayTreeSet<Worker>? nodes,
     this.comparator = compareNodeTimestamp,
+    HashMap<String, Worker>? ids,
     HashMap<String, Proc>? last,
-  }) : nodes = nodes ?? SplayTreeSet<Worker>(comparator), last = last ?? HashMap<String, Proc>();
+  }) : nodes = nodes ?? SplayTreeSet<Worker>(comparator), ids = ids ?? HashMap<String, Worker>(), last = last ?? HashMap<String, Proc>();
 
   final SplayTreeSet<Worker> nodes;
   final Comparator<Worker> comparator;
+  final HashMap<String, Worker> ids;
   final HashMap<String, Proc> last;
 
-  NodeState copyWith({
+  NodeState addNode(Worker node) { ids[node.id] = node; return _copyWith(nodes: nodes..add(node)); }
+
+  NodeState removeNode(Worker node) { ids.remove(node.id); return _copyWith(nodes: nodes..remove(node)); }
+
+  NodeState updateNode(Worker node) { removeNode(node); return addNode(node); } // TODO: ...
+
+  NodeState updateComparator(Comparator<Worker> comparator) => _copyWith(comparator: comparator);
+
+  NodeState _copyWith({
     SplayTreeSet<Worker>? nodes, 
     Comparator<Worker>? comparator,
   }) {
@@ -33,6 +43,7 @@ final class NodeState extends Equatable {
     return NodeState(
       nodes: nodes,
       comparator: comparator ?? this.comparator,
+      ids: ids,
       last: last,
     );
   }
