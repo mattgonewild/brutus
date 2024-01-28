@@ -1,4 +1,4 @@
-part of 'node_bloc.dart';
+part of 'node.dart';
 
 sealed class NodeEvent extends Equatable {
   const NodeEvent();

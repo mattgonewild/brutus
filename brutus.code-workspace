@@ -23,14 +23,14 @@
 				"request": "launch",
 				"type": "dart",
 				"flutterMode": "debug",
-				"program": "dash/lib/main.dart"
+				"program": "dash/lib/dev.dart"
 			},
 			{
 				"name": "brutus dash profile",
 				"request": "launch",
 				"type": "dart",
 				"flutterMode": "profile",
-				"program": "dash/lib/main.dart"
+				"program": "dash/lib/dev.dart"
 			}
 		]
 	}

@@ -1,4 +1,4 @@
-part of 'node_bloc.dart';
+part of 'node.dart';
 
 const compareNodeTimestamp = _compareWorkerTimestamp;
 int _compareWorkerTimestamp(Worker a, Worker b) => a.time.toDateTime().compareTo(b.time.toDateTime());

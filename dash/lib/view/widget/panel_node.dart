@@ -1,5 +1,5 @@
 import 'package:brutus/brutus.dart';
-import 'package:dash/bloc/node/node_bloc.dart';
+import 'package:dash/bloc/node/node.dart';
 import 'package:dash/view/widget/painter_percentage_bar.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';

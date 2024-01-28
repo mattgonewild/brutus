@@ -1,9 +1,9 @@
 import 'package:dash/bloc/conf/conf_bloc.dart';
-import 'package:dash/bloc/node/node.dart';
+import 'package:dash/dev/bloc/node/node.dart';
 import 'package:dash/bloc/sys/sys_bloc.dart';
 import 'package:dash/bloc/ui/ui_bloc.dart';
 import 'package:dash/repo/conf_repo.dart';
-import 'package:dash/repo/node_repo.dart';
+import 'package:dash/dev/repo/node_repo.dart';
 import 'package:dash/repo/sys_repo.dart';
 import 'package:dash/view/dashboard_route.dart';
 import 'package:dash/view/log_route.dart';
