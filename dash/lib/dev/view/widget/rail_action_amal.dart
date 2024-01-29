@@ -1,0 +1,1 @@
+../../../view/widget/rail_action_amal.dart

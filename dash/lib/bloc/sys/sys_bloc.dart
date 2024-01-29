@@ -1,8 +1,4 @@
-import 'package:bloc/bloc.dart';
-import 'package:dash/repo/sys_repo.dart';
-
-part 'sys_event.dart';
-part 'sys_state.dart';
+part of 'sys_amal.dart';
 
 class SysBloc extends Bloc<SysEvent, SysState> {
   SysBloc({required SysRepo sysRepo}) : _sysRepo = sysRepo, super(SysState.unknown) {

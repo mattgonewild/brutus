@@ -1,4 +1,4 @@
-part of 'conf_bloc.dart';
+part of 'conf_amal.dart';
 
 sealed class ConfEvent extends Equatable {
   const ConfEvent();

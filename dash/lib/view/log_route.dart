@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'log_route_amal.dart';
 
 class LogRoute extends StatelessWidget {
   const LogRoute({super.key});

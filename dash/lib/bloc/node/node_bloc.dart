@@ -1,4 +1,4 @@
-part of 'node.dart';
+part of 'node_amal.dart';
 
 class NodeBloc extends Bloc<NodeEvent, NodeState> {
   NodeBloc({required NodeRepo nodeRepo}) : _nodeRepo = nodeRepo, super(NodeState()) {

@@ -1,14 +1,17 @@
-import 'package:dash/bloc/conf/conf_bloc.dart';
-import 'package:dash/bloc/node/node.dart';
-import 'package:dash/bloc/sys/sys_bloc.dart';
-import 'package:dash/bloc/ui/ui_bloc.dart';
-import 'package:dash/repo/conf_repo.dart';
-import 'package:dash/repo/node_repo.dart';
-import 'package:dash/repo/sys_repo.dart';
-import 'package:dash/view/dashboard_route.dart';
-import 'package:dash/view/log_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import './bloc/conf/conf_amal.dart';
+import './bloc/node/node_amal.dart';
+import './bloc/sys/sys_amal.dart';
+import './bloc/ui/ui_amal.dart';
+
+import './repo/conf_repo.dart';
+import './repo/node_repo.dart';
+import './repo/sys_repo.dart';
+
+import './view/dashboard_route_amal.dart';
+import './view/log_route_amal.dart';
 
 void main() {
   runApp(MultiRepositoryProvider(providers: [

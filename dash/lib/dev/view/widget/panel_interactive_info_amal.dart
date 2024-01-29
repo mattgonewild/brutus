@@ -1,0 +1,1 @@
+../../../view/widget/panel_interactive_info_amal.dart

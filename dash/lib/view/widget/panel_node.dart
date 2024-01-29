@@ -1,9 +1,4 @@
-import 'package:brutus/brutus.dart';
-import 'package:dash/bloc/node/node.dart';
-import 'package:dash/view/widget/painter_percentage_bar.dart';
-import 'package:fixnum/fixnum.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+part of 'panel_node_amal.dart';
 
 // TODO: add sortable header
 class NodePanel extends StatelessWidget {

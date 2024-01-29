@@ -1,6 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
-part of 'ui_bloc.dart';
+part of 'ui_amal.dart';
 
 enum ARBState { unselected, loading, selected }
 

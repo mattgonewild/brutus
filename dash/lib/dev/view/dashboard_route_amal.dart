@@ -1,0 +1,1 @@
+../../view/dashboard_route_amal.dart

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'panel_chart_amal.dart';
 
 class ChartPanel extends StatelessWidget {
   const ChartPanel({super.key});

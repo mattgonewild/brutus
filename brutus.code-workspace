@@ -23,14 +23,28 @@
 				"request": "launch",
 				"type": "dart",
 				"flutterMode": "debug",
-				"program": "dash/lib/dev.dart"
+				"program": "dash/lib/main.dart"
 			},
 			{
 				"name": "brutus dash profile",
 				"request": "launch",
 				"type": "dart",
 				"flutterMode": "profile",
-				"program": "dash/lib/dev.dart"
+				"program": "dash/lib/main.dart"
+			},
+			{
+				"name": "brutus dev dash debug",
+				"request": "launch",
+				"type": "dart",
+				"flutterMode": "debug",
+				"program": "dash/lib/dev/main.dart"
+			},
+			{
+				"name": "brutus dev dash profile",
+				"request": "launch",
+				"type": "dart",
+				"flutterMode": "profile",
+				"program": "dash/lib/dev/main.dart"
 			}
 		]
 	}

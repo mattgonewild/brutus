@@ -1,0 +1,1 @@
+../../view/log_route_amal.dart

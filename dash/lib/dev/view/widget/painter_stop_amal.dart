@@ -1,0 +1,1 @@
+../../../view/widget/painter_stop_amal.dart

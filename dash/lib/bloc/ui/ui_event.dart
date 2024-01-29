@@ -1,4 +1,4 @@
-part of 'ui_bloc.dart';
+part of 'ui_amal.dart';
 
 sealed class UIEvent extends Equatable {
   const UIEvent();

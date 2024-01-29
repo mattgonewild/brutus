@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'painter_scroll_amal.dart';
 
 class ScrollPaint extends StatelessWidget {
   const ScrollPaint({super.key, required Color color, required double opacity}) : _color = color, _opacity = opacity;

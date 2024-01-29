@@ -1,8 +1,4 @@
-import 'package:dash/view/widget/panel_chart.dart';
-import 'package:dash/view/widget/panel_interactive_info.dart';
-import 'package:dash/view/widget/panel_node.dart';
-import 'package:dash/view/widget/rail_action.dart';
-import 'package:flutter/material.dart';
+part of 'dashboard_route_amal.dart';
 
 class DashboardRoute extends StatelessWidget {
   const DashboardRoute({super.key});

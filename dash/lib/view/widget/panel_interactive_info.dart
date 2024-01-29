@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'panel_interactive_info_amal.dart';
 
 class InteractiveInfoPanel extends StatelessWidget {
   const InteractiveInfoPanel({super.key});

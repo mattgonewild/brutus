@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'painter_percentage_bar_amal.dart';
 
 class PercentageBarPaint extends StatelessWidget {
   const PercentageBarPaint({super.key, required double progress}) : _progress = progress;

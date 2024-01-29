@@ -1,0 +1,1 @@
+../../../view/widget/painter_percentage_bar_amal.dart

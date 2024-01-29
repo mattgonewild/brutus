@@ -1,10 +1,4 @@
-import 'package:dash/bloc/ui/ui_bloc.dart';
-import 'package:dash/view/widget/painter_dice.dart';
-import 'package:dash/view/widget/painter_gear.dart';
-import 'package:dash/view/widget/painter_scroll.dart';
-import 'package:dash/view/widget/painter_stop.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+part of 'rail_action_amal.dart';
 
 class ActionRail extends StatelessWidget {
   const ActionRail({super.key});

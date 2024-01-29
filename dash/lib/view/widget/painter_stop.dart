@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'painter_stop_amal.dart';
 
 class StopPaint extends StatelessWidget {
   const StopPaint({super.key, required Color color, required double opacity}) : _color = color, _opacity = opacity;

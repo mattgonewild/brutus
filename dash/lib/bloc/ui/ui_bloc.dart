@@ -1,12 +1,4 @@
-import 'dart:async';
-
-import 'package:bloc/bloc.dart';
-import 'package:dash/bloc/sys/sys_bloc.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
-
-part 'ui_event.dart';
-part 'ui_state.dart';
+part of 'ui_amal.dart';
 
 class UIBloc extends Bloc<UIEvent, UIState> {
   UIBloc({required SysBloc sysBloc}) : _sysBloc = sysBloc, super(const UIState()) {

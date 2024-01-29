@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'painter_dice_amal.dart';
 
 class DicePaint extends StatelessWidget {
   const DicePaint({super.key, required Color color, required double opacity}) : _color = color, _opacity = opacity;

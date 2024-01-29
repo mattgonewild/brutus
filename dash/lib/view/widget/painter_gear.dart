@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'painter_gear_amal.dart';
 
 class GearPaint extends StatelessWidget {
   const GearPaint({super.key, required Color color, required double opacity}) : _color = color, _opacity = opacity;
