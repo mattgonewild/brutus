@@ -25,4 +25,10 @@ class NodeBloc extends Bloc<NodeEvent, NodeState> {
   Future<void> _onNodeMetrics(NodeMetrics event, Emitter<NodeState> emit) async {
     emit(state.updateNode(event.node));
   }
+
+  @override
+  Future<void> close() {
+    _nodeRepo.dispose();
+    return super.close();
+  }
 }
