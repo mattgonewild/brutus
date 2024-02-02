@@ -27,6 +27,8 @@ class NodeRepo {
   }
 
   final StreamController<NodeEvent> _streamController = StreamController<NodeEvent>.broadcast();
+  Stream<NodeEvent> get stream => _streamController.stream;
+  
   final ReceivePort _receivePort = ReceivePort();
   late Isolate _nodeRepoWorker;
 
@@ -56,33 +58,38 @@ class NodeRepoWorker {
 final HashMap<String, Worker> _nodes = HashMap<String, Worker>();
 
 NodeEvent _randomNodeEvent() {
+  if (_nodes.length <= 5) return _addNode();
+  
   switch (Random().nextInt(100) + 1) {
-    case <=50: return NodeMetrics(node: _updateNode());
-    case <=75: return NodeAdded(node: _addNode());
-    case <=90: return NodeRemoved(node: _removeNode());
-    default: return NodeDestroyed(node: _destroyNode());
+    case <=50: return _updateNode();
+    case <=75: return _addNode();
+    case <=90: return _removeNode();
+    default: return _destroyNode();
   }
 }
 
-Worker _updateNode() {
+NodeEvent _updateNode() {
   if (_nodes.isEmpty) return _addNode();
   final node = _nodes.values.elementAt(Random().nextInt(_nodes.length));
-  return node;
+  return NodeMetrics(node: Worker(id: node.id, time: Timestamp.fromDateTime(DateTime.now())));
 }
 
-Worker _addNode() {
-  final node = Worker(id: const Uuid().v4());
+NodeEvent _addNode() {
+  final node = Worker(id: const Uuid().v4(), time: Timestamp.fromDateTime(DateTime.now()));
   _nodes[node.id] = node;
-  return node;
+  return NodeAdded(node: node);
 }
 
-Worker _removeNode() {
+NodeEvent _removeNode() {
   if (_nodes.isEmpty) return _addNode();
   final node = _nodes.values.elementAt(Random().nextInt(_nodes.length));
   _nodes.remove(node.id);
-  return node;
+  return NodeRemoved(node: node);
 }
 
-Worker _destroyNode() {
-  return _removeNode();
+NodeEvent _destroyNode() {
+  if (_nodes.isEmpty) return _addNode();
+  final node = _nodes.values.elementAt(Random().nextInt(_nodes.length));
+  _nodes.remove(node.id);
+  return NodeDestroyed(node: node);
 }

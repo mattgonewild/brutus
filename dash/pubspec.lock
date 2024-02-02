@@ -30,10 +30,10 @@ packages:
     description:
       path: "proto/dart"
       ref: master
-      resolved-ref: "4372960035b6edb8585237af504ffc22d0780d9b"
+      resolved-ref: "62406f3c0558a815b4fd71472fe8ad3fd202c97a"
       url: "https://github.com/mattgonewild/brutus.git"
     source: git
-    version: "0.0.1"
+    version: "0.0.2"
   characters:
     dependency: transitive
     description:

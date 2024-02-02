@@ -16,7 +16,7 @@ import './view/log_route_amal.dart';
 void main() {
   runApp(MultiRepositoryProvider(providers: [
         RepositoryProvider<ConfRepo>(create: (context) => const ConfRepo()),
-        RepositoryProvider<NodeRepo>(create: (context) => const NodeRepo()),
+        RepositoryProvider<NodeRepo>(create: (context) => NodeRepo()),
         RepositoryProvider<SysRepo>(create: (context) => const SysRepo()),
       ],
       child: MultiBlocProvider(providers: [
