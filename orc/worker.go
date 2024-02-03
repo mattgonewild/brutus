@@ -45,8 +45,8 @@ type PermClient interface {
 
 type PermStream interface {
 	grpc.ClientStream
-	Send(*perm.Combination) error
-	Recv() (*perm.Permutation, error)
+	Send(*brutus.Combination) error
+	Recv() (*brutus.Permutation, error)
 }
 
 type DecryptClient interface {
@@ -149,7 +149,7 @@ func (w *Worker) Start(ctx context.Context, in chan []byte, out chan []byte) err
 						return
 					}
 				case PermStream:
-					req := new(perm.Combination)
+					req := new(brutus.Combination)
 					err := proto.Unmarshal(bytes, req)
 					if err != nil {
 						logger.Error("failed to unmarshal request", zap.Error(err), zap.String("type", string(w.class)), zap.String("ip", w.addr.String()))

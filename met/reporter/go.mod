@@ -4,8 +4,8 @@ go 1.21.5
 
 require (
 	github.com/mackerelio/go-osstat v0.2.4
-	github.com/mattgonewild/brutus/met/proto v0.0.0-20240203182308-b528c885cabc
-	github.com/mattgonewild/brutus/proto/go v0.0.0-20240203182308-b528c885cabc
+	github.com/mattgonewild/brutus/met/proto v0.0.0-20240203183721-6156add05865
+	github.com/mattgonewild/brutus/proto/go v0.0.0-20240203183721-6156add05865
 	go.uber.org/zap v1.26.0
 	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0

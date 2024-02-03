@@ -3,7 +3,7 @@ module github.com/mattgonewild/brutus/decrypt/proto
 go 1.21.5
 
 require (
-	github.com/mattgonewild/brutus/proto/go v0.0.0-20240203182308-b528c885cabc
+	github.com/mattgonewild/brutus/proto/go v0.0.0-20240203183721-6156add05865
 	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0
 )

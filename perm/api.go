@@ -9,6 +9,8 @@ import (
 	"syscall"
 
 	"github.com/mattgonewild/brutus/perm/proto"
+	brutus "github.com/mattgonewild/brutus/proto/go"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -19,13 +21,13 @@ import (
 type PermServer struct {
 	proto.UnimplementedPermServer
 	opsCh        chan<- bool
-	Combinations *lane.Queue[*proto.Combination]
+	Combinations *lane.Queue[*brutus.Combination]
 }
 
 func NewPermServer(opsCh chan bool) *PermServer {
 	return &PermServer{
 		opsCh:        opsCh,
-		Combinations: lane.NewQueue[*proto.Combination](),
+		Combinations: lane.NewQueue[*brutus.Combination](),
 	}
 }
 
@@ -85,7 +87,7 @@ func (s *PermServer) QueueWorker(ctx context.Context, wg *sync.WaitGroup, out ch
 	}
 }
 
-func Decode(comb *proto.Combination) []string {
+func Decode(comb *brutus.Combination) []string {
 	elements := make([]string, 0, len(comb.Elements))
 	for _, element := range comb.Elements {
 		elements = append(elements, string(element.Value))
@@ -129,7 +131,7 @@ func (s *PermServer) Connect(stream proto.Perm_ConnectServer) error {
 	go func() {
 		defer wg.Done()
 		for perm := range permCh {
-			if err := stream.Send(&proto.Permutation{Value: []byte(perm)}); err != nil {
+			if err := stream.Send(&brutus.Permutation{Value: []byte(perm)}); err != nil {
 				logger.Error("error sending message", zap.Error(err))
 				return
 			}
