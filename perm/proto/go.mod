@@ -3,6 +3,7 @@ module github.com/mattgonewild/brutus/perm/proto
 go 1.21.5
 
 require (
+	github.com/mattgonewild/brutus/proto/go v0.0.0-20240203182303-318e17d73293
 	google.golang.org/grpc v1.60.1
 	google.golang.org/protobuf v1.32.0
 )
