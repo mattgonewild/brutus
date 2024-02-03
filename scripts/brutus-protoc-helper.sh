@@ -33,8 +33,8 @@ done via brutus-protoc-helper.sh'
 
 git push -u origin master
 
-go get -u ./...
-find . -name go.mod -execdir go mod tidy \;
+find . -name 'go.mod' -execdir go get -u \;
+find . -name 'go.mod' -execdir go mod tidy \;
 
 cd ./dash > /dev/null 2>&1
 dart pub upgrade
