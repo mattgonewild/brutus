@@ -27,7 +27,7 @@ for dir in $(find "$1" -type d); do
     fi
 done
 
-git commit -m 'feat(brutus): update proto files
+git commit -m 'feat(dash): 🚧 update proto files
 
 done via brutus-protoc-helper.sh'
 
@@ -41,7 +41,7 @@ dart pub upgrade
 cd - > /dev/null 2>&1
 
 find . -name 'pubspec.yaml' -o -name 'pubspec.lock' -o -name 'go.mod' -o -name 'go.sum' | xargs git add -u
-git commit -m 'chore(brutus): update dependencies
+git commit -m 'chore(brutus): ⬆️ upgrade proto related deps
 
 done via brutus-protoc-helper.sh'
 
