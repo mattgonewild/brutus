@@ -13,7 +13,14 @@
 			"comb",
 			"perm",
 			"decrypt"
-		]
+		],
+		// TODO: in the meantime, run ./scripts/brutus-protoc-helper.sh $(pwd) in ${workspaceRoot}
+		"protoc": {
+			"path": "${workspaceRoot}/scripts/brutus-protoc-helper.sh",
+			"options": [
+				"${workspaceRoot}"
+			]
+		}
 	},
 	"launch": {
 		"version": "0.2.0",
