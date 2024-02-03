@@ -6,20 +6,19 @@ class NodePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<NodeBloc, NodeState>(buildWhen: (previous, current) => previous != current,
+    return BlocBuilder<NodeBloc, NodeState>(buildWhen: (previous, current) => true,
       builder: (context, state) => GridView.builder(itemCount: state.nodes.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5, crossAxisSpacing: 11, mainAxisSpacing: 11),
-        itemBuilder: (context, index) => AnimatedSwitcher(duration: const Duration(milliseconds: 200), child: NodeCard(node: state.nodes.elementAt(index), last: state.last[state.nodes.elementAt(index).id] ?? Proc())) // TODO: ...
+        itemBuilder: (context, index) => NodeCard(node: state.nodes.elementAt(index))
       )
     );
   }
 }
 
 class NodeCard extends StatelessWidget {
-  const NodeCard({super.key, required Worker node, required Proc last}) : _node = node, _last = last;
+  const NodeCard({super.key, required Worker node}) : _node = node;
 
   final Worker _node;
-  final Proc _last; // TODO: ...
 
   Widget _buildRow(String label, Widget value) => Row(children: [Text(label), value]);
 
