@@ -2,78 +2,115 @@
 
 part of 'ui_amal.dart';
 
-enum ARBState { unselected, loading, selected }
+const TextStyle defaultTextStyle = TextStyle();
+
+enum ButtonState { unselected, thinking, selected }
+
+enum RegionState { inRegion, outRegion }
+
+enum ActionRailButtons { start, stop, log, settings }
 
 final class UIState extends Equatable {
-  const UIState({
-    this.ARBStart = ARBState.unselected,
-    this.ARBStartButtonStyle = const ButtonStyle(),
-    this.ARBStartTextStyle = const TextStyle(),
-    this.ARBStop = ARBState.unselected,
-    this.ARBStopButtonStyle = const ButtonStyle(),
-    this.ARBStopTextStyle = const TextStyle(),
-    this.ARBLog = ARBState.unselected,
-    this.ARBLogButtonStyle = const ButtonStyle(),
-    this.ARBLogTextStyle = const TextStyle(),
-    this.ARBSettings = ARBState.unselected,
-    this.ARBSettingsButtonStyle = const ButtonStyle(),
-    this.ARBSettingsTextStyle = const TextStyle()
-  });
+  UIState({
+      int? UIStateVersion,
+      LinkedHashMap<ActionRailButtons, ActionRailButtonState>? actionRailButtonStates,
+      HashMap<String, NodeCardState>? nodeCardStates
+  }): _UIStateVersion = UIStateVersion ?? 0,
+      _actionRailButtonStates = actionRailButtonStates ?? LinkedHashMap<ActionRailButtons, ActionRailButtonState>.fromIterables(ActionRailButtons.values, List<ActionRailButtonState>.filled(ActionRailButtons.values.length, const ActionRailButtonState())),
+      _nodeCardStates = nodeCardStates ?? HashMap<String, NodeCardState>()
+    ;
 
-  final ARBState ARBStart;
-  final ButtonStyle ARBStartButtonStyle;
-  final TextStyle ARBStartTextStyle;
-  final ARBState ARBStop;
-  final ButtonStyle ARBStopButtonStyle;
-  final TextStyle ARBStopTextStyle;
-  final ARBState ARBLog;
-  final ButtonStyle ARBLogButtonStyle;
-  final TextStyle ARBLogTextStyle;
-  final ARBState ARBSettings;
-  final ButtonStyle ARBSettingsButtonStyle;
-  final TextStyle ARBSettingsTextStyle;
+  final int _UIStateVersion;
+
+  final LinkedHashMap<ActionRailButtons, ActionRailButtonState> _actionRailButtonStates;
+  LinkedHashMap<ActionRailButtons, ActionRailButtonState> get actionRailButtonStates => _actionRailButtonStates;
+  final HashMap<String, NodeCardState> _nodeCardStates;
+  HashMap<String, NodeCardState> get nodeCardStates => _nodeCardStates;
 
   UIState copyWith({
-    ARBState? ARBStart,
-    ButtonStyle? ARBStartButtonStyle,
-    TextStyle? ARBStartTextStyle,
-    ARBState? ARBStop,
-    ButtonStyle? ARBStopButtonStyle,
-    TextStyle? ARBStopTextStyle,
-    ARBState? ARBLog,
-    ButtonStyle? ARBLogButtonStyle,
-    TextStyle? ARBLogTextStyle,
-    ARBState? ARBSettings,
-    ButtonStyle? ARBSettingsButtonStyle,
-    TextStyle? ARBSettingsTextStyle
+    int? UIStateVersion,
+    LinkedHashMap<ActionRailButtons, ActionRailButtonState>? actionRailButtonStates,
+    HashMap<String, NodeCardState>? nodeCardStates
   }) => UIState(
-    ARBStart: ARBStart ?? this.ARBStart,
-    ARBStartButtonStyle: ARBStartButtonStyle ?? this.ARBStartButtonStyle,
-    ARBStartTextStyle: ARBStartTextStyle ?? this.ARBStartTextStyle,
-    ARBStop: ARBStop ?? this.ARBStop,
-    ARBStopButtonStyle: ARBStopButtonStyle ?? this.ARBStopButtonStyle,
-    ARBStopTextStyle: ARBStopTextStyle ?? this.ARBStopTextStyle,
-    ARBLog: ARBLog ?? this.ARBLog,
-    ARBLogButtonStyle: ARBLogButtonStyle ?? this.ARBLogButtonStyle,
-    ARBLogTextStyle: ARBLogTextStyle ?? this.ARBLogTextStyle,
-    ARBSettings: ARBSettings ?? this.ARBSettings,
-    ARBSettingsButtonStyle: ARBSettingsButtonStyle ?? this.ARBSettingsButtonStyle,
-    ARBSettingsTextStyle: ARBSettingsTextStyle ?? this.ARBSettingsTextStyle,
+    UIStateVersion: UIStateVersion ?? _UIStateVersion + 1,
+    actionRailButtonStates: actionRailButtonStates ?? _actionRailButtonStates,
+    nodeCardStates: nodeCardStates ?? _nodeCardStates
   );
-
+  
   @override
-  List<Object> get props => [
-    ARBStart,
-    ARBStartButtonStyle,
-    ARBStartTextStyle,
-    ARBStop,
-    ARBStopButtonStyle,
-    ARBStopTextStyle,
-    ARBLog,
-    ARBLogButtonStyle,
-    ARBLogTextStyle,
-    ARBSettings,
-    ARBSettingsButtonStyle,
-    ARBSettingsTextStyle
-  ];
+  List<Object> get props => [_UIStateVersion];
+}
+
+final class ActionRailButtonState extends Equatable {
+  const ActionRailButtonState({
+      RegionState? regionState,
+      ButtonState? buttonState,
+      Color? backgroundColor,
+      Color? iconColor,
+      TextStyle? textStyle
+  }): _regionState = regionState ?? RegionState.outRegion,
+      _buttonState = buttonState ?? ButtonState.unselected,
+      _backgroundColor = backgroundColor ?? Colors.transparent,
+      _iconColor = iconColor ?? Colors.black,
+      _textStyle = textStyle ?? defaultTextStyle
+    ;
+
+  final RegionState _regionState;
+  final ButtonState _buttonState;
+  final Color _backgroundColor;
+  Color get backgroundColor => _backgroundColor;
+  final Color _iconColor;
+  Color get iconColor => _iconColor;
+  final TextStyle _textStyle;
+  TextStyle get textStyle => _textStyle;
+
+  ActionRailButtonState copyWith({
+    RegionState? regionState,
+    ButtonState? buttonState,
+    Color? backgroundColor,
+    Color? iconColor,
+    TextStyle? textStyle
+  }) => ActionRailButtonState(
+    regionState: regionState ?? _regionState,
+    buttonState: buttonState ?? _buttonState,
+    backgroundColor: backgroundColor ?? _backgroundColor,
+    iconColor: iconColor ?? _iconColor,
+    textStyle: textStyle ?? _textStyle
+  );
+  
+  @override
+  List<Object> get props => [_backgroundColor, _iconColor, _textStyle];
+}
+
+final class NodeCardState extends Equatable {
+  const NodeCardState({
+      RegionState? regionState,
+      ButtonState? buttonState,
+      Color? backgroundColor,
+      TextStyle? textStyle
+  }): _regionState = regionState ?? RegionState.outRegion,
+      _buttonState = buttonState ?? ButtonState.unselected,
+      _backgroundColor = backgroundColor ?? Colors.transparent,
+      _textStyle = textStyle ?? defaultTextStyle
+    ;
+
+  final RegionState _regionState;
+  final ButtonState _buttonState;
+  final Color _backgroundColor;
+  Color get backgroundColor => _backgroundColor;
+  final TextStyle _textStyle;
+  TextStyle get textStyle => _textStyle;
+
+  NodeCardState copyWith({
+    RegionState? regionState,
+    ButtonState? buttonState,
+    Color? backgroundColor
+  }) => NodeCardState(
+    regionState: regionState ?? _regionState,
+    buttonState: buttonState ?? _buttonState,
+    backgroundColor: backgroundColor ?? _backgroundColor
+  );
+  
+  @override
+  List<Object> get props => [_backgroundColor, _textStyle];
 }

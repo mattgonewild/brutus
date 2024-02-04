@@ -1,7 +1,7 @@
 part of 'ui_amal.dart';
 
 class UIBloc extends Bloc<UIEvent, UIState> {
-  UIBloc({required SysBloc sysBloc}) : _sysBloc = sysBloc, super(const UIState()) {
+  UIBloc({required SysBloc sysBloc}) : _sysBloc = sysBloc, super(UIState()) {
     _sysBlocSubscription = _sysBloc.stream.listen((SysState state) {
       switch (state) {
         case SysState.running: add(const ARBStartOn());
@@ -29,52 +29,52 @@ class UIBloc extends Bloc<UIEvent, UIState> {
 
   Future<void> _onARBStartPressed(ARBStartPressed event, Emitter<UIState> emit) async {
     _sysBloc.add(SysEvent.startRequested);
-    emit(state.copyWith(ARBStart: ARBState.loading));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.start] = const ActionRailButtonState(buttonState: ButtonState.thinking)));
   }
 
   Future<void> _onARBStartOn(ARBStartOn event, Emitter<UIState> emit) async {
-    emit(state.copyWith(ARBStart: ARBState.selected));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.start] = const ActionRailButtonState(buttonState: ButtonState.selected)));
   }
 
   Future<void> _onARBStartOff(ARBStartOff event, Emitter<UIState> emit) async {
-    emit(state.copyWith(ARBStart: ARBState.unselected));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.start] = const ActionRailButtonState(buttonState: ButtonState.unselected)));
   }
 
   Future<void> _onARBStopPressed(ARBStopPressed event, Emitter<UIState> emit) async {
     _sysBloc.add(SysEvent.stopRequested);
-    emit(state.copyWith(ARBStop: ARBState.loading));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.stop] = const ActionRailButtonState(buttonState: ButtonState.thinking)));
   }
 
   Future<void> _onARBStopOn(ARBStopOn event, Emitter<UIState> emit) async {
-    emit(state.copyWith(ARBStop: ARBState.selected));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.stop] = const ActionRailButtonState(buttonState: ButtonState.selected)));
   }
 
   Future<void> _onARBStopOff(ARBStopOff event, Emitter<UIState> emit) async {
-    emit(state.copyWith(ARBStop: ARBState.unselected));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.stop] = const ActionRailButtonState(buttonState: ButtonState.unselected)));
   }
 
   Future<void> _onARBLogPressed(ARBLogPressed event, Emitter<UIState> emit) async {
-    emit(state.copyWith(ARBLog: ARBState.loading));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.log] = const ActionRailButtonState(buttonState: ButtonState.thinking)));
   }
 
   Future<void> _onARBLogOn(ARBLogOn event, Emitter<UIState> emit) async {
-    emit(state.copyWith(ARBLog: ARBState.selected));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.log] = const ActionRailButtonState(buttonState: ButtonState.selected)));
   }
 
   Future<void> _onARBLogOff(ARBLogOff event, Emitter<UIState> emit) async {
-    emit(state.copyWith(ARBLog: ARBState.unselected));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.log] = const ActionRailButtonState(buttonState: ButtonState.unselected)));
   }
 
   Future<void> _onARBSettingsPressed(ARBSettingsPressed event, Emitter<UIState> emit) async {
-    emit(state.copyWith(ARBSettings: ARBState.loading));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.settings] = const ActionRailButtonState(buttonState: ButtonState.thinking)));
   }
 
   Future<void> _onARBSettingsOn(ARBSettingsOn event, Emitter<UIState> emit) async {
-    emit(state.copyWith(ARBSettings: ARBState.selected));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.settings] = const ActionRailButtonState(buttonState: ButtonState.selected)));
   }
 
   Future<void> _onARBSettingsOff(ARBSettingsOff event, Emitter<UIState> emit) async {
-    emit(state.copyWith(ARBSettings: ARBState.unselected));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.settings] = const ActionRailButtonState(buttonState: ButtonState.unselected)));
   }
 
   @override
