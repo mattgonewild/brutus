@@ -5,11 +5,11 @@ go 1.21.5
 require (
 	github.com/go-openapi/runtime v0.27.1
 	github.com/google/uuid v1.6.0
-	github.com/mattgonewild/brutus/comb/proto v0.0.0-20240203183721-6156add05865
-	github.com/mattgonewild/brutus/decrypt/proto v0.0.0-20240203183721-6156add05865
-	github.com/mattgonewild/brutus/met/proto v0.0.0-20240203183721-6156add05865
-	github.com/mattgonewild/brutus/perm/proto v0.0.0-20240203183721-6156add05865
-	github.com/mattgonewild/brutus/proto/go v0.0.0-20240203183721-6156add05865
+	github.com/mattgonewild/brutus/comb/proto v0.0.0-20240204071939-b5631ebebb58
+	github.com/mattgonewild/brutus/decrypt/proto v0.0.0-20240204071939-b5631ebebb58
+	github.com/mattgonewild/brutus/met/proto v0.0.0-20240204071939-b5631ebebb58
+	github.com/mattgonewild/brutus/perm/proto v0.0.0-20240204071939-b5631ebebb58
+	github.com/mattgonewild/brutus/proto/go v0.0.0-20240204071939-b5631ebebb58
 	go.uber.org/zap v1.26.0
 	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0
