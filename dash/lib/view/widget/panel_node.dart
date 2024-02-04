@@ -28,10 +28,10 @@ class NodeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<UIBloc, UIState>(buildWhen: (previous, current) => previous.nodeCardStates[_node.id] != current.nodeCardStates[_node.id],
+    return BlocBuilder<UIBloc, UIState>(buildWhen: (previous, current) => previous.getNodeCardState(_node.id, _node.type) != current.getNodeCardState(_node.id, _node.type),
       builder: (context, state) => MouseRegion(onEnter: (event) {}, onExit: (event) {},
         child: GestureDetector(onTap: () {},
-          child: Card(color: _node.type == WorkerType.COMBINATION ? Colors.amber : _node.type == WorkerType.PERMUTATION ? Colors.lime : _node.type == WorkerType.DECRYPTION ? Colors.pink : Colors.purple, child: Column(children: [
+          child: Card(color: state.getNodeCardState(_node.id, _node.type).backgroundColor, child: Column(children: [
             _buildRow('CPU', PercentageBarPaint(progress: _calculateCpuUsage(_node.proc.cpu.total, _node.proc.cpu.idle))),
             _buildRow('MEM', PercentageBarPaint(progress: _calculateMemUsage(_node.proc.mem.total, _node.proc.mem.used))),
             _buildRow('ID', Text(_node.id, overflow: TextOverflow.ellipsis, maxLines: 1)),

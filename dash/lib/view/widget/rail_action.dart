@@ -38,8 +38,8 @@ class ARBStart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<UIBloc, UIState>(buildWhen: (previous, current) => previous.actionRailButtonStates[ActionRailButtons.start] != current.actionRailButtonStates[ActionRailButtons.start],
-      builder: (context, state) => ActionRailButton(icon: const DicePaint(color: Colors.black, opacity: 1.0), label: 'start', onPressed: () => context.read<UIBloc>().add(const ARBStartPressed()), buttonStyle: const ButtonStyle(), textStyle: state.actionRailButtonStates[ActionRailButtons.start]!.textStyle),
+    return BlocBuilder<UIBloc, UIState>(buildWhen: (previous, current) => previous.getActionRailButtonState(ActionRailButtons.start) != current.getActionRailButtonState(ActionRailButtons.start),
+      builder: (context, state) => ActionRailButton(icon: const DicePaint(color: Colors.black, opacity: 1.0), label: 'start', onPressed: () => context.read<UIBloc>().add(const ARBStartPressed()), buttonStyle: const ButtonStyle(), textStyle: state.getActionRailButtonState(ActionRailButtons.start).textStyle),
     );
   }
 }
@@ -49,8 +49,8 @@ class ARBStop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<UIBloc, UIState>(buildWhen: (previous, current) => previous.actionRailButtonStates[ActionRailButtons.stop] != current.actionRailButtonStates[ActionRailButtons.stop],
-      builder: (context, state) => ActionRailButton(icon: const StopPaint(color: Colors.black, opacity: 1.0), label: 'stop', onPressed: () => context.read<UIBloc>().add(const ARBStopPressed()), buttonStyle: const ButtonStyle(), textStyle: state.actionRailButtonStates[ActionRailButtons.stop]!.textStyle),
+    return BlocBuilder<UIBloc, UIState>(buildWhen: (previous, current) => previous.getActionRailButtonState(ActionRailButtons.stop) != current.getActionRailButtonState(ActionRailButtons.stop),
+      builder: (context, state) => ActionRailButton(icon: const StopPaint(color: Colors.black, opacity: 1.0), label: 'stop', onPressed: () => context.read<UIBloc>().add(const ARBStopPressed()), buttonStyle: const ButtonStyle(), textStyle: state.getActionRailButtonState(ActionRailButtons.stop).textStyle),
     );
   }
 }
@@ -60,8 +60,8 @@ class ARBLog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<UIBloc, UIState>(buildWhen: (previous, current) => previous.actionRailButtonStates[ActionRailButtons.log] != current.actionRailButtonStates[ActionRailButtons.log],
-      builder: (context, state) => ActionRailButton(icon: const ScrollPaint(color: Colors.black, opacity: 1.0), label: 'log', onPressed: () => context.read<UIBloc>().add(const ARBLogPressed()), buttonStyle: const ButtonStyle(), textStyle: state.actionRailButtonStates[ActionRailButtons.log]!.textStyle),
+    return BlocBuilder<UIBloc, UIState>(buildWhen: (previous, current) => previous.getActionRailButtonState(ActionRailButtons.log) != current.getActionRailButtonState(ActionRailButtons.log),
+      builder: (context, state) => ActionRailButton(icon: const ScrollPaint(color: Colors.black, opacity: 1.0), label: 'log', onPressed: () => context.read<UIBloc>().add(const ARBLogPressed()), buttonStyle: const ButtonStyle(), textStyle: state.getActionRailButtonState(ActionRailButtons.log).textStyle),
     );
   }
 }
@@ -71,8 +71,8 @@ class ARBSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<UIBloc, UIState>(buildWhen: (previous, current) => previous.actionRailButtonStates[ActionRailButtons.settings] != current.actionRailButtonStates[ActionRailButtons.settings],
-      builder: (context, state) => ActionRailButton(icon: const GearPaint(color: Colors.black, opacity: 1.0), label: 'settings', onPressed: () => context.read<UIBloc>().add(const ARBSettingsPressed()), buttonStyle: const ButtonStyle(), textStyle: state.actionRailButtonStates[ActionRailButtons.settings]!.textStyle),
+    return BlocBuilder<UIBloc, UIState>(buildWhen: (previous, current) => previous.getActionRailButtonState(ActionRailButtons.settings) != current.getActionRailButtonState(ActionRailButtons.settings),
+      builder: (context, state) => ActionRailButton(icon: const GearPaint(color: Colors.black, opacity: 1.0), label: 'settings', onPressed: () => context.read<UIBloc>().add(const ARBSettingsPressed()), buttonStyle: const ButtonStyle(), textStyle: state.getActionRailButtonState(ActionRailButtons.settings).textStyle),
     );
   }
 }
