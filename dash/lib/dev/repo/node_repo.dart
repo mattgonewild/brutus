@@ -56,6 +56,7 @@ class NodeRepoWorker {
 }
 
 final HashMap<String, Worker> _nodes = HashMap<String, Worker>();
+final HashMap<int, int> _activeNodesByType = HashMap<int, int>();
 
 NodeEvent _randomNodeEvent() {
   if (_nodes.length <= 5) return _addNode();
@@ -68,15 +69,36 @@ NodeEvent _randomNodeEvent() {
   }
 }
 
+WorkerType _randomWorkerType() {
+  WorkerType? checkWorkerType(WorkerType type) {
+    if (_activeNodesByType[type.value] == null || _activeNodesByType[type.value]! <= 0) {
+      return type;
+    }
+    return null;
+  }
+
+  WorkerType? type = checkWorkerType(WorkerType.COMBINATION) ?? checkWorkerType(WorkerType.PERMUTATION) ?? checkWorkerType(WorkerType.DECRYPTION);
+
+  if (type != null) return type;
+
+  switch (Random().nextInt(100) + 1) {
+    case <=70: return WorkerType.DECRYPTION;
+    case <=90: return WorkerType.PERMUTATION;
+    default: return WorkerType.COMBINATION;
+  }
+}
+
 NodeEvent _updateNode() {
   if (_nodes.isEmpty) return _addNode();
   final node = _nodes.values.elementAt(Random().nextInt(_nodes.length));
-  return NodeMetrics(node: Worker(id: node.id, time: Timestamp.fromDateTime(DateTime.now())));
+  return NodeMetrics(node: Worker(id: node.id, time: Timestamp.fromDateTime(DateTime.now()), type: node.type));
 }
 
 NodeEvent _addNode() {
-  final node = Worker(id: const Uuid().v4(), time: Timestamp.fromDateTime(DateTime.now()));
+  final type = _randomWorkerType();
+  final node = Worker(id: const Uuid().v4(), time: Timestamp.fromDateTime(DateTime.now()), type: type);
   _nodes[node.id] = node;
+  _activeNodesByType[type.value] = (_activeNodesByType[type.value] ?? 0) + 1;
   return NodeAdded(node: node);
 }
 
@@ -84,6 +106,7 @@ NodeEvent _removeNode() {
   if (_nodes.isEmpty) return _addNode();
   final node = _nodes.values.elementAt(Random().nextInt(_nodes.length));
   _nodes.remove(node.id);
+  _activeNodesByType[node.type.value] = (_activeNodesByType[node.type.value] ?? 0) - 1;
   return NodeRemoved(node: node);
 }
 
@@ -91,5 +114,6 @@ NodeEvent _destroyNode() {
   if (_nodes.isEmpty) return _addNode();
   final node = _nodes.values.elementAt(Random().nextInt(_nodes.length));
   _nodes.remove(node.id);
+  _activeNodesByType[node.type.value] = (_activeNodesByType[node.type.value] ?? 0) - 1;
   return NodeDestroyed(node: node);
 }
