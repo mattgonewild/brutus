@@ -16,12 +16,12 @@ for dir in $(find "$1" -type d); do
         cd $dir > /dev/null 2>&1
         if [ -f "$dir/message.proto" ]; then
             protoc --go_out=./go --go_opt=paths=source_relative --dart_out=grpc:./dart/lib/src *.proto
-            git add ./go/*.go ./dart/lib/src/*.dart ./dart/lib/src/google/protobuf/*.dart
+            git add ./go/*.go ./dart/lib/src/*.dart ./dart/lib/src/google/protobuf/*.dart ./*.proto
             awk -F. -v OFS=. '/^version: /{$NF++;print;next}1' ./dart/pubspec.yaml > temp && mv temp ./dart/pubspec.yaml
             git add ./dart/pubspec.yaml
         else
             protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative *.proto
-            git add ./*.go
+            git add ./*.go ./*.proto
         fi
         cd - > /dev/null 2>&1
     fi
