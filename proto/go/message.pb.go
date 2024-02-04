@@ -21,6 +21,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type WorkerType int32
+
+const (
+	WorkerType_COMBINATION WorkerType = 0
+	WorkerType_PERMUTATION WorkerType = 1
+	WorkerType_DECRYPTION  WorkerType = 2
+)
+
+// Enum value maps for WorkerType.
+var (
+	WorkerType_name = map[int32]string{
+		0: "COMBINATION",
+		1: "PERMUTATION",
+		2: "DECRYPTION",
+	}
+	WorkerType_value = map[string]int32{
+		"COMBINATION": 0,
+		"PERMUTATION": 1,
+		"DECRYPTION":  2,
+	}
+)
+
+func (x WorkerType) Enum() *WorkerType {
+	p := new(WorkerType)
+	*p = x
+	return p
+}
+
+func (x WorkerType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (WorkerType) Descriptor() protoreflect.EnumDescriptor {
+	return file_message_proto_enumTypes[0].Descriptor()
+}
+
+func (WorkerType) Type() protoreflect.EnumType {
+	return &file_message_proto_enumTypes[0]
+}
+
+func (x WorkerType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use WorkerType.Descriptor instead.
+func (WorkerType) EnumDescriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{0}
+}
+
 type Budget struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1332,7 +1381,7 @@ type Worker struct {
 	Id   string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Time *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=time,proto3" json:"time,omitempty"` // time when the data was collected
 	Ip   string                 `protobuf:"bytes,3,opt,name=ip,proto3" json:"ip,omitempty"`
-	Type string                 `protobuf:"bytes,4,opt,name=type,proto3" json:"type,omitempty"`
+	Type WorkerType             `protobuf:"varint,4,opt,name=type,proto3,enum=brutus.WorkerType" json:"type,omitempty"`
 	Proc *Proc                  `protobuf:"bytes,5,opt,name=proc,proto3" json:"proc,omitempty"`
 	Ops  int64                  `protobuf:"varint,6,opt,name=ops,proto3" json:"ops,omitempty"`
 }
@@ -1390,11 +1439,11 @@ func (x *Worker) GetIp() string {
 	return ""
 }
 
-func (x *Worker) GetType() string {
+func (x *Worker) GetType() WorkerType {
 	if x != nil {
 		return x.Type
 	}
-	return ""
+	return WorkerType_COMBINATION
 }
 
 func (x *Worker) GetProc() *Proc {
@@ -1513,20 +1562,25 @@ var file_message_proto_rawDesc = []byte{
 	0x69, 0x76, 0x65, 0x4d, 0x69, 0x6e, 0x75, 0x74, 0x65, 0x73, 0x12, 0x26, 0x0a, 0x0e, 0x66, 0x69,
 	0x66, 0x74, 0x65, 0x65, 0x6e, 0x4d, 0x69, 0x6e, 0x75, 0x74, 0x65, 0x73, 0x18, 0x03, 0x20, 0x01,
 	0x28, 0x01, 0x52, 0x0e, 0x66, 0x69, 0x66, 0x74, 0x65, 0x65, 0x6e, 0x4d, 0x69, 0x6e, 0x75, 0x74,
-	0x65, 0x73, 0x22, 0xa0, 0x01, 0x0a, 0x06, 0x57, 0x6f, 0x72, 0x6b, 0x65, 0x72, 0x12, 0x0e, 0x0a,
+	0x65, 0x73, 0x22, 0xb4, 0x01, 0x0a, 0x06, 0x57, 0x6f, 0x72, 0x6b, 0x65, 0x72, 0x12, 0x0e, 0x0a,
 	0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x2e, 0x0a,
 	0x04, 0x74, 0x69, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f,
 	0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69,
 	0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x04, 0x74, 0x69, 0x6d, 0x65, 0x12, 0x0e, 0x0a,
-	0x02, 0x69, 0x70, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x70, 0x12, 0x12, 0x0a,
-	0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x74, 0x79, 0x70,
-	0x65, 0x12, 0x20, 0x0a, 0x04, 0x70, 0x72, 0x6f, 0x63, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32,
-	0x0c, 0x2e, 0x62, 0x72, 0x75, 0x74, 0x75, 0x73, 0x2e, 0x50, 0x72, 0x6f, 0x63, 0x52, 0x04, 0x70,
-	0x72, 0x6f, 0x63, 0x12, 0x10, 0x0a, 0x03, 0x6f, 0x70, 0x73, 0x18, 0x06, 0x20, 0x01, 0x28, 0x03,
-	0x52, 0x03, 0x6f, 0x70, 0x73, 0x42, 0x29, 0x5a, 0x27, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
-	0x63, 0x6f, 0x6d, 0x2f, 0x6d, 0x61, 0x74, 0x74, 0x67, 0x6f, 0x6e, 0x65, 0x77, 0x69, 0x6c, 0x64,
-	0x2f, 0x62, 0x72, 0x75, 0x74, 0x75, 0x73, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x02, 0x69, 0x70, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x70, 0x12, 0x26, 0x0a,
+	0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x12, 0x2e, 0x62, 0x72,
+	0x75, 0x74, 0x75, 0x73, 0x2e, 0x57, 0x6f, 0x72, 0x6b, 0x65, 0x72, 0x54, 0x79, 0x70, 0x65, 0x52,
+	0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x20, 0x0a, 0x04, 0x70, 0x72, 0x6f, 0x63, 0x18, 0x05, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x62, 0x72, 0x75, 0x74, 0x75, 0x73, 0x2e, 0x50, 0x72, 0x6f,
+	0x63, 0x52, 0x04, 0x70, 0x72, 0x6f, 0x63, 0x12, 0x10, 0x0a, 0x03, 0x6f, 0x70, 0x73, 0x18, 0x06,
+	0x20, 0x01, 0x28, 0x03, 0x52, 0x03, 0x6f, 0x70, 0x73, 0x2a, 0x3e, 0x0a, 0x0a, 0x57, 0x6f, 0x72,
+	0x6b, 0x65, 0x72, 0x54, 0x79, 0x70, 0x65, 0x12, 0x0f, 0x0a, 0x0b, 0x43, 0x4f, 0x4d, 0x42, 0x49,
+	0x4e, 0x41, 0x54, 0x49, 0x4f, 0x4e, 0x10, 0x00, 0x12, 0x0f, 0x0a, 0x0b, 0x50, 0x45, 0x52, 0x4d,
+	0x55, 0x54, 0x41, 0x54, 0x49, 0x4f, 0x4e, 0x10, 0x01, 0x12, 0x0e, 0x0a, 0x0a, 0x44, 0x45, 0x43,
+	0x52, 0x59, 0x50, 0x54, 0x49, 0x4f, 0x4e, 0x10, 0x02, 0x42, 0x29, 0x5a, 0x27, 0x67, 0x69, 0x74,
+	0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6d, 0x61, 0x74, 0x74, 0x67, 0x6f, 0x6e, 0x65,
+	0x77, 0x69, 0x6c, 0x64, 0x2f, 0x62, 0x72, 0x75, 0x74, 0x75, 0x73, 0x2f, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x2f, 0x67, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1541,60 +1595,63 @@ func file_message_proto_rawDescGZIP() []byte {
 	return file_message_proto_rawDescData
 }
 
+var file_message_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_message_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_message_proto_goTypes = []interface{}{
-	(*Budget)(nil),                // 0: brutus.Budget
-	(*Request)(nil),               // 1: brutus.Request
-	(*Element)(nil),               // 2: brutus.Element
-	(*Combination)(nil),           // 3: brutus.Combination
-	(*Permutation)(nil),           // 4: brutus.Permutation
-	(*Target)(nil),                // 5: brutus.Target
-	(*Result)(nil),                // 6: brutus.Result
-	(*Status)(nil),                // 7: brutus.Status
-	(*WorkersResponse)(nil),       // 8: brutus.WorkersResponse
-	(*WorkerRequest)(nil),         // 9: brutus.WorkerRequest
-	(*WorkerResponse)(nil),        // 10: brutus.WorkerResponse
-	(*ProcResponse)(nil),          // 11: brutus.ProcResponse
-	(*CpuResponse)(nil),           // 12: brutus.CpuResponse
-	(*MemResponse)(nil),           // 13: brutus.MemResponse
-	(*NetResponse)(nil),           // 14: brutus.NetResponse
-	(*UptimeResponse)(nil),        // 15: brutus.UptimeResponse
-	(*LoadAvgResponse)(nil),       // 16: brutus.LoadAvgResponse
-	(*PoolLoadRequest)(nil),       // 17: brutus.PoolLoadRequest
-	(*PoolLoadResponse)(nil),      // 18: brutus.PoolLoadResponse
-	(*Proc)(nil),                  // 19: brutus.Proc
-	(*Cpu)(nil),                   // 20: brutus.Cpu
-	(*Mem)(nil),                   // 21: brutus.Mem
-	(*Net)(nil),                   // 22: brutus.Net
-	(*Uptime)(nil),                // 23: brutus.Uptime
-	(*LoadAvg)(nil),               // 24: brutus.LoadAvg
-	(*Worker)(nil),                // 25: brutus.Worker
-	(*timestamppb.Timestamp)(nil), // 26: google.protobuf.Timestamp
+	(WorkerType)(0),               // 0: brutus.WorkerType
+	(*Budget)(nil),                // 1: brutus.Budget
+	(*Request)(nil),               // 2: brutus.Request
+	(*Element)(nil),               // 3: brutus.Element
+	(*Combination)(nil),           // 4: brutus.Combination
+	(*Permutation)(nil),           // 5: brutus.Permutation
+	(*Target)(nil),                // 6: brutus.Target
+	(*Result)(nil),                // 7: brutus.Result
+	(*Status)(nil),                // 8: brutus.Status
+	(*WorkersResponse)(nil),       // 9: brutus.WorkersResponse
+	(*WorkerRequest)(nil),         // 10: brutus.WorkerRequest
+	(*WorkerResponse)(nil),        // 11: brutus.WorkerResponse
+	(*ProcResponse)(nil),          // 12: brutus.ProcResponse
+	(*CpuResponse)(nil),           // 13: brutus.CpuResponse
+	(*MemResponse)(nil),           // 14: brutus.MemResponse
+	(*NetResponse)(nil),           // 15: brutus.NetResponse
+	(*UptimeResponse)(nil),        // 16: brutus.UptimeResponse
+	(*LoadAvgResponse)(nil),       // 17: brutus.LoadAvgResponse
+	(*PoolLoadRequest)(nil),       // 18: brutus.PoolLoadRequest
+	(*PoolLoadResponse)(nil),      // 19: brutus.PoolLoadResponse
+	(*Proc)(nil),                  // 20: brutus.Proc
+	(*Cpu)(nil),                   // 21: brutus.Cpu
+	(*Mem)(nil),                   // 22: brutus.Mem
+	(*Net)(nil),                   // 23: brutus.Net
+	(*Uptime)(nil),                // 24: brutus.Uptime
+	(*LoadAvg)(nil),               // 25: brutus.LoadAvg
+	(*Worker)(nil),                // 26: brutus.Worker
+	(*timestamppb.Timestamp)(nil), // 27: google.protobuf.Timestamp
 }
 var file_message_proto_depIdxs = []int32{
-	26, // 0: brutus.Budget.timestamp:type_name -> google.protobuf.Timestamp
-	2,  // 1: brutus.Request.element:type_name -> brutus.Element
-	2,  // 2: brutus.Combination.elements:type_name -> brutus.Element
-	25, // 3: brutus.WorkersResponse.workers:type_name -> brutus.Worker
-	25, // 4: brutus.WorkerResponse.worker:type_name -> brutus.Worker
-	19, // 5: brutus.ProcResponse.proc:type_name -> brutus.Proc
-	20, // 6: brutus.CpuResponse.cpu:type_name -> brutus.Cpu
-	21, // 7: brutus.MemResponse.mem:type_name -> brutus.Mem
-	22, // 8: brutus.NetResponse.net:type_name -> brutus.Net
-	23, // 9: brutus.UptimeResponse.uptime:type_name -> brutus.Uptime
-	24, // 10: brutus.LoadAvgResponse.LoadAvg:type_name -> brutus.LoadAvg
-	20, // 11: brutus.Proc.cpu:type_name -> brutus.Cpu
-	21, // 12: brutus.Proc.mem:type_name -> brutus.Mem
-	22, // 13: brutus.Proc.net:type_name -> brutus.Net
-	23, // 14: brutus.Proc.uptime:type_name -> brutus.Uptime
-	24, // 15: brutus.Proc.loadAvg:type_name -> brutus.LoadAvg
-	26, // 16: brutus.Worker.time:type_name -> google.protobuf.Timestamp
-	19, // 17: brutus.Worker.proc:type_name -> brutus.Proc
-	18, // [18:18] is the sub-list for method output_type
-	18, // [18:18] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	27, // 0: brutus.Budget.timestamp:type_name -> google.protobuf.Timestamp
+	3,  // 1: brutus.Request.element:type_name -> brutus.Element
+	3,  // 2: brutus.Combination.elements:type_name -> brutus.Element
+	26, // 3: brutus.WorkersResponse.workers:type_name -> brutus.Worker
+	26, // 4: brutus.WorkerResponse.worker:type_name -> brutus.Worker
+	20, // 5: brutus.ProcResponse.proc:type_name -> brutus.Proc
+	21, // 6: brutus.CpuResponse.cpu:type_name -> brutus.Cpu
+	22, // 7: brutus.MemResponse.mem:type_name -> brutus.Mem
+	23, // 8: brutus.NetResponse.net:type_name -> brutus.Net
+	24, // 9: brutus.UptimeResponse.uptime:type_name -> brutus.Uptime
+	25, // 10: brutus.LoadAvgResponse.LoadAvg:type_name -> brutus.LoadAvg
+	21, // 11: brutus.Proc.cpu:type_name -> brutus.Cpu
+	22, // 12: brutus.Proc.mem:type_name -> brutus.Mem
+	23, // 13: brutus.Proc.net:type_name -> brutus.Net
+	24, // 14: brutus.Proc.uptime:type_name -> brutus.Uptime
+	25, // 15: brutus.Proc.loadAvg:type_name -> brutus.LoadAvg
+	27, // 16: brutus.Worker.time:type_name -> google.protobuf.Timestamp
+	0,  // 17: brutus.Worker.type:type_name -> brutus.WorkerType
+	20, // 18: brutus.Worker.proc:type_name -> brutus.Proc
+	19, // [19:19] is the sub-list for method output_type
+	19, // [19:19] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_message_proto_init() }
@@ -1921,13 +1978,14 @@ func file_message_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_message_proto_rawDesc,
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_message_proto_goTypes,
 		DependencyIndexes: file_message_proto_depIdxs,
+		EnumInfos:         file_message_proto_enumTypes,
 		MessageInfos:      file_message_proto_msgTypes,
 	}.Build()
 	File_message_proto = out.File

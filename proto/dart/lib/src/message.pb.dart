@@ -15,6 +15,9 @@ import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'google/protobuf/timestamp.pb.dart' as $0;
+import 'message.pbenum.dart';
+
+export 'message.pbenum.dart';
 
 class Budget extends $pb.GeneratedMessage {
   factory Budget({
@@ -1511,7 +1514,7 @@ class Worker extends $pb.GeneratedMessage {
     $core.String? id,
     $0.Timestamp? time,
     $core.String? ip,
-    $core.String? type,
+    WorkerType? type,
     Proc? proc,
     $fixnum.Int64? ops,
   }) {
@@ -1544,7 +1547,7 @@ class Worker extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'time', subBuilder: $0.Timestamp.create)
     ..aOS(3, _omitFieldNames ? '' : 'ip')
-    ..aOS(4, _omitFieldNames ? '' : 'type')
+    ..e<WorkerType>(4, _omitFieldNames ? '' : 'type', $pb.PbFieldType.OE, defaultOrMaker: WorkerType.COMBINATION, valueOf: WorkerType.valueOf, enumValues: WorkerType.values)
     ..aOM<Proc>(5, _omitFieldNames ? '' : 'proc', subBuilder: Proc.create)
     ..aInt64(6, _omitFieldNames ? '' : 'ops')
     ..hasRequiredFields = false
@@ -1601,9 +1604,9 @@ class Worker extends $pb.GeneratedMessage {
   void clearIp() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get type => $_getSZ(3);
+  WorkerType get type => $_getN(3);
   @$pb.TagNumber(4)
-  set type($core.String v) { $_setString(3, v); }
+  set type(WorkerType v) { setField(4, v); }
   @$pb.TagNumber(4)
   $core.bool hasType() => $_has(3);
   @$pb.TagNumber(4)

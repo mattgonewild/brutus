@@ -13,6 +13,21 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+@$core.Deprecated('Use workerTypeDescriptor instead')
+const WorkerType$json = {
+  '1': 'WorkerType',
+  '2': [
+    {'1': 'COMBINATION', '2': 0},
+    {'1': 'PERMUTATION', '2': 1},
+    {'1': 'DECRYPTION', '2': 2},
+  ],
+};
+
+/// Descriptor for `WorkerType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List workerTypeDescriptor = $convert.base64Decode(
+    'CgpXb3JrZXJUeXBlEg8KC0NPTUJJTkFUSU9OEAASDwoLUEVSTVVUQVRJT04QARIOCgpERUNSWV'
+    'BUSU9OEAI=');
+
 @$core.Deprecated('Use budgetDescriptor instead')
 const Budget$json = {
   '1': 'Budget',
@@ -350,7 +365,7 @@ const Worker$json = {
     {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     {'1': 'time', '3': 2, '4': 1, '5': 11, '6': '.google.protobuf.Timestamp', '10': 'time'},
     {'1': 'ip', '3': 3, '4': 1, '5': 9, '10': 'ip'},
-    {'1': 'type', '3': 4, '4': 1, '5': 9, '10': 'type'},
+    {'1': 'type', '3': 4, '4': 1, '5': 14, '6': '.brutus.WorkerType', '10': 'type'},
     {'1': 'proc', '3': 5, '4': 1, '5': 11, '6': '.brutus.Proc', '10': 'proc'},
     {'1': 'ops', '3': 6, '4': 1, '5': 3, '10': 'ops'},
   ],
@@ -359,6 +374,7 @@ const Worker$json = {
 /// Descriptor for `Worker`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List workerDescriptor = $convert.base64Decode(
     'CgZXb3JrZXISDgoCaWQYASABKAlSAmlkEi4KBHRpbWUYAiABKAsyGi5nb29nbGUucHJvdG9idW'
-    'YuVGltZXN0YW1wUgR0aW1lEg4KAmlwGAMgASgJUgJpcBISCgR0eXBlGAQgASgJUgR0eXBlEiAK'
-    'BHByb2MYBSABKAsyDC5icnV0dXMuUHJvY1IEcHJvYxIQCgNvcHMYBiABKANSA29wcw==');
+    'YuVGltZXN0YW1wUgR0aW1lEg4KAmlwGAMgASgJUgJpcBImCgR0eXBlGAQgASgOMhIuYnJ1dHVz'
+    'LldvcmtlclR5cGVSBHR5cGUSIAoEcHJvYxgFIAEoCzIMLmJydXR1cy5Qcm9jUgRwcm9jEhAKA2'
+    '9wcxgGIAEoA1IDb3Bz');
 
