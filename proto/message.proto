@@ -126,7 +126,13 @@ message Worker {
     string id = 1;
     google.protobuf.Timestamp time = 2; // time when the data was collected
     string ip = 3;
-    string type = 4;
+    WorkerType type = 4;
     Proc proc = 5;
     int64 ops = 6;
+}
+
+enum WorkerType {
+    COMBINATION = 0;
+    PERMUTATION = 1;
+    DECRYPTION = 2;
 }
