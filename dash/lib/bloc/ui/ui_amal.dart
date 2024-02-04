@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:bloc/bloc.dart';
+import 'package:brutus/brutus.dart' show WorkerType;
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 

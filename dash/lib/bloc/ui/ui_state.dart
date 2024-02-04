@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, prefer_collection_literals
 
 part of 'ui_amal.dart';
 
@@ -16,16 +16,31 @@ final class UIState extends Equatable {
       LinkedHashMap<ActionRailButtons, ActionRailButtonState>? actionRailButtonStates,
       HashMap<String, NodeCardState>? nodeCardStates
   }): _UIStateVersion = UIStateVersion ?? 0,
-      _actionRailButtonStates = actionRailButtonStates ?? LinkedHashMap<ActionRailButtons, ActionRailButtonState>.fromIterables(ActionRailButtons.values, List<ActionRailButtonState>.filled(ActionRailButtons.values.length, const ActionRailButtonState())),
+      _actionRailButtonStates = actionRailButtonStates ?? LinkedHashMap<ActionRailButtons, ActionRailButtonState>(),
       _nodeCardStates = nodeCardStates ?? HashMap<String, NodeCardState>()
     ;
 
   final int _UIStateVersion;
 
   final LinkedHashMap<ActionRailButtons, ActionRailButtonState> _actionRailButtonStates;
+
   LinkedHashMap<ActionRailButtons, ActionRailButtonState> get actionRailButtonStates => _actionRailButtonStates;
+
+  ActionRailButtonState getActionRailButtonState(ActionRailButtons button) {
+    if (_actionRailButtonStates[button] == null) {
+      _actionRailButtonStates[button] = const ActionRailButtonState();
+    }
+    return _actionRailButtonStates[button]!;
+  }
+
   final HashMap<String, NodeCardState> _nodeCardStates;
-  HashMap<String, NodeCardState> get nodeCardStates => _nodeCardStates;
+
+  NodeCardState getNodeCardState(String id, WorkerType type) {
+    if (_nodeCardStates[id] == null) {
+      _nodeCardStates[id] = NodeCardState.defaultState(type);
+    }
+    return _nodeCardStates[id]!;
+  }
 
   UIState copyWith({
     int? UIStateVersion,
@@ -100,6 +115,16 @@ final class NodeCardState extends Equatable {
   Color get backgroundColor => _backgroundColor;
   final TextStyle _textStyle;
   TextStyle get textStyle => _textStyle;
+
+  static NodeCardState defaultState(WorkerType type) => NodeCardState(
+    regionState: RegionState.outRegion,
+    buttonState: ButtonState.unselected,
+    backgroundColor: type == WorkerType.COMBINATION ? Colors.blue 
+                   : type == WorkerType.PERMUTATION ? Colors.green
+                   : type == WorkerType.DECRYPTION ? Colors.red
+                   : Colors.transparent,
+    textStyle: defaultTextStyle
+  );
 
   NodeCardState copyWith({
     RegionState? regionState,

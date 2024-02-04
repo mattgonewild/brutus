@@ -29,52 +29,52 @@ class UIBloc extends Bloc<UIEvent, UIState> {
 
   Future<void> _onARBStartPressed(ARBStartPressed event, Emitter<UIState> emit) async {
     _sysBloc.add(SysEvent.startRequested);
-    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.start] = const ActionRailButtonState(buttonState: ButtonState.thinking)));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.start] = state.getActionRailButtonState(ActionRailButtons.start).copyWith(buttonState: ButtonState.thinking)));
   }
 
   Future<void> _onARBStartOn(ARBStartOn event, Emitter<UIState> emit) async {
-    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.start] = const ActionRailButtonState(buttonState: ButtonState.selected)));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.start] = state.getActionRailButtonState(ActionRailButtons.start).copyWith(buttonState: ButtonState.selected)));
   }
 
   Future<void> _onARBStartOff(ARBStartOff event, Emitter<UIState> emit) async {
-    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.start] = const ActionRailButtonState(buttonState: ButtonState.unselected)));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.start] = state.getActionRailButtonState(ActionRailButtons.start).copyWith(buttonState: ButtonState.unselected)));
   }
 
   Future<void> _onARBStopPressed(ARBStopPressed event, Emitter<UIState> emit) async {
     _sysBloc.add(SysEvent.stopRequested);
-    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.stop] = const ActionRailButtonState(buttonState: ButtonState.thinking)));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.stop] = state.getActionRailButtonState(ActionRailButtons.stop).copyWith(buttonState: ButtonState.thinking)));
   }
 
   Future<void> _onARBStopOn(ARBStopOn event, Emitter<UIState> emit) async {
-    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.stop] = const ActionRailButtonState(buttonState: ButtonState.selected)));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.stop] = state.getActionRailButtonState(ActionRailButtons.stop).copyWith(buttonState: ButtonState.selected)));
   }
 
   Future<void> _onARBStopOff(ARBStopOff event, Emitter<UIState> emit) async {
-    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.stop] = const ActionRailButtonState(buttonState: ButtonState.unselected)));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.stop] = state.getActionRailButtonState(ActionRailButtons.stop).copyWith(buttonState: ButtonState.unselected)));
   }
 
   Future<void> _onARBLogPressed(ARBLogPressed event, Emitter<UIState> emit) async {
-    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.log] = const ActionRailButtonState(buttonState: ButtonState.thinking)));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.log] = state.getActionRailButtonState(ActionRailButtons.log).copyWith(buttonState: ButtonState.thinking)));
   }
 
   Future<void> _onARBLogOn(ARBLogOn event, Emitter<UIState> emit) async {
-    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.log] = const ActionRailButtonState(buttonState: ButtonState.selected)));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.log] = state.getActionRailButtonState(ActionRailButtons.log).copyWith(buttonState: ButtonState.selected)));
   }
 
   Future<void> _onARBLogOff(ARBLogOff event, Emitter<UIState> emit) async {
-    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.log] = const ActionRailButtonState(buttonState: ButtonState.unselected)));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.log] = state.getActionRailButtonState(ActionRailButtons.log).copyWith(buttonState: ButtonState.unselected)));
   }
 
   Future<void> _onARBSettingsPressed(ARBSettingsPressed event, Emitter<UIState> emit) async {
-    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.settings] = const ActionRailButtonState(buttonState: ButtonState.thinking)));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.settings] = state.getActionRailButtonState(ActionRailButtons.settings).copyWith(buttonState: ButtonState.thinking)));
   }
 
   Future<void> _onARBSettingsOn(ARBSettingsOn event, Emitter<UIState> emit) async {
-    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.settings] = const ActionRailButtonState(buttonState: ButtonState.selected)));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.settings] = state.getActionRailButtonState(ActionRailButtons.settings).copyWith(buttonState: ButtonState.selected)));
   }
 
   Future<void> _onARBSettingsOff(ARBSettingsOff event, Emitter<UIState> emit) async {
-    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.settings] = const ActionRailButtonState(buttonState: ButtonState.unselected)));
+    emit(state.copyWith(actionRailButtonStates: state.actionRailButtonStates..[ActionRailButtons.settings] = state.getActionRailButtonState(ActionRailButtons.settings).copyWith(buttonState: ButtonState.unselected)));
   }
 
   @override
