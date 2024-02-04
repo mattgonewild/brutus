@@ -20,7 +20,7 @@ class NodeCard extends StatelessWidget {
 
   final Worker _node;
 
-  Widget _buildRow(String label, Widget value) => Row(children: [Text(label), value]);
+  Widget _buildRow(String label, Widget value) => Row(children: [Text(label), Expanded(child: value)]);
 
   double _calculateCpuUsage(Int64 total, Int64 idle) => ((total - idle).toDouble() / total.toDouble()) * 100;
 
@@ -28,13 +28,19 @@ class NodeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      _buildRow('CPU', PercentageBarPaint(progress: _calculateCpuUsage(_node.proc.cpu.total, _node.proc.cpu.idle))),
-      _buildRow('MEM', PercentageBarPaint(progress: _calculateMemUsage(_node.proc.mem.total, _node.proc.mem.used))),
-      _buildRow('ID', Text(_node.id)),
-      _buildRow('IP', Text(_node.ip)),
-      _buildRow('UPTIME', Text(_node.proc.uptime.toString())),
-      _buildRow('OPS', Text(_node.ops.toString())),
-    ]);
+    return BlocBuilder<UIBloc, UIState>(buildWhen: (previous, current) => previous.nodeCardStates[_node.id] != current.nodeCardStates[_node.id],
+      builder: (context, state) => MouseRegion(onEnter: (event) {}, onExit: (event) {},
+        child: GestureDetector(onTap: () {},
+          child: Card(color: _node.type == WorkerType.COMBINATION ? Colors.amber : _node.type == WorkerType.PERMUTATION ? Colors.lime : _node.type == WorkerType.DECRYPTION ? Colors.pink : Colors.purple, child: Column(children: [
+            _buildRow('CPU', PercentageBarPaint(progress: _calculateCpuUsage(_node.proc.cpu.total, _node.proc.cpu.idle))),
+            _buildRow('MEM', PercentageBarPaint(progress: _calculateMemUsage(_node.proc.mem.total, _node.proc.mem.used))),
+            _buildRow('ID', Text(_node.id, overflow: TextOverflow.ellipsis, maxLines: 1)),
+            _buildRow('IP', Text(_node.ip)),
+            _buildRow('UPTIME', Text(_node.proc.uptime.toString())),
+            _buildRow('OPS', Text(_node.ops.toString())),
+          ])),
+        ),
+      )
+    );
   }
 }
