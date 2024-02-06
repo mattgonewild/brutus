@@ -9,7 +9,7 @@ class NodePanel extends StatelessWidget {
     return BlocBuilder<NodeBloc, NodeState>(buildWhen: (previous, current) => true,
       builder: (context, state) => GridView.builder(itemCount: state.nodes.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5, crossAxisSpacing: 11, mainAxisSpacing: 11),
-        itemBuilder: (context, index) => NodeCard(node: state.nodes.elementAt(index))
+        itemBuilder: (context, index) => AnimatedSwitcher(duration: const Duration(milliseconds: 200), child: NodeCard(key: ValueKey(state.nodes.elementAt(index).id), node: state.nodes.elementAt(index)))
       )
     );
   }
