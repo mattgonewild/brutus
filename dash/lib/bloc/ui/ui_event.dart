@@ -7,6 +7,16 @@ sealed class UIEvent extends Equatable {
   List<Object> get props => [];
 }
 
+final class LayoutConstraintsChanged extends UIEvent {
+  const LayoutConstraintsChanged(this.maxWidth, this.maxHeight);
+
+  final double maxWidth;
+  final double maxHeight;
+
+  @override
+  List<Object> get props => [maxWidth, maxHeight];
+}
+
 final class ARBStartPressed extends UIEvent {
   const ARBStartPressed();
 }

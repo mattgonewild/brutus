@@ -9,6 +9,8 @@ class UIBloc extends Bloc<UIEvent, UIState> {
         case SysState.unknown: add(const ARBStartOff());
       }
     });
+
+    on<LayoutConstraintsChanged>(_onLayoutConstraintsChanged);
     
     on<ARBStartPressed>(_onARBStartPressed);
     on<ARBStartOn>(_onARBStartOn);
@@ -26,6 +28,10 @@ class UIBloc extends Bloc<UIEvent, UIState> {
 
   final SysBloc _sysBloc;
   late StreamSubscription<SysState> _sysBlocSubscription;
+
+  Future<void> _onLayoutConstraintsChanged(LayoutConstraintsChanged event, Emitter<UIState> emit) async {
+    emit(state.copyWith(screenMaxWidth: event.maxWidth, screenMaxHeight: event.maxHeight));
+  }
 
   Future<void> _onARBStartPressed(ARBStartPressed event, Emitter<UIState> emit) async {
     _sysBloc.add(SysEvent.startRequested);

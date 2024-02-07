@@ -11,6 +11,7 @@ class DashboardRoute extends StatelessWidget {
 }
 
 Widget pickLayout(BuildContext context, BoxConstraints constraints) {
+  WidgetsBinding.instance.addPostFrameCallback((_) => context.read<UIBloc>().add(LayoutConstraintsChanged(constraints.maxWidth, constraints.maxHeight)));
   if (constraints.maxWidth < 1080 || constraints.maxHeight < 800) {
     // mobile
     if (MediaQuery.of(context).orientation == Orientation.portrait) {

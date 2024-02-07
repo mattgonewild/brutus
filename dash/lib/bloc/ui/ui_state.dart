@@ -13,14 +13,20 @@ enum ActionRailButtons { start, stop, log, settings }
 final class UIState extends Equatable {
   UIState({
       int? UIStateVersion,
+      double? screenMaxWidth,
+      double? screenMaxHeight,
       LinkedHashMap<ActionRailButtons, ActionRailButtonState>? actionRailButtonStates,
       HashMap<String, NodeCardState>? nodeCardStates
   }): _UIStateVersion = UIStateVersion ?? 0,
+      _screenMaxWidth = screenMaxWidth ?? 800,
+      _screenMaxHeight = screenMaxHeight ?? 600,
       _actionRailButtonStates = actionRailButtonStates ?? LinkedHashMap<ActionRailButtons, ActionRailButtonState>(),
       _nodeCardStates = nodeCardStates ?? HashMap<String, NodeCardState>()
     ;
 
   final int _UIStateVersion;
+  final double _screenMaxWidth;
+  final double _screenMaxHeight;
 
   final LinkedHashMap<ActionRailButtons, ActionRailButtonState> _actionRailButtonStates;
 
@@ -44,10 +50,14 @@ final class UIState extends Equatable {
 
   UIState copyWith({
     int? UIStateVersion,
+    double? screenMaxWidth,
+    double? screenMaxHeight,
     LinkedHashMap<ActionRailButtons, ActionRailButtonState>? actionRailButtonStates,
     HashMap<String, NodeCardState>? nodeCardStates
   }) => UIState(
     UIStateVersion: UIStateVersion ?? _UIStateVersion + 1,
+    screenMaxWidth: screenMaxWidth ?? _screenMaxWidth,
+    screenMaxHeight: screenMaxHeight ?? _screenMaxHeight,
     actionRailButtonStates: actionRailButtonStates ?? _actionRailButtonStates,
     nodeCardStates: nodeCardStates ?? _nodeCardStates
   );
