@@ -21,7 +21,9 @@ class StopPainter extends CustomPainter {
   const StopPainter({required Color color, required double opacity}) : _color = color, _opacity = opacity;
 
   final Color _color;
+  Color get color => _color;
   final double _opacity;
+  double get opacity => _opacity;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -42,5 +44,5 @@ class StopPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => (oldDelegate as StopPainter)._color != _color || oldDelegate._opacity != _opacity;
 }

@@ -5,13 +5,12 @@ class DashboardRoute extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-        builder: (context, constraints) => pickLayout(context, constraints));
+    return LayoutBuilder(builder: (context, constraints) => pickLayout(context, constraints));
   }
 }
 
 Widget pickLayout(BuildContext context, BoxConstraints constraints) {
-  WidgetsBinding.instance.addPostFrameCallback((_) => context.read<UIBloc>().add(LayoutConstraintsChanged(constraints.maxWidth, constraints.maxHeight)));
+  WidgetsBinding.instance.addPostFrameCallback((_) => context.read<UIBloc>().add(LayoutConstraintsUpdated(constraints.maxWidth, constraints.maxHeight)));
   if (constraints.maxWidth < 1080 || constraints.maxHeight < 800) {
     // mobile
     if (MediaQuery.of(context).orientation == Orientation.portrait) {
@@ -61,14 +60,24 @@ class DashboardDesktopLandscape extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(children: [
-      Expanded(flex: 1, child: ActionRail()),
-      Expanded(flex: 10, child: Row(children: [
-          Expanded(flex: 2, child: Column(children: [
-            AspectRatio(aspectRatio: 1.1, child: ChartPanel()),
-            Expanded(flex: 1, child: InteractiveInfoPanel()),
-          ])),
-          Expanded(flex: 7, child: NodePanel()),
-    ]))]);
+    return BlocBuilder<UIBloc, UIState>(
+        buildWhen: (previous, current) => previous.canvasColor != current.canvasColor,
+        builder: (context, state) => Container(
+              color: state.canvasColor,
+              child: const Row(children: [
+                Expanded(flex: 1, child: ActionRail()),
+                Expanded(
+                    flex: 10,
+                    child: Row(children: [
+                      Expanded(
+                          flex: 2,
+                          child: Column(children: [
+                            AspectRatio(aspectRatio: 1.1, child: ChartPanel()),
+                            Expanded(flex: 1, child: InteractiveInfoPanel()),
+                          ])),
+                      Expanded(flex: 7, child: NodePanel()),
+                    ]))
+              ]),
+            ));
   }
 }

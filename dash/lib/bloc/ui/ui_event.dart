@@ -7,8 +7,17 @@ sealed class UIEvent extends Equatable {
   List<Object> get props => [];
 }
 
-final class LayoutConstraintsChanged extends UIEvent {
-  const LayoutConstraintsChanged(this.maxWidth, this.maxHeight);
+final class NodeStateUpdated extends UIEvent {
+  const NodeStateUpdated(this.nodeState);
+
+  final NodeState nodeState;
+
+  @override
+  List<Object> get props => [nodeState];
+}
+
+final class LayoutConstraintsUpdated extends UIEvent {
+  const LayoutConstraintsUpdated(this.maxWidth, this.maxHeight);
 
   final double maxWidth;
   final double maxHeight;

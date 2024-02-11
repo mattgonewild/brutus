@@ -4,7 +4,9 @@ class ScrollPaint extends StatelessWidget {
   const ScrollPaint({super.key, required Color color, required double opacity}) : _color = color, _opacity = opacity;
 
   final Color _color;
+  Color get color => _color;
   final double _opacity;
+  double get opacity => _opacity;
 
   @override
   Widget build(BuildContext context) {
@@ -63,5 +65,5 @@ class ScrollPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => (oldDelegate as ScrollPainter)._color != _color || oldDelegate._opacity != _opacity;
 }

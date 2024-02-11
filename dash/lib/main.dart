@@ -23,7 +23,7 @@ void main() {
         BlocProvider<ConfBloc>(create: (context) => ConfBloc(confRepo: context.read<ConfRepo>())),
         BlocProvider<NodeBloc>(create: (context) => NodeBloc(nodeRepo: context.read<NodeRepo>())),
         BlocProvider<SysBloc>(create: (context) => SysBloc(sysRepo: context.read<SysRepo>())),
-        BlocProvider<UIBloc>(create: (context) => UIBloc(sysBloc: context.read<SysBloc>())),
+        BlocProvider<UIBloc>(create: (context) => UIBloc(sysBloc: context.read<SysBloc>(), nodeBloc: context.read<NodeBloc>())),
       ],
       child: MaterialApp(initialRoute: 'dashboard',
       routes: {

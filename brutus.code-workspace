@@ -14,6 +14,7 @@
 			"perm",
 			"decrypt"
 		],
+		"dart.lineLength": 300,
 		// TODO: in the meantime, run ./scripts/brutus-protoc-helper.sh $(pwd) in ${workspaceRoot}
 		"protoc": {
 			"path": "${workspaceRoot}/scripts/brutus-protoc-helper.sh",

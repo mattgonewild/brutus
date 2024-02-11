@@ -21,7 +21,9 @@ class GearPainter extends CustomPainter {
   const GearPainter({required Color color, required double opacity}) : _color = color, _opacity = opacity;
 
   final Color _color;
+  Color get color => _color;
   final double _opacity;
+  double get opacity => _opacity;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -86,5 +88,5 @@ class GearPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => (oldDelegate as GearPainter)._color != _color || oldDelegate._opacity != _opacity;
 }
