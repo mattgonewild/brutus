@@ -31,6 +31,9 @@ class ActionRail extends StatelessWidget {
               elevation: 0.0,
               child: InkWell(
                 onTap: onTap,
+                onHover: (hover) {
+                  context.read<UIBloc>().add(hover ? ARBHovered(button) : ARBUnhovered(button));
+                },
                 child: Column(children: [
                   Expanded(child: _buildActionRailButtonIcon(button, state.actionRailButtonStates[button]!.iconColor, state.actionRailButtonStates[button]!.iconOpacity)),
                 ]),

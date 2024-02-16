@@ -26,6 +26,24 @@ final class LayoutConstraintsUpdated extends UIEvent {
   List<Object> get props => [maxWidth, maxHeight];
 }
 
+final class ARBHovered extends UIEvent {
+  const ARBHovered(this.button);
+
+  final ActionRailButtons button;
+
+  @override
+  List<Object> get props => [button];
+}
+
+final class ARBUnhovered extends UIEvent {
+  const ARBUnhovered(this.button);
+
+  final ActionRailButtons button;
+
+  @override
+  List<Object> get props => [button];
+}
+
 final class ARBStartPressed extends UIEvent {
   const ARBStartPressed();
 }

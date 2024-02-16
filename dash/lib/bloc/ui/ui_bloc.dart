@@ -24,6 +24,9 @@ class UIBloc extends Bloc<UIEvent, UIState> {
 
     on<LayoutConstraintsUpdated>(_onLayoutConstraintsChanged);
 
+    on<ARBHovered>(_onARBHovered);
+    on<ARBUnhovered>(_onARBUnhovered);
+
     on<ARBStartPressed>(_onARBStartPressed);
     on<ARBStartOn>(_onARBStartOn);
     on<ARBStartOff>(_onARBStartOff);
@@ -52,149 +55,122 @@ class UIBloc extends Bloc<UIEvent, UIState> {
     nodeCardStates.removeWhere((key, value) => !ids.contains(key));
 
     for (final node in nodes) {
-      nodeCardStates.putIfAbsent(node.id, () => NodeCardState.defaultState(node.type, state.bodyMedium));
+      nodeCardStates.putIfAbsent(node.id, () => NodeCardState.defaultState(node.type, state.themeData.bodyMedium));
     }
 
     emit(state.copyWith(nodes: nodes, nodeCardStates: nodeCardStates));
   }
 
   Future<void> _onLayoutConstraintsChanged(LayoutConstraintsUpdated event, Emitter<UIState> emit) async {
-    final TextStyle displayLarge = state.displayLarge.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __displayLargeFontHeightRatio);
-    final TextStyle displayMedium = state.displayMedium.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __displayMediumFontHeightRatio);
-    final TextStyle displaySmall = state.displaySmall.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __displaySmallFontHeightRatio);
-    final TextStyle headlineLarge = state.headlineLarge.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __headlineLargeFontHeightRatio);
-    final TextStyle headlineMedium = state.headlineMedium.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __headlineMediumFontHeightRatio);
-    final TextStyle headlineSmall = state.headlineSmall.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __headlineSmallFontHeightRatio);
-    final TextStyle titleLarge = state.titleLarge.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __titleLargeFontHeightRatio);
-    final TextStyle titleMedium = state.titleMedium.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __titleMediumFontHeightRatio);
-    final TextStyle titleSmall = state.titleSmall.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __titleSmallFontHeightRatio);
-    final TextStyle labelLarge = state.labelLarge.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __labelLargeFontHeightRatio);
-    final TextStyle labelMedium = state.labelMedium.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __labelMediumFontHeightRatio);
-    final TextStyle labelSmall = state.labelSmall.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __labelSmallFontHeightRatio);
-    final TextStyle bodyLarge = state.bodyLarge.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __bodyLargeFontHeightRatio);
-    final TextStyle bodyMedium = state.bodyMedium.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __bodyMediumFontHeightRatio);
-    final TextStyle bodySmall = state.bodySmall.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __bodySmallFontHeightRatio);
+    double calculateFontSize(double ratio) => sqrt(event.maxWidth * event.maxHeight) * ratio;
+
+    TextStyle updateTextStyle(TextStyle style, double ratio) => style.copyWith(fontSize: calculateFontSize(ratio));
 
     final HashMap<String, NodeCardState> nodeCardStates = HashMap<String, NodeCardState>.from(state.nodeCardStates);
     nodeCardStates.forEach((key, value) {
-      nodeCardStates[key] = value.copyWith(textStyle: value.textStyle.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __bodyMediumFontHeightRatio));
+      nodeCardStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __bodyMediumFontHeightRatio));
     });
 
     final LinkedHashMap<ActionRailButtons, ActionRailButtonState> actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
     actionRailButtonStates.forEach((key, value) {
-      actionRailButtonStates[key] = value.copyWith(textStyle: value.textStyle.copyWith(fontSize: sqrt(event.maxWidth * event.maxHeight) * __labelMediumFontHeightRatio));
+      actionRailButtonStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
     });
 
     emit(state.copyWith(
-      screenMaxWidth: event.maxWidth,
-      screenMaxHeight: event.maxHeight,
-      nodeCardCrossAxisCount: max(4, (event.maxWidth / event.maxHeight * 1.64 ).floor()),
-      nodeCardStates: nodeCardStates,
-      actionRailButtonStates: actionRailButtonStates,
-      displayLarge: displayLarge,
-      displayMedium: displayMedium,
-      displaySmall: displaySmall,
-      headlineLarge: headlineLarge,
-      headlineMedium: headlineMedium,
-      headlineSmall: headlineSmall,
-      titleLarge: titleLarge,
-      titleMedium: titleMedium,
-      titleSmall: titleSmall,
-      labelLarge: labelLarge,
-      labelMedium: labelMedium,
-      labelSmall: labelSmall,
-      bodyLarge: bodyLarge,
-      bodyMedium: bodyMedium,
-      bodySmall: bodySmall,
-    ));
+        screenMaxWidth: event.maxWidth,
+        screenMaxHeight: event.maxHeight,
+        nodeCardCrossAxisCount: max(4, (event.maxWidth / event.maxHeight * 1.64).floor()),
+        nodeCardStates: nodeCardStates,
+        actionRailButtonStates: actionRailButtonStates,
+        themeData: state.themeData.copyWith(
+          displayLarge: updateTextStyle(state.themeData.displayLarge, __displayLargeFontHeightRatio),
+          displayMedium: updateTextStyle(state.themeData.displayMedium, __displayMediumFontHeightRatio),
+          displaySmall: updateTextStyle(state.themeData.displaySmall, __displaySmallFontHeightRatio),
+          headlineLarge: updateTextStyle(state.themeData.headlineLarge, __headlineLargeFontHeightRatio),
+          headlineMedium: updateTextStyle(state.themeData.headlineMedium, __headlineMediumFontHeightRatio),
+          headlineSmall: updateTextStyle(state.themeData.headlineSmall, __headlineSmallFontHeightRatio),
+          titleLarge: updateTextStyle(state.themeData.titleLarge, __titleLargeFontHeightRatio),
+          titleMedium: updateTextStyle(state.themeData.titleMedium, __titleMediumFontHeightRatio),
+          titleSmall: updateTextStyle(state.themeData.titleSmall, __titleSmallFontHeightRatio),
+          labelLarge: updateTextStyle(state.themeData.labelLarge, __labelLargeFontHeightRatio),
+          labelMedium: updateTextStyle(state.themeData.labelMedium, __labelMediumFontHeightRatio),
+          labelSmall: updateTextStyle(state.themeData.labelSmall, __labelSmallFontHeightRatio),
+          bodyLarge: updateTextStyle(state.themeData.bodyLarge, __bodyLargeFontHeightRatio),
+          bodyMedium: updateTextStyle(state.themeData.bodyMedium, __bodyMediumFontHeightRatio),
+          bodySmall: updateTextStyle(state.themeData.bodySmall, __bodySmallFontHeightRatio),
+        )));
+  }
+
+  Future<void> _updateARBbackgroundColor(ActionRailButtons button, Color color, Emitter<UIState> emit) async {
+    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
+    actionRailButtonStates[button] = actionRailButtonStates[button]!.copyWith(backgroundColor: color);
+
+    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+  }
+
+  Future<void> _onARBHovered(ARBHovered event, Emitter<UIState> emit) async {
+    _updateARBbackgroundColor(event.button, __cardHoverColor, emit);
+  }
+
+  Future<void> _onARBUnhovered(ARBUnhovered event, Emitter<UIState> emit) async {
+    _updateARBbackgroundColor(event.button, __cardColor, emit);
+  }
+
+  Future<void> _updateARBState(ActionRailButtons button, ButtonState buttonState, Emitter<UIState> emit) async {
+    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
+    actionRailButtonStates[button] = actionRailButtonStates[button]!.copyWith(buttonState: buttonState);
+
+    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
   }
 
   Future<void> _onARBStartPressed(ARBStartPressed event, Emitter<UIState> emit) async {
     _sysBloc.add(SysEvent.startRequested);
-
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[ActionRailButtons.start] = actionRailButtonStates[ActionRailButtons.start]!.copyWith(buttonState: ButtonState.thinking);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    _updateARBState(ActionRailButtons.start, ButtonState.thinking, emit);
   }
 
   Future<void> _onARBStartOn(ARBStartOn event, Emitter<UIState> emit) async {
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[ActionRailButtons.start] = actionRailButtonStates[ActionRailButtons.start]!.copyWith(buttonState: ButtonState.selected);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    _updateARBState(ActionRailButtons.start, ButtonState.selected, emit);
   }
 
   Future<void> _onARBStartOff(ARBStartOff event, Emitter<UIState> emit) async {
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[ActionRailButtons.start] = actionRailButtonStates[ActionRailButtons.start]!.copyWith(buttonState: ButtonState.unselected);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    _updateARBState(ActionRailButtons.start, ButtonState.unselected, emit);
   }
 
   Future<void> _onARBStopPressed(ARBStopPressed event, Emitter<UIState> emit) async {
     _sysBloc.add(SysEvent.stopRequested);
-
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[ActionRailButtons.stop] = actionRailButtonStates[ActionRailButtons.stop]!.copyWith(buttonState: ButtonState.thinking);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    _updateARBState(ActionRailButtons.stop, ButtonState.thinking, emit);
   }
 
   Future<void> _onARBStopOn(ARBStopOn event, Emitter<UIState> emit) async {
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[ActionRailButtons.stop] = actionRailButtonStates[ActionRailButtons.stop]!.copyWith(buttonState: ButtonState.selected);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    _updateARBState(ActionRailButtons.stop, ButtonState.selected, emit);
   }
 
   Future<void> _onARBStopOff(ARBStopOff event, Emitter<UIState> emit) async {
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[ActionRailButtons.stop] = actionRailButtonStates[ActionRailButtons.stop]!.copyWith(buttonState: ButtonState.unselected);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    _updateARBState(ActionRailButtons.stop, ButtonState.unselected, emit);
   }
 
   Future<void> _onARBLogPressed(ARBLogPressed event, Emitter<UIState> emit) async {
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[ActionRailButtons.log] = actionRailButtonStates[ActionRailButtons.log]!.copyWith(buttonState: ButtonState.thinking);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    _updateARBState(ActionRailButtons.log, ButtonState.thinking, emit);
   }
 
   Future<void> _onARBLogOn(ARBLogOn event, Emitter<UIState> emit) async {
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[ActionRailButtons.log] = actionRailButtonStates[ActionRailButtons.log]!.copyWith(buttonState: ButtonState.selected);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    _updateARBState(ActionRailButtons.log, ButtonState.selected, emit);
   }
 
   Future<void> _onARBLogOff(ARBLogOff event, Emitter<UIState> emit) async {
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[ActionRailButtons.log] = actionRailButtonStates[ActionRailButtons.log]!.copyWith(buttonState: ButtonState.unselected);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    _updateARBState(ActionRailButtons.log, ButtonState.unselected, emit);
   }
 
   Future<void> _onARBSettingsPressed(ARBSettingsPressed event, Emitter<UIState> emit) async {
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[ActionRailButtons.settings] = actionRailButtonStates[ActionRailButtons.settings]!.copyWith(buttonState: ButtonState.thinking);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    _updateARBState(ActionRailButtons.settings, ButtonState.thinking, emit);
   }
 
   Future<void> _onARBSettingsOn(ARBSettingsOn event, Emitter<UIState> emit) async {
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[ActionRailButtons.settings] = actionRailButtonStates[ActionRailButtons.settings]!.copyWith(buttonState: ButtonState.selected);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    _updateARBState(ActionRailButtons.settings, ButtonState.selected, emit);
   }
 
   Future<void> _onARBSettingsOff(ARBSettingsOff event, Emitter<UIState> emit) async {
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[ActionRailButtons.settings] = actionRailButtonStates[ActionRailButtons.settings]!.copyWith(buttonState: ButtonState.unselected);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    _updateARBState(ActionRailButtons.settings, ButtonState.unselected, emit);
   }
 
   @override

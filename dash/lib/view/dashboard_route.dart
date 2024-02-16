@@ -61,9 +61,9 @@ class DashboardDesktopLandscape extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UIBloc, UIState>(
-        buildWhen: (previous, current) => previous.canvasColor != current.canvasColor,
+        buildWhen: (previous, current) => previous.themeData.canvasColor != current.themeData.canvasColor,
         builder: (context, state) => Container(
-              color: state.canvasColor,
+              color: state.themeData.canvasColor,
               child: const Row(children: [
                 Expanded(flex: 1, child: ActionRail()),
                 Expanded(
