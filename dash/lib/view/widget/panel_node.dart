@@ -26,11 +26,11 @@ class NodeCard extends StatelessWidget {
 
   final Worker _node;
 
-  Widget _buildRow(String label, Widget value, {required TextStyle textStyle}) => Expanded(child: Row(children: [Text(label, style: textStyle), Expanded(child: value)]));
+  Widget _buildRow(String label, Widget value, {required TextStyle textStyle}) => Expanded(child: Row(children: [Text(label, style: textStyle), Expanded(child: SizedBox.expand(child: value))]));
 
-  double _calculateCpuUsage(Int64 total, Int64 idle) => ((total - idle).toDouble() / total.toDouble()) * 100;
+  double _calculateCpuUsage(Int64 total, Int64 idle) => ((total - idle).toDouble() / total.toDouble()) * 1;
 
-  double _calculateMemUsage(Int64 total, Int64 used) => (used.toDouble() / total.toDouble()) * 100;
+  double _calculateMemUsage(Int64 total, Int64 used) => (used.toDouble() / total.toDouble()) * 1;
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +44,24 @@ class NodeCard extends StatelessWidget {
                 child: Card(
                     color: state.nodeCardStates[_node.id]!.backgroundColor,
                     child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                      _buildRow('CPU', textStyle: state.nodeCardStates[_node.id]!.textStyle, PercentageBarPaint(progress: _calculateCpuUsage(_node.proc.cpu.total, _node.proc.cpu.idle))),
-                      _buildRow('MEM', textStyle: state.nodeCardStates[_node.id]!.textStyle, PercentageBarPaint(progress: _calculateMemUsage(_node.proc.mem.total, _node.proc.mem.used))),
+                      _buildRow(
+                          'CPU',
+                          textStyle: state.nodeCardStates[_node.id]!.textStyle,
+                          TweenAnimationBuilder<double>(
+                              duration: const Duration(milliseconds: 1000),
+                              tween: Tween<double>(begin: 0, end: _calculateCpuUsage(_node.proc.cpu.total, _node.proc.cpu.idle)),
+                              builder: (context, progress, child) {
+                                return PercentageBarPaint(progress: progress);
+                              })),
+                      _buildRow(
+                          'MEM',
+                          textStyle: state.nodeCardStates[_node.id]!.textStyle,
+                          TweenAnimationBuilder<double>(
+                              duration: const Duration(milliseconds: 1000),
+                              tween: Tween<double>(begin: 0, end: _calculateMemUsage(_node.proc.mem.total, _node.proc.mem.used)),
+                              builder: (context, progress, child) {
+                                return PercentageBarPaint(progress: progress);
+                              })),
                       _buildRow('ID', textStyle: state.nodeCardStates[_node.id]!.textStyle, Text(_node.id, overflow: TextOverflow.ellipsis, maxLines: 1, style: state.nodeCardStates[_node.id]!.textStyle)),
                       _buildRow('IP', textStyle: state.nodeCardStates[_node.id]!.textStyle, Text(_node.ip, overflow: TextOverflow.ellipsis, maxLines: 1, style: state.nodeCardStates[_node.id]!.textStyle)),
                       _buildRow('UPTIME', textStyle: state.nodeCardStates[_node.id]!.textStyle, Text(_node.proc.uptime.toString(), overflow: TextOverflow.ellipsis, maxLines: 1, style: state.nodeCardStates[_node.id]!.textStyle)),

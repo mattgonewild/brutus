@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:brutus/brutus.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:uuid/uuid.dart'; // do not add to pubspec.yaml dependencies
 
 import '../bloc/node/node_amal.dart' show NodeEvent;
@@ -22,13 +23,13 @@ class NodeRepo {
         // ...
       }
     });
-    
+
     Isolate.spawn(NodeRepoWorker.checkOnNodes, _receivePort.sendPort).then((isolate) => _nodeRepoWorker = isolate);
   }
 
   final StreamController<NodeEvent> _streamController = StreamController<NodeEvent>.broadcast();
   Stream<NodeEvent> get stream => _streamController.stream;
-  
+
   final ReceivePort _receivePort = ReceivePort();
   late Isolate _nodeRepoWorker;
 
@@ -43,7 +44,17 @@ class NodeRepoWorker {
   static void checkOnNodes(SendPort sendPort) {
     try {
       while (true) {
-        sendPort.send(_randomNodeEvent()); sleep(const Duration(seconds: 1));
+        for (final node in _nodes.values) {
+          sendPort.send(NodeMetrics(
+              node: Worker(
+            id: node.id,
+            time: Timestamp.fromDateTime(DateTime.now()),
+            type: node.type,
+            proc: _randomProcData(node.proc),
+          )));
+        }
+        sendPort.send(_randomNodeEvent());
+        sleep(const Duration(seconds: 1));
       }
     } catch (e) {
       if (e is Exception) {
@@ -60,12 +71,16 @@ final HashMap<int, int> _activeNodesByType = HashMap<int, int>();
 
 NodeEvent _randomNodeEvent() {
   if (_nodes.length <= 5) return _addNode();
-  
+
   switch (Random().nextInt(100) + 1) {
-    case <=50: return _updateNode();
-    case <=75: return _addNode();
-    case <=90: return _removeNode();
-    default: return _destroyNode();
+    case <= 80:
+      return _updateNode();
+    case <= 90:
+      return _addNode();
+    case <= 95:
+      return _removeNode();
+    default:
+      return _destroyNode();
   }
 }
 
@@ -82,21 +97,41 @@ WorkerType _randomWorkerType() {
   if (type != null) return type;
 
   switch (Random().nextInt(100) + 1) {
-    case <=70: return WorkerType.DECRYPTION;
-    case <=90: return WorkerType.PERMUTATION;
-    default: return WorkerType.COMBINATION;
+    case <= 70:
+      return WorkerType.DECRYPTION;
+    case <= 90:
+      return WorkerType.PERMUTATION;
+    default:
+      return WorkerType.COMBINATION;
   }
+}
+
+Proc _randomProcData(Proc? old) {
+  return Proc(
+      cpu: Cpu(
+        total: Int64(100),
+        idle: Int64(Random().nextInt(100)),
+      ),
+      mem: Mem(
+        total: Int64(100),
+        used: Int64(Random().nextInt(100)),
+        swapTotal: Int64(100),
+        swapUsed: Int64(Random().nextInt(100)),
+      ),
+      uptime: Uptime(
+        duration: old == null ? Int64(0) : old.uptime.duration + Int64(DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(old.uptime.duration.toInt())).inMilliseconds),
+      ));
 }
 
 NodeEvent _updateNode() {
   if (_nodes.isEmpty) return _addNode();
   final node = _nodes.values.elementAt(Random().nextInt(_nodes.length));
-  return NodeMetrics(node: Worker(id: node.id, time: Timestamp.fromDateTime(DateTime.now()), type: node.type));
+  return NodeMetrics(node: Worker(id: node.id, time: Timestamp.fromDateTime(DateTime.now()), type: node.type, proc: _randomProcData(node.proc)));
 }
 
 NodeEvent _addNode() {
   final type = _randomWorkerType();
-  final node = Worker(id: const Uuid().v4(), time: Timestamp.fromDateTime(DateTime.now()), type: type);
+  final node = Worker(id: const Uuid().v4(), time: Timestamp.fromDateTime(DateTime.now()), type: type, proc: _randomProcData(null));
   _nodes[node.id] = node;
   _activeNodesByType[type.value] = (_activeNodesByType[type.value] ?? 0) + 1;
   return NodeAdded(node: node);
