@@ -66,12 +66,12 @@ class UIBloc extends Bloc<UIEvent, UIState> {
 
     TextStyle updateTextStyle(TextStyle style, double ratio) => style.copyWith(fontSize: calculateFontSize(ratio));
 
-    final HashMap<String, NodeCardState> nodeCardStates = HashMap<String, NodeCardState>.from(state.nodeCardStates);
+    final HashMap<String, NodeCardState> nodeCardStates = state.nodeCardStates;
     nodeCardStates.forEach((key, value) {
       nodeCardStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __bodyMediumFontHeightRatio));
     });
 
-    final LinkedHashMap<ActionRailButtons, ActionRailButtonState> actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
+    final LinkedHashMap<ActionRailButtons, ActionRailButtonState> actionRailButtonStates = state.actionRailButtonStates;
     actionRailButtonStates.forEach((key, value) {
       actionRailButtonStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
     });
@@ -102,10 +102,8 @@ class UIBloc extends Bloc<UIEvent, UIState> {
   }
 
   Future<void> _updateARBbackgroundColor(ActionRailButtons button, Color color, Emitter<UIState> emit) async {
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[button] = actionRailButtonStates[button]!.copyWith(backgroundColor: color);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    final LinkedHashMap<ActionRailButtons, ActionRailButtonState> actionRailButtonStates = state.actionRailButtonStates;
+    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates..[button] = actionRailButtonStates[button]!.copyWith(backgroundColor: color)));
   }
 
   Future<void> _onARBHovered(ARBHovered event, Emitter<UIState> emit) async {
@@ -117,10 +115,8 @@ class UIBloc extends Bloc<UIEvent, UIState> {
   }
 
   Future<void> _updateARBState(ActionRailButtons button, ButtonState buttonState, Emitter<UIState> emit) async {
-    final actionRailButtonStates = LinkedHashMap<ActionRailButtons, ActionRailButtonState>.from(state.actionRailButtonStates);
-    actionRailButtonStates[button] = actionRailButtonStates[button]!.copyWith(buttonState: buttonState);
-
-    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates));
+    final LinkedHashMap<ActionRailButtons, ActionRailButtonState> actionRailButtonStates = state.actionRailButtonStates;
+    emit(state.copyWith(actionRailButtonStates: actionRailButtonStates..[button] = actionRailButtonStates[button]!.copyWith(buttonState: buttonState)));
   }
 
   Future<void> _onARBStartPressed(ARBStartPressed event, Emitter<UIState> emit) async {
