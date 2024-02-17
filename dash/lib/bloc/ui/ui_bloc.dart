@@ -55,7 +55,7 @@ class UIBloc extends Bloc<UIEvent, UIState> {
     nodeCardStates.removeWhere((key, value) => !ids.contains(key));
 
     for (final node in nodes) {
-      nodeCardStates.putIfAbsent(node.id, () => NodeCardState.defaultState(node.type, state.themeData.bodyMedium));
+      nodeCardStates.putIfAbsent(node.id, () => NodeCardState.defaultState(type: node.type, bodyTextStyle: state.themeData.bodyMedium, labelTextStyle: state.themeData.labelMedium));
     }
 
     emit(state.copyWith(nodes: nodes, nodeCardStates: nodeCardStates));
@@ -68,7 +68,7 @@ class UIBloc extends Bloc<UIEvent, UIState> {
 
     final HashMap<String, NodeCardState> nodeCardStates = state.nodeCardStates;
     nodeCardStates.forEach((key, value) {
-      nodeCardStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __bodyMediumFontHeightRatio));
+      nodeCardStates[key] = value.copyWith(bodyTextStyle: updateTextStyle(value.bodyTextStyle, __bodyMediumFontHeightRatio), labelTextStyle: updateTextStyle(value.labelTextStyle, __labelMediumFontHeightRatio));
     });
 
     final LinkedHashMap<ActionRailButtons, ActionRailButtonState> actionRailButtonStates = state.actionRailButtonStates;

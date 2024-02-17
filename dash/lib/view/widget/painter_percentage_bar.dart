@@ -1,22 +1,39 @@
 part of 'painter_percentage_bar_amal.dart';
 
 class PercentageBarPaint extends StatelessWidget {
-  const PercentageBarPaint({super.key, required double progress}) : _progress = progress;
+  const PercentageBarPaint({
+    super.key,
+    required double progress,
+    Color startColor = Colors.green,
+    Color midColor = Colors.yellow,
+    Color endColor = Colors.red,
+  })  : _progress = progress,
+        _startColor = startColor,
+        _midColor = midColor,
+        _endColor = endColor;
 
   final double _progress;
+  double get progress => _progress;
+  
+  final Color _startColor;
+  Color get startColor => _startColor;
+  final Color _midColor;
+  Color get midColor => _midColor;
+  final Color _endColor;
+  Color get endColor => _endColor;
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(painter: PercentageBarPainter(progress: _progress));
+    return CustomPaint(painter: PercentageBarPainter(progress: _progress, startColor: _startColor, midColor: _midColor, endColor: _endColor));
   }
 }
 
 class PercentageBarPainter extends CustomPainter {
   const PercentageBarPainter({
     required double progress,
-    startColor = Colors.green,
-    midColor = Colors.yellow,
-    endColor = Colors.red,
+    required Color startColor,
+    required Color midColor,
+    required Color endColor,
   })  : _progress = progress,
         _startColor = startColor,
         _midColor = midColor,

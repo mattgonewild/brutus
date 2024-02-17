@@ -36,38 +36,47 @@ class NodeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<UIBloc, UIState>(
         buildWhen: (previous, current) => previous.nodeCardStates[_node.id] != current.nodeCardStates[_node.id] && current.nodeCardStates[_node.id] != null,
-        builder: (context, state) => MouseRegion(
-              onEnter: (event) {},
-              onExit: (event) {},
-              child: GestureDetector(
-                onTap: () {},
-                child: Card(
-                    color: state.nodeCardStates[_node.id]!.backgroundColor,
-                    child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                      _buildRow(
-                          'CPU',
-                          textStyle: state.nodeCardStates[_node.id]!.textStyle,
-                          TweenAnimationBuilder<double>(
-                              duration: const Duration(milliseconds: 1000),
-                              tween: Tween<double>(begin: 0, end: _calculateCpuUsage(_node.proc.cpu.total, _node.proc.cpu.idle)),
-                              builder: (context, progress, child) {
-                                return PercentageBarPaint(progress: progress);
-                              })),
-                      _buildRow(
-                          'MEM',
-                          textStyle: state.nodeCardStates[_node.id]!.textStyle,
-                          TweenAnimationBuilder<double>(
-                              duration: const Duration(milliseconds: 1000),
-                              tween: Tween<double>(begin: 0, end: _calculateMemUsage(_node.proc.mem.total, _node.proc.mem.used)),
-                              builder: (context, progress, child) {
-                                return PercentageBarPaint(progress: progress);
-                              })),
-                      _buildRow('ID', textStyle: state.nodeCardStates[_node.id]!.textStyle, Text(_node.id, overflow: TextOverflow.ellipsis, maxLines: 1, style: state.nodeCardStates[_node.id]!.textStyle)),
-                      _buildRow('IP', textStyle: state.nodeCardStates[_node.id]!.textStyle, Text(_node.ip, overflow: TextOverflow.ellipsis, maxLines: 1, style: state.nodeCardStates[_node.id]!.textStyle)),
-                      _buildRow('UPTIME', textStyle: state.nodeCardStates[_node.id]!.textStyle, Text(_node.proc.uptime.toString(), overflow: TextOverflow.ellipsis, maxLines: 1, style: state.nodeCardStates[_node.id]!.textStyle)),
-                      _buildRow('OPS', textStyle: state.nodeCardStates[_node.id]!.textStyle, Text(_node.ops.toString(), overflow: TextOverflow.ellipsis, maxLines: 1, style: state.nodeCardStates[_node.id]!.textStyle)),
-                    ])),
+        builder: (context, state) => Card(
+            color: state.themeData.cardColor,
+            clipBehavior: Clip.antiAlias,
+            child: Ink(
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                colors: [state.nodeCardStates[_node.id]!.typeColor, state.themeData.cardColor],
+                stops: const [0.05, 0.05],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              )),
+              child: InkWell(
+                child: LayoutBuilder(
+                    builder: (context, constraints) => Padding(
+                          padding: EdgeInsets.only(top: constraints.maxHeight * 0.06),
+                          child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                            _buildRow(
+                                'CPU',
+                                textStyle: state.nodeCardStates[_node.id]!.labelTextStyle,
+                                TweenAnimationBuilder<double>(
+                                    duration: const Duration(milliseconds: 1000),
+                                    tween: Tween<double>(begin: 0, end: _calculateCpuUsage(_node.proc.cpu.total, _node.proc.cpu.idle)),
+                                    builder: (context, progress, child) {
+                                      return PercentageBarPaint(progress: progress);
+                                    })),
+                            _buildRow(
+                                'MEM',
+                                textStyle: state.nodeCardStates[_node.id]!.labelTextStyle,
+                                TweenAnimationBuilder<double>(
+                                    duration: const Duration(milliseconds: 1000),
+                                    tween: Tween<double>(begin: 0, end: _calculateMemUsage(_node.proc.mem.total, _node.proc.mem.used)),
+                                    builder: (context, progress, child) {
+                                      return PercentageBarPaint(progress: progress);
+                                    })),
+                            _buildRow('ID', textStyle: state.nodeCardStates[_node.id]!.labelTextStyle, Text(_node.id, overflow: TextOverflow.ellipsis, maxLines: 1, style: state.nodeCardStates[_node.id]!.bodyTextStyle)),
+                            _buildRow('IP', textStyle: state.nodeCardStates[_node.id]!.labelTextStyle, Text(_node.ip, overflow: TextOverflow.ellipsis, maxLines: 1, style: state.nodeCardStates[_node.id]!.bodyTextStyle)),
+                            _buildRow('UPTIME', textStyle: state.nodeCardStates[_node.id]!.labelTextStyle, Text(_node.proc.uptime.toString(), overflow: TextOverflow.ellipsis, maxLines: 1, style: state.nodeCardStates[_node.id]!.bodyTextStyle)),
+                            _buildRow('OPS', textStyle: state.nodeCardStates[_node.id]!.labelTextStyle, Text(_node.ops.toString(), overflow: TextOverflow.ellipsis, maxLines: 1, style: state.nodeCardStates[_node.id]!.bodyTextStyle)),
+                          ]),
+                        )),
               ),
-            ));
+            )));
   }
 }

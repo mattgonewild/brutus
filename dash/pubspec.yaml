@@ -1,10 +1,10 @@
 name: dash
 description: "brutus dashboard"
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
-  sdk: '>=3.2.4 <4.0.0'
+  sdk: ">=3.2.4 <4.0.0"
 
 dependencies:
   bloc: ^8.1.2
@@ -27,3 +27,14 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: BebasNeue
+      fonts:
+        - asset: asset/font/bebas_neue/bebas_neue-regular.ttf
+          style: normal
+    - family: Montserrat
+      fonts:
+        - asset: asset/font/montserrat/montserrat-variable_wght.ttf
+          style: normal
+        - asset: asset/font/montserrat/montserrat-italic-variable_wght.ttf
+          style: italic

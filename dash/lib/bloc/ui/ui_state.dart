@@ -27,12 +27,12 @@ const TextStyle __headlineSmall = TextStyle(fontWeight: FontWeight.bold, color: 
 const TextStyle __titleLarge = TextStyle(fontWeight: FontWeight.normal, color: __textColor);
 const TextStyle __titleMedium = TextStyle(fontWeight: FontWeight.normal, color: __textColor);
 const TextStyle __titleSmall = TextStyle(fontWeight: FontWeight.normal, color: __textColor);
-const TextStyle __labelLarge = TextStyle(fontWeight: FontWeight.normal, color: __textColor);
-const TextStyle __labelMedium = TextStyle(fontWeight: FontWeight.normal, color: __textColor);
-const TextStyle __labelSmall = TextStyle(fontWeight: FontWeight.normal, color: __textColor);
-const TextStyle __bodyLarge = TextStyle(fontWeight: FontWeight.normal, color: __textColor);
-const TextStyle __bodyMedium = TextStyle(fontWeight: FontWeight.normal, color: __textColor);
-const TextStyle __bodySmall = TextStyle(fontWeight: FontWeight.normal, color: __textColor);
+const TextStyle __labelLarge = TextStyle(fontWeight: FontWeight.normal, color: __textColor, fontFamily: 'BebasNeue');
+const TextStyle __labelMedium = TextStyle(fontWeight: FontWeight.normal, color: __textColor, fontFamily: 'BebasNeue');
+const TextStyle __labelSmall = TextStyle(fontWeight: FontWeight.normal, color: __textColor, fontFamily: 'BebasNeue');
+const TextStyle __bodyLarge = TextStyle(fontWeight: FontWeight.normal, color: __textColor, fontFamily: 'Montserrat');
+const TextStyle __bodyMedium = TextStyle(fontWeight: FontWeight.normal, color: __textColor, fontFamily: 'Montserrat');
+const TextStyle __bodySmall = TextStyle(fontWeight: FontWeight.normal, color: __textColor, fontFamily: 'Montserrat');
 
 const Color __canvasColor = Color.fromRGBO(21, 22, 27, 1.0);
 const Color __cardColor = Color.fromRGBO(48, 52, 63, 1.0);
@@ -246,36 +246,58 @@ final class ActionRailButtonState extends Equatable {
 }
 
 final class NodeCardState extends Equatable {
-  const NodeCardState({RegionState? regionState, ButtonState? buttonState, Color? backgroundColor, TextStyle? textStyle})
-      : _regionState = regionState ?? RegionState.outRegion,
+  const NodeCardState({
+    RegionState? regionState,
+    ButtonState? buttonState,
+    Color? typeColor,
+    TextStyle? bodyTextStyle,
+    TextStyle? labelTextStyle,
+  })  : _regionState = regionState ?? RegionState.outRegion,
         _buttonState = buttonState ?? ButtonState.unselected,
-        _backgroundColor = backgroundColor ?? Colors.transparent,
-        _textStyle = textStyle ?? __bodyMedium;
+        _typeColor = typeColor ?? Colors.transparent,
+        _bodyTextStyle = bodyTextStyle ?? __bodyMedium,
+        _labelTextStyle = labelTextStyle ?? __labelMedium;
 
   final RegionState _regionState;
   RegionState get regionState => _regionState;
   final ButtonState _buttonState;
   ButtonState get buttonState => _buttonState;
-  final Color _backgroundColor;
-  Color get backgroundColor => _backgroundColor;
-  final TextStyle _textStyle;
-  TextStyle get textStyle => _textStyle;
+  final Color _typeColor;
+  Color get typeColor => _typeColor;
+  final TextStyle _bodyTextStyle;
+  TextStyle get bodyTextStyle => _bodyTextStyle;
+  final TextStyle _labelTextStyle;
+  TextStyle get labelTextStyle => _labelTextStyle;
 
-  static NodeCardState defaultState(WorkerType type, TextStyle textStyle) => NodeCardState(
-      regionState: RegionState.outRegion,
-      buttonState: ButtonState.unselected,
-      backgroundColor: type == WorkerType.COMBINATION
-          ? __combWorkerColor
-          : type == WorkerType.PERMUTATION
-              ? __permWorkerColor
-              : type == WorkerType.DECRYPTION
-                  ? __decrWorkerColor
-                  : Colors.transparent,
-      textStyle: textStyle);
+  static NodeCardState defaultState({required WorkerType type, required TextStyle bodyTextStyle, required TextStyle labelTextStyle}) => NodeCardState(
+        regionState: RegionState.outRegion,
+        buttonState: ButtonState.unselected,
+        typeColor: type == WorkerType.COMBINATION
+            ? __combWorkerColor
+            : type == WorkerType.PERMUTATION
+                ? __permWorkerColor
+                : type == WorkerType.DECRYPTION
+                    ? __decrWorkerColor
+                    : Colors.transparent,
+        bodyTextStyle: bodyTextStyle,
+        labelTextStyle: labelTextStyle,
+      );
 
-  NodeCardState copyWith({RegionState? regionState, ButtonState? buttonState, Color? backgroundColor, TextStyle? textStyle}) =>
-      NodeCardState(regionState: regionState ?? _regionState, buttonState: buttonState ?? _buttonState, backgroundColor: backgroundColor ?? _backgroundColor, textStyle: textStyle ?? _textStyle);
+  NodeCardState copyWith({
+    RegionState? regionState,
+    ButtonState? buttonState,
+    Color? typeColor,
+    TextStyle? bodyTextStyle,
+    TextStyle? labelTextStyle,
+  }) =>
+      NodeCardState(
+        regionState: regionState ?? _regionState,
+        buttonState: buttonState ?? _buttonState,
+        typeColor: typeColor ?? _typeColor,
+        bodyTextStyle: bodyTextStyle ?? _bodyTextStyle,
+        labelTextStyle: labelTextStyle ?? _labelTextStyle,
+      );
 
   @override
-  List<Object> get props => [_backgroundColor, _textStyle];
+  List<Object> get props => [_typeColor, _bodyTextStyle, _labelTextStyle];
 }
