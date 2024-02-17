@@ -50,7 +50,7 @@ class UIBloc extends Bloc<UIEvent, UIState> {
   Future<void> _onNodeStateUpdated(NodeStateUpdated event, Emitter<UIState> emit) async {
     final List<Worker> nodes = event.nodeState.nodes.toList(growable: false);
     final Set<String> ids = nodes.map((e) => e.id).toSet();
-    final HashMap<String, NodeCardState> nodeCardStates = HashMap<String, NodeCardState>.from(state.nodeCardStates);
+    final HashMap<String, NodeCardState> nodeCardStates = state.nodeCardStates;
 
     nodeCardStates.removeWhere((key, value) => !ids.contains(key));
 
