@@ -43,6 +43,10 @@ const Color __combWorkerColor = Color.fromRGBO(247, 206, 91, 1.0);
 const Color __permWorkerColor = Color.fromRGBO(219, 48, 105, 1.0);
 const Color __decrWorkerColor = Color.fromRGBO(124, 222, 220, 1.0);
 
+const Color __percentageBarStartColor = __decrWorkerColor;
+const Color __percentageBarMidColor = __combWorkerColor;
+const Color __percentageBarEndColor = __permWorkerColor;
+
 enum ButtonState { unselected, thinking, selected }
 
 enum RegionState { inRegion, outRegion }
@@ -105,6 +109,9 @@ final class UIThemeData extends Equatable {
   const UIThemeData(
       {Color? canvasColor,
       Color? cardColor,
+      Color? percentageBarStartColor,
+      Color? percentageBarMidColor,
+      Color? percentageBarEndColor,
       TextStyle? displayLarge,
       TextStyle? displayMedium,
       TextStyle? displaySmall,
@@ -122,6 +129,9 @@ final class UIThemeData extends Equatable {
       TextStyle? bodySmall})
       : _canvasColor = canvasColor ?? __canvasColor,
         _cardColor = cardColor ?? __cardColor,
+        _percentageBarStartColor = percentageBarStartColor ?? __percentageBarStartColor,
+        _percentageBarMidColor = percentageBarMidColor ?? __percentageBarMidColor,
+        _percentageBarEndColor = percentageBarEndColor ?? __percentageBarEndColor,
         _displayLarge = displayLarge ?? __displayLarge,
         _displayMedium = displayMedium ?? __displayMedium,
         _displaySmall = displaySmall ?? __displaySmall,
@@ -142,6 +152,12 @@ final class UIThemeData extends Equatable {
   Color get canvasColor => _canvasColor;
   final Color _cardColor;
   Color get cardColor => _cardColor;
+  final Color _percentageBarStartColor;
+  Color get percentageBarStartColor => _percentageBarStartColor;
+  final Color _percentageBarMidColor;
+  Color get percentageBarMidColor => _percentageBarMidColor;
+  final Color _percentageBarEndColor;
+  Color get percentageBarEndColor => _percentageBarEndColor;
   final TextStyle _displayLarge;
   TextStyle get displayLarge => _displayLarge;
   final TextStyle _displayMedium;
@@ -176,6 +192,9 @@ final class UIThemeData extends Equatable {
   UIThemeData copyWith(
           {Color? canvasColor,
           Color? cardColor,
+          Color? percentageBarStartColor,
+          Color? percentageBarMidColor,
+          Color? percentageBarEndColor,
           TextStyle? displayLarge,
           TextStyle? displayMedium,
           TextStyle? displaySmall,
@@ -194,6 +213,9 @@ final class UIThemeData extends Equatable {
       UIThemeData(
           canvasColor: canvasColor ?? _canvasColor,
           cardColor: cardColor ?? _cardColor,
+          percentageBarStartColor: percentageBarStartColor ?? _percentageBarStartColor,
+          percentageBarMidColor: percentageBarMidColor ?? _percentageBarMidColor,
+          percentageBarEndColor: percentageBarEndColor ?? _percentageBarEndColor,
           displayLarge: displayLarge ?? _displayLarge,
           displayMedium: displayMedium ?? _displayMedium,
           displaySmall: displaySmall ?? _displaySmall,
@@ -211,7 +233,28 @@ final class UIThemeData extends Equatable {
           bodySmall: bodySmall ?? _bodySmall);
 
   @override
-  List<Object> get props => [_canvasColor, _cardColor, _displayLarge, _displayMedium, _displaySmall, _headlineLarge, _headlineMedium, _headlineSmall, _titleLarge, _titleMedium, _titleSmall, _labelLarge, _labelMedium, _labelSmall, _bodyLarge, _bodyMedium, _bodySmall];
+  List<Object> get props => [
+        _canvasColor,
+        _cardColor,
+        _percentageBarStartColor,
+        _percentageBarMidColor,
+        _percentageBarEndColor,
+        _displayLarge,
+        _displayMedium,
+        _displaySmall,
+        _headlineLarge,
+        _headlineMedium,
+        _headlineSmall,
+        _titleLarge,
+        _titleMedium,
+        _titleSmall,
+        _labelLarge,
+        _labelMedium,
+        _labelSmall,
+        _bodyLarge,
+        _bodyMedium,
+        _bodySmall
+      ];
 }
 
 final class ActionRailButtonState extends Equatable {
@@ -255,7 +298,7 @@ final class NodeCardState extends Equatable {
   })  : _regionState = regionState ?? RegionState.outRegion,
         _buttonState = buttonState ?? ButtonState.unselected,
         _typeColor = typeColor ?? Colors.transparent,
-        _bodyTextStyle = bodyTextStyle ?? __bodyMedium,
+        _bodyTextStyle = bodyTextStyle ?? __bodySmall,
         _labelTextStyle = labelTextStyle ?? __labelMedium;
 
   final RegionState _regionState;

@@ -45,12 +45,16 @@ class NodeRepoWorker {
     try {
       while (true) {
         for (final node in _nodes.values) {
+          node.ops = _randomOpsIncrement(node);
+          _nodes[node.id] = node;
           sendPort.send(NodeMetrics(
               node: Worker(
             id: node.id,
             time: Timestamp.fromDateTime(DateTime.now()),
+            ip: node.ip,
             type: node.type,
-            proc: _randomProcData(node.proc),
+            proc: _randomProcData(node),
+            ops: node.ops,
           )));
         }
         sendPort.send(_randomNodeEvent());
@@ -84,6 +88,11 @@ NodeEvent _randomNodeEvent() {
   }
 }
 
+String _randomIPv6() {
+  final List<String> parts = List<String>.generate(8, (index) => Random().nextInt(65535).toRadixString(16));
+  return parts.join(':');
+}
+
 WorkerType _randomWorkerType() {
   WorkerType? checkWorkerType(WorkerType type) {
     if (_activeNodesByType[type.value] == null || _activeNodesByType[type.value]! <= 0) {
@@ -106,7 +115,7 @@ WorkerType _randomWorkerType() {
   }
 }
 
-Proc _randomProcData(Proc? old) {
+Proc _randomProcData(Worker? node) {
   return Proc(
       cpu: Cpu(
         total: Int64(100),
@@ -119,19 +128,23 @@ Proc _randomProcData(Proc? old) {
         swapUsed: Int64(Random().nextInt(100)),
       ),
       uptime: Uptime(
-        duration: old == null ? Int64(0) : old.uptime.duration + Int64(DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(old.uptime.duration.toInt())).inMilliseconds),
+        duration: node == null ? Int64(0) : node.proc.uptime.duration + Int64(DateTime.now().difference(node.time.toDateTime()).inMilliseconds),
       ));
 }
+
+Int64 _randomOpsIncrement(Worker node) => node.ops + Int64(Random().nextInt(100));
 
 NodeEvent _updateNode() {
   if (_nodes.isEmpty) return _addNode();
   final node = _nodes.values.elementAt(Random().nextInt(_nodes.length));
-  return NodeMetrics(node: Worker(id: node.id, time: Timestamp.fromDateTime(DateTime.now()), type: node.type, proc: _randomProcData(node.proc)));
+  _nodes[node.id]!.ops = _randomOpsIncrement(node);
+  node.ops = _nodes[node.id]!.ops;
+  return NodeMetrics(node: Worker(id: node.id, time: Timestamp.fromDateTime(DateTime.now()), ip: node.ip, type: node.type, proc: _randomProcData(node), ops: node.ops));
 }
 
 NodeEvent _addNode() {
   final type = _randomWorkerType();
-  final node = Worker(id: const Uuid().v4(), time: Timestamp.fromDateTime(DateTime.now()), type: type, proc: _randomProcData(null));
+  final node = Worker(id: const Uuid().v4(), time: Timestamp.fromDateTime(DateTime.now()), ip: _randomIPv6(), type: type, proc: _randomProcData(null), ops: Int64(0));
   _nodes[node.id] = node;
   _activeNodesByType[type.value] = (_activeNodesByType[type.value] ?? 0) + 1;
   return NodeAdded(node: node);
