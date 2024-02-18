@@ -91,3 +91,39 @@ final class ARBSettingsOn extends UIEvent {
 final class ARBSettingsOff extends UIEvent {
   const ARBSettingsOff();
 }
+
+final class NodeCardIDCopyHovered extends UIEvent {
+  const NodeCardIDCopyHovered(this.id);
+
+  final String id;
+
+  @override
+  List<Object> get props => [id];
+}
+
+final class NodeCardIDCopyUnhovered extends UIEvent {
+  const NodeCardIDCopyUnhovered(this.id);
+
+  final String id;
+
+  @override
+  List<Object> get props => [id];
+}
+
+final class NodeCardIPCopyHovered extends UIEvent {
+  const NodeCardIPCopyHovered(this.id);
+
+  final String id;
+
+  @override
+  List<Object> get props => [id];
+}
+
+final class NodeCardIPCopyUnhovered extends UIEvent {
+  const NodeCardIPCopyUnhovered(this.id);
+
+  final String id;
+
+  @override
+  List<Object> get props => [id];
+}

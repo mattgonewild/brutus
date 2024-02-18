@@ -1,5 +1,7 @@
 part of 'panel_node_amal.dart';
 
+// TODO: batch updates look cheap and are error prone
+
 class NodePanel extends StatelessWidget {
   const NodePanel({super.key});
 
@@ -26,7 +28,9 @@ class NodeCard extends StatelessWidget {
 
   final Worker _node;
 
-  Widget _buildRow(String label, Widget value, {required TextStyle textStyle}) => Expanded(child: Row(children: [Text(label, style: textStyle), Expanded(child: SizedBox.expand(child: value))]));
+  Widget _buildRow(String label, Widget value, {required TextStyle textStyle, Widget trailing = const SizedBox.shrink()}) => Expanded(
+        child: Row(children: [Text(label, style: textStyle), Expanded(child: SizedBox.expand(child: value)), trailing]),
+      );
 
   double _calculateCpuUsage(Int64 total, Int64 idle) => ((total - idle).toDouble() / total.toDouble()) * 1;
 
@@ -94,25 +98,66 @@ class NodeCard extends StatelessWidget {
                                         );
                                       })),
                               _buildRow(
-                                  'ID',
-                                  textStyle: state.nodeCardStates[_node.id]!.labelTextStyle,
-                                  Center(
-                                      child: Text(
-                                    _node.id,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    style: state.nodeCardStates[_node.id]!.bodyTextStyle,
-                                  ))),
+                                'ID',
+                                textStyle: state.nodeCardStates[_node.id]!.labelTextStyle,
+                                Center(
+                                    child: Text(
+                                  _node.id,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: state.nodeCardStates[_node.id]!.bodyTextStyle,
+                                )),
+                                trailing: AspectRatio(
+                                    aspectRatio: 1.0,
+                                    child: FractionallySizedBox(
+                                        widthFactor: 0.5,
+                                        heightFactor: 0.5,
+                                        child: MouseRegion(
+                                          cursor: SystemMouseCursors.click,
+                                          onEnter: (_) => context.read<UIBloc>().add(NodeCardIDCopyHovered(_node.id)),
+                                          onExit: (_) => context.read<UIBloc>().add(NodeCardIDCopyUnhovered(_node.id)),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Clipboard.setData(ClipboardData(text: _node.id));
+                                            },
+                                            child: CopyPaint(
+                                              color: state.nodeCardStates[_node.id]!.idCopyPaintColor,
+                                              opacity: state.nodeCardStates[_node.id]!.idCopyPaintOpacity,
+                                            ),
+                                          ),
+                                        ))),
+                              ),
                               _buildRow(
-                                  'IP',
-                                  textStyle: state.nodeCardStates[_node.id]!.labelTextStyle,
-                                  Center(
-                                      child: Text(
-                                    _node.ip,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    style: state.nodeCardStates[_node.id]!.bodyTextStyle,
-                                  ))),
+                                'IP',
+                                textStyle: state.nodeCardStates[_node.id]!.labelTextStyle,
+                                Center(
+                                    child: Text(
+                                  _node.ip,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: state.nodeCardStates[_node.id]!.bodyTextStyle,
+                                )),
+                                trailing: AspectRatio(
+                                    aspectRatio: 1.0,
+                                    child: FractionallySizedBox(
+                                      widthFactor: 0.5,
+                                      heightFactor: 0.5,
+                                      child: MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        onEnter: (_) => context.read<UIBloc>().add(NodeCardIPCopyHovered(_node.id)),
+                                        onExit: (_) => context.read<UIBloc>().add(NodeCardIPCopyUnhovered(_node.id)),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            Clipboard.setData(ClipboardData(text: _node.ip));
+                                          },
+                                          child: CopyPaint(
+                                            color: state.nodeCardStates[_node.id]!.ipCopyPaintColor,
+                                            opacity: state.nodeCardStates[_node.id]!.ipCopyPaintOpacity,
+                                          ),
+                                        ),
+                                      ),
+                                    )),
+                              ),
                               _buildRow(
                                   'UPTIME',
                                   textStyle: state.nodeCardStates[_node.id]!.labelTextStyle,

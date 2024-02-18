@@ -49,8 +49,6 @@ const Color __percentageBarEndColor = __permWorkerColor;
 
 enum ButtonState { unselected, thinking, selected }
 
-enum RegionState { inRegion, outRegion }
-
 enum ActionRailButtons { start, stop, log, settings }
 
 final class UIState extends Equatable {
@@ -258,16 +256,13 @@ final class UIThemeData extends Equatable {
 }
 
 final class ActionRailButtonState extends Equatable {
-  const ActionRailButtonState({RegionState? regionState, ButtonState? buttonState, Color? backgroundColor, Color? iconColor, double? iconOpacity, TextStyle? textStyle})
-      : _regionState = regionState ?? RegionState.outRegion,
-        _buttonState = buttonState ?? ButtonState.unselected,
+  const ActionRailButtonState({ButtonState? buttonState, Color? backgroundColor, Color? iconColor, double? iconOpacity, TextStyle? textStyle})
+      : _buttonState = buttonState ?? ButtonState.unselected,
         _backgroundColor = backgroundColor ?? __cardColor,
         _iconColor = iconColor ?? Colors.white,
         _iconOpacity = iconOpacity ?? 1.0,
         _textStyle = textStyle ?? __labelMedium;
 
-  final RegionState _regionState;
-  RegionState get regionState => _regionState;
   final ButtonState _buttonState;
   ButtonState get buttonState => _buttonState;
   final Color _backgroundColor;
@@ -281,8 +276,8 @@ final class ActionRailButtonState extends Equatable {
 
   static ActionRailButtonState defaultState(TextStyle textStyle) => ActionRailButtonState(textStyle: textStyle);
 
-  ActionRailButtonState copyWith({RegionState? regionState, ButtonState? buttonState, Color? backgroundColor, Color? iconColor, double? iconOpacity, TextStyle? textStyle}) =>
-      ActionRailButtonState(regionState: regionState ?? _regionState, buttonState: buttonState ?? _buttonState, backgroundColor: backgroundColor ?? _backgroundColor, iconColor: iconColor ?? _iconColor, iconOpacity: iconOpacity ?? _iconOpacity, textStyle: textStyle ?? _textStyle);
+  ActionRailButtonState copyWith({ButtonState? buttonState, Color? backgroundColor, Color? iconColor, double? iconOpacity, TextStyle? textStyle}) =>
+      ActionRailButtonState(buttonState: buttonState ?? _buttonState, backgroundColor: backgroundColor ?? _backgroundColor, iconColor: iconColor ?? _iconColor, iconOpacity: iconOpacity ?? _iconOpacity, textStyle: textStyle ?? _textStyle);
 
   @override
   List<Object> get props => [_backgroundColor, _iconColor, _iconOpacity, _textStyle];
@@ -290,19 +285,23 @@ final class ActionRailButtonState extends Equatable {
 
 final class NodeCardState extends Equatable {
   const NodeCardState({
-    RegionState? regionState,
     ButtonState? buttonState,
     Color? typeColor,
     TextStyle? bodyTextStyle,
     TextStyle? labelTextStyle,
-  })  : _regionState = regionState ?? RegionState.outRegion,
-        _buttonState = buttonState ?? ButtonState.unselected,
+    Color? idCopyPaintColor,
+    double? idCopyPaintOpacity,
+    Color? ipCopyPaintColor,
+    double? ipCopyPaintOpacity,
+  })  : _buttonState = buttonState ?? ButtonState.unselected,
         _typeColor = typeColor ?? Colors.transparent,
         _bodyTextStyle = bodyTextStyle ?? __bodySmall,
-        _labelTextStyle = labelTextStyle ?? __labelMedium;
+        _labelTextStyle = labelTextStyle ?? __labelMedium,
+        _idCopyPaintColor = idCopyPaintColor ?? Colors.transparent,
+        _idCopyPaintOpacity = idCopyPaintOpacity ?? 0.0,
+        _ipCopyPaintColor = ipCopyPaintColor ?? Colors.transparent,
+        _ipCopyPaintOpacity = ipCopyPaintOpacity ?? 0.0;
 
-  final RegionState _regionState;
-  RegionState get regionState => _regionState;
   final ButtonState _buttonState;
   ButtonState get buttonState => _buttonState;
   final Color _typeColor;
@@ -311,36 +310,56 @@ final class NodeCardState extends Equatable {
   TextStyle get bodyTextStyle => _bodyTextStyle;
   final TextStyle _labelTextStyle;
   TextStyle get labelTextStyle => _labelTextStyle;
+  final Color _idCopyPaintColor;
+  Color get idCopyPaintColor => _idCopyPaintColor;
+  final double _idCopyPaintOpacity;
+  double get idCopyPaintOpacity => _idCopyPaintOpacity;
+  final Color _ipCopyPaintColor;
+  Color get ipCopyPaintColor => _ipCopyPaintColor;
+  final double _ipCopyPaintOpacity;
+  double get ipCopyPaintOpacity => _ipCopyPaintOpacity;
 
-  static NodeCardState defaultState({required WorkerType type, required TextStyle bodyTextStyle, required TextStyle labelTextStyle}) => NodeCardState(
-        regionState: RegionState.outRegion,
-        buttonState: ButtonState.unselected,
-        typeColor: type == WorkerType.COMBINATION
-            ? __combWorkerColor
-            : type == WorkerType.PERMUTATION
-                ? __permWorkerColor
-                : type == WorkerType.DECRYPTION
-                    ? __decrWorkerColor
-                    : Colors.transparent,
-        bodyTextStyle: bodyTextStyle,
-        labelTextStyle: labelTextStyle,
-      );
+  static NodeCardState defaultState({required WorkerType type, required TextStyle bodyTextStyle, required TextStyle labelTextStyle}) {
+    final Color typeColor = type == WorkerType.COMBINATION
+        ? __combWorkerColor
+        : type == WorkerType.PERMUTATION
+            ? __permWorkerColor
+            : type == WorkerType.DECRYPTION
+                ? __decrWorkerColor
+                : Colors.transparent;
+    return NodeCardState(
+      buttonState: ButtonState.unselected,
+      typeColor: typeColor,
+      bodyTextStyle: bodyTextStyle,
+      labelTextStyle: labelTextStyle,
+      idCopyPaintColor: typeColor,
+      idCopyPaintOpacity: 0.25,
+      ipCopyPaintColor: typeColor,
+      ipCopyPaintOpacity: 0.25,
+    );
+  }
 
   NodeCardState copyWith({
-    RegionState? regionState,
     ButtonState? buttonState,
     Color? typeColor,
     TextStyle? bodyTextStyle,
     TextStyle? labelTextStyle,
+    Color? idCopyPaintColor,
+    double? idCopyPaintOpacity,
+    Color? ipCopyPaintColor,
+    double? ipCopyPaintOpacity,
   }) =>
       NodeCardState(
-        regionState: regionState ?? _regionState,
         buttonState: buttonState ?? _buttonState,
         typeColor: typeColor ?? _typeColor,
         bodyTextStyle: bodyTextStyle ?? _bodyTextStyle,
         labelTextStyle: labelTextStyle ?? _labelTextStyle,
+        idCopyPaintColor: idCopyPaintColor ?? _idCopyPaintColor,
+        idCopyPaintOpacity: idCopyPaintOpacity ?? _idCopyPaintOpacity,
+        ipCopyPaintColor: ipCopyPaintColor ?? _ipCopyPaintColor,
+        ipCopyPaintOpacity: ipCopyPaintOpacity ?? _ipCopyPaintOpacity,
       );
 
   @override
-  List<Object> get props => [_typeColor, _bodyTextStyle, _labelTextStyle];
+  List<Object> get props => [_typeColor, _bodyTextStyle, _labelTextStyle, _idCopyPaintColor, _idCopyPaintOpacity, _ipCopyPaintColor, _ipCopyPaintOpacity];
 }

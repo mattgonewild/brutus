@@ -39,6 +39,11 @@ class UIBloc extends Bloc<UIEvent, UIState> {
     on<ARBSettingsPressed>(_onARBSettingsPressed);
     on<ARBSettingsOn>(_onARBSettingsOn);
     on<ARBSettingsOff>(_onARBSettingsOff);
+
+    on<NodeCardIDCopyHovered>(_onNodeCardIDCopyHovered);
+    on<NodeCardIDCopyUnhovered>(_onNodeCardIDCopyUnhovered);
+    on<NodeCardIPCopyHovered>(_onNodeCardIPCopyHovered);
+    on<NodeCardIPCopyUnhovered>(_onNodeCardIPCopyUnhovered);
   }
 
   final SysBloc _sysBloc;
@@ -167,6 +172,30 @@ class UIBloc extends Bloc<UIEvent, UIState> {
 
   Future<void> _onARBSettingsOff(ARBSettingsOff event, Emitter<UIState> emit) async {
     _updateARBState(ActionRailButtons.settings, ButtonState.unselected, emit);
+  }
+
+  Future<void> _onNodeCardIDCopyHovered(NodeCardIDCopyHovered event, Emitter<UIState> emit) async {
+    if (state.nodeCardStates[event.id] != null) {
+      emit(state.copyWith(nodeCardStates: state.nodeCardStates..[event.id] = state.nodeCardStates[event.id]!.copyWith(idCopyPaintOpacity: 1.0)));
+    }
+  }
+
+  Future<void> _onNodeCardIDCopyUnhovered(NodeCardIDCopyUnhovered event, Emitter<UIState> emit) async {
+    if (state.nodeCardStates[event.id] != null) {
+      emit(state.copyWith(nodeCardStates: state.nodeCardStates..[event.id] = state.nodeCardStates[event.id]!.copyWith(idCopyPaintOpacity: 0.25)));
+    }
+  }
+
+  Future<void> _onNodeCardIPCopyHovered(NodeCardIPCopyHovered event, Emitter<UIState> emit) async {
+    if (state.nodeCardStates[event.id] != null) {
+      emit(state.copyWith(nodeCardStates: state.nodeCardStates..[event.id] = state.nodeCardStates[event.id]!.copyWith(ipCopyPaintOpacity: 1.0)));
+    }
+  }
+
+  Future<void> _onNodeCardIPCopyUnhovered(NodeCardIPCopyUnhovered event, Emitter<UIState> emit) async {
+    if (state.nodeCardStates[event.id] != null) {
+      emit(state.copyWith(nodeCardStates: state.nodeCardStates..[event.id] = state.nodeCardStates[event.id]!.copyWith(ipCopyPaintOpacity: 0.25)));
+    }
   }
 
   @override
