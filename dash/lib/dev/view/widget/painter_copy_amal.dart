@@ -1,0 +1,1 @@
+../../../view/widget/painter_copy_amal.dart

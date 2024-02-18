@@ -1,10 +1,14 @@
 part of 'painter_stop_amal.dart';
 
 class StopPaint extends StatelessWidget {
-  const StopPaint({super.key, required Color color, required double opacity}) : _color = color, _opacity = opacity;
+  const StopPaint({super.key, required Color color, required double opacity})
+      : _color = color,
+        _opacity = opacity;
 
   final Color _color;
+  Color get color => _color;
   final double _opacity;
+  double get opacity => _opacity;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +22,9 @@ class StopPaint extends StatelessWidget {
 }
 
 class StopPainter extends CustomPainter {
-  const StopPainter({required Color color, required double opacity}) : _color = color, _opacity = opacity;
+  const StopPainter({required Color color, required double opacity})
+      : _color = color,
+        _opacity = opacity;
 
   final Color _color;
   Color get color => _color;
@@ -29,20 +35,20 @@ class StopPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final Path path = Path();
 
-    path.moveTo(0,size.height*0.2500000);
-    path.cubicTo(0,size.height*0.1810547,size.width*0.07473958,size.height*0.1250000,size.width*0.1666667,size.height*0.1250000);
-    path.lineTo(size.width*0.8333333,size.height*0.1250000);
-    path.cubicTo(size.width*0.9252604,size.height*0.1250000,size.width,size.height*0.1810547,size.width,size.height*0.2500000);
-    path.lineTo(size.width,size.height*0.7500000);
-    path.cubicTo(size.width,size.height*0.8189453,size.width*0.9252604,size.height*0.8750000,size.width*0.8333333,size.height*0.8750000);
-    path.lineTo(size.width*0.1666667,size.height*0.8750000);
-    path.cubicTo(size.width*0.07473958,size.height*0.8750000,0,size.height*0.8189453,0,size.height*0.7500000);
-    path.lineTo(0,size.height*0.2500000);
+    path.moveTo(0, size.height * 0.2500000);
+    path.cubicTo(0, size.height * 0.1810547, size.width * 0.07473958, size.height * 0.1250000, size.width * 0.1666667, size.height * 0.1250000);
+    path.lineTo(size.width * 0.8333333, size.height * 0.1250000);
+    path.cubicTo(size.width * 0.9252604, size.height * 0.1250000, size.width, size.height * 0.1810547, size.width, size.height * 0.2500000);
+    path.lineTo(size.width, size.height * 0.7500000);
+    path.cubicTo(size.width, size.height * 0.8189453, size.width * 0.9252604, size.height * 0.8750000, size.width * 0.8333333, size.height * 0.8750000);
+    path.lineTo(size.width * 0.1666667, size.height * 0.8750000);
+    path.cubicTo(size.width * 0.07473958, size.height * 0.8750000, 0, size.height * 0.8189453, 0, size.height * 0.7500000);
+    path.lineTo(0, size.height * 0.2500000);
     path.close();
 
     canvas.drawPath(path, Paint()..color = _color.withOpacity(_opacity));
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => (oldDelegate as StopPainter)._color != _color || oldDelegate._opacity != _opacity;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => (oldDelegate as StopPainter).color != _color || oldDelegate.opacity != _opacity;
 }
