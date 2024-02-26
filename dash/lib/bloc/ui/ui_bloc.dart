@@ -98,17 +98,25 @@ class UIBloc extends Bloc<UIEvent, UIState> {
       actionRailButtonStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
     });
 
-    final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnStateBase> btnStates = state.nodePanelHeaderState.btnStates;
+    final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> selectableButtonStates = state.nodePanelHeaderState.selectableButtons;
+    final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> activeButtonStates = state.nodePanelHeaderState.activeButtons;
+    final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> inactiveButtonStates = state.nodePanelHeaderState.inactiveButtons;
+    final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> placeholderButtons = state.nodePanelHeaderState.placeholderButtons;
 
-    btnStates.forEach((key, value) {
-      switch (value.runtimeType) {
-        case const (NodePanelHeaderSelectableBtnState):
-          btnStates[key] = (value as NodePanelHeaderSelectableBtnState).copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
-        case const (NodePanelHeaderDraggableBtnState):
-          btnStates[key] = (value as NodePanelHeaderDraggableBtnState).copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
-        case const (NodePanelHeaderDraggableTargetState):
-          btnStates[key] = (value as NodePanelHeaderDraggableTargetState).copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
-      }
+    selectableButtonStates.forEach((key, value) {
+      selectableButtonStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
+    });
+
+    activeButtonStates.forEach((key, value) {
+      activeButtonStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
+    });
+
+    inactiveButtonStates.forEach((key, value) {
+      inactiveButtonStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
+    });
+
+    placeholderButtons.forEach((key, value) {
+      placeholderButtons[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
     });
 
     emit(state.copyWith(
@@ -117,7 +125,12 @@ class UIBloc extends Bloc<UIEvent, UIState> {
       nodeCardCrossAxisCount: max(4, (event.maxWidth / event.maxHeight * 1.64).floor()),
       nodeCardStates: nodeCardStates,
       actionRailButtonStates: actionRailButtonStates,
-      nodePanelHeaderState: NodePanelHeaderState(themeData: themeData, btnStates: btnStates),
+      nodePanelHeaderState: NodePanelHeaderState(
+        themeData: themeData,
+        selectableButtons: selectableButtonStates,
+        activeButtons: activeButtonStates,
+        inactiveButtons: inactiveButtonStates,
+      ),
       themeData: themeData,
     ));
   }

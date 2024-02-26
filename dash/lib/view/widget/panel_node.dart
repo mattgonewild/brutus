@@ -10,114 +10,119 @@ class NodePanel extends StatelessWidget {
         builder: (context, constraints) => BlocBuilder<UIBloc, UIState>(
               buildWhen: (previous, current) => previous.nodePanelHeaderState != current.nodePanelHeaderState,
               builder: (context, state) => Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: state.nodePanelHeaderState.btnStates.entries.map<Widget>((element) {
-                    switch (element.key.runtimeType) {
-                      case const (NodePanelHeaderSelectableBtns):
-                        return _buildHeaderSelectableButton(element.key as NodePanelHeaderSelectableBtns);
-                      case const (NodePanelHeaderDraggableBtns):
-                        return _buildHeaderDraggableButton(constraints, element.key as NodePanelHeaderDraggableBtns);
-                      case const (NodePanelHeaderDraggableTarget):
-                        return _buildHeaderDraggableTarget(constraints, (element.key as NodePanelHeaderDraggableTarget).id);
-                      default:
-                        return const SizedBox.shrink();
-                    }
-                  }).toList()),
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: _buildHeaderSelectableButtons(state.nodePanelHeaderState) + _buildHeaderActiveButtons(state.nodePanelHeaderState, constraints: constraints) + _buildHeaderInactiveButtons(state.nodePanelHeaderState, constraints: constraints),
+              ),
             ));
   }
 
-  Widget _buildHeaderSelectableButton(NodePanelHeaderSelectableBtns button) => BlocBuilder<UIBloc, UIState>(
-        buildWhen: (previous, current) => previous.nodePanelHeaderState.btnStates[button] != current.nodePanelHeaderState.btnStates[button],
+  Widget _buildHeaderSelectableButton(NodePanelHeaderBtnBase button) => BlocBuilder<UIBloc, UIState>(
+        buildWhen: (previous, current) => previous.nodePanelHeaderState.selectableButtons[button] != current.nodePanelHeaderState.selectableButtons[button],
         builder: (context, state) {
-          final btnState = state.nodePanelHeaderState.btnStates[button] as NodePanelHeaderSelectableBtnState;
           return Card(
-              color: btnState.color.withOpacity(btnState.opacity),
+              color: state.nodePanelHeaderState.selectableButtons[button]!.backgroundColor,
               child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Row(children: [
                     Text(
-                      btnState.label,
-                      style: btnState.textStyle,
+                      state.nodePanelHeaderState.selectableButtons[button]!.label,
+                      style: state.nodePanelHeaderState.selectableButtons[button]!.textStyle,
                       textAlign: TextAlign.center,
                     ),
                   ])));
         },
       );
 
-  Widget _buildHeaderDraggableButton(BoxConstraints constraints, NodePanelHeaderDraggableBtns button) {
-    Widget buildButton(NodePanelHeaderDraggableBtnState btnState, {bool isChildWhenDragging = false, int index = 0}) {
-      final String label = isChildWhenDragging
-          ? index < 5
-              ? '$index'
-              : 'X'
-          : btnState.label;
-      return Card(
-          color: btnState.color.withOpacity(isChildWhenDragging ? btnState.opacity / 2 : btnState.opacity),
-          child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Row(children: [
-                Expanded(
-                    flex: 20,
-                    child: Text(
-                      label,
-                      style: isChildWhenDragging ? btnState.textStyle.copyWith(color: btnState.textStyle.color?.withOpacity(btnState.opacity / 2)) : btnState.textStyle,
-                      textAlign: TextAlign.center,
-                    )),
-                isChildWhenDragging
-                    ? const SizedBox.shrink()
-                    : Expanded(
-                        flex: 5,
-                        child: FractionallySizedBox(
-                          widthFactor: sqrt(constraints.maxWidth * constraints.maxHeight) * 0.0012,
-                          child: SortPaint(
-                            topColor: btnState.iconTopColor,
-                            topOpacity: btnState.iconTopOpacity,
-                            bottomColor: btnState.iconBottomColor,
-                            bottomOpacity: btnState.iconBottomOpacity,
-                          ),
-                        ))
-              ])));
-    }
+  Widget _buildHeaderDraggableButton(NodePanelHeaderBtnBase button, {required bool isActive, required BoxConstraints constraints, required index}) {
+    Widget buildButton(NodePanelHeaderBtnState btnState) => Card(
+        color: btnState.backgroundColor,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Row(children: [
+            Expanded(
+                flex: 20,
+                child: Text(
+                  btnState.label,
+                  style: btnState.textStyle,
+                  textAlign: TextAlign.center,
+                )),
+            Expanded(
+                flex: 5,
+                child: FractionallySizedBox(
+                  widthFactor: sqrt(constraints.maxWidth * constraints.maxHeight) * 0.0012,
+                  child: const SortPaint(
+                    topColor: Colors.white,
+                    topOpacity: 1.0,
+                    bottomColor: Colors.black,
+                    bottomOpacity: 0.5,
+                  ),
+                )),
+          ]),
+        ));
 
     return BlocBuilder<UIBloc, UIState>(
-      buildWhen: (previous, current) => previous.nodePanelHeaderState.btnStates[button] != current.nodePanelHeaderState.btnStates[button],
+      buildWhen: (previous, current) => isActive ? previous.nodePanelHeaderState.activeButtons[button] != current.nodePanelHeaderState.activeButtons[button] : previous.nodePanelHeaderState.inactiveButtons[button] != current.nodePanelHeaderState.inactiveButtons[button],
       builder: (context, state) {
-        final NodePanelHeaderDraggableBtnState btnState = state.nodePanelHeaderState.btnStates[button] as NodePanelHeaderDraggableBtnState;
+        final NodePanelHeaderBtnState btnState = isActive ? state.nodePanelHeaderState.activeButtons[button]! : state.nodePanelHeaderState.inactiveButtons[button]!;
         return SizedBox(
-            width: constraints.maxWidth / 11,
-            child: Draggable(
-              childWhenDragging: buildButton(btnState, isChildWhenDragging: true, index: state.nodePanelHeaderState.btnStates.values.toList().indexOf(btnState) - 2),
-              feedback: SizedBox(
-                width: constraints.maxWidth / 11,
-                child: buildButton(btnState),
-              ),
+          width: constraints.maxWidth / 11,
+          child: Draggable(
+            feedback: SizedBox(
+              width: constraints.maxWidth / 11,
               child: buildButton(btnState),
-            ));
+            ),
+            childWhenDragging: _buildHeaderPlaceholderButton(
+              isActive ? NodePanelHeaderPlaceholderBtn.activeByIndex(index) : NodePanelHeaderPlaceholderBtn.inactiveByIndex(index),
+              constraints: constraints,
+            ),
+            child: buildButton(btnState),
+          ),
+        );
       },
     );
   }
 
-  Widget _buildHeaderDraggableTarget(BoxConstraints constraints, int id) => BlocBuilder<UIBloc, UIState>(
-        buildWhen: (previous, current) => previous.nodePanelHeaderState.btnStates[NodePanelHeaderDraggableTarget(id: id)] != current.nodePanelHeaderState.btnStates[NodePanelHeaderDraggableTarget(id: id)],
+  Widget _buildHeaderPlaceholderButton(NodePanelHeaderBtnBase button, {required BoxConstraints constraints}) => BlocBuilder<UIBloc, UIState>(
+        buildWhen: (previous, current) => previous.nodePanelHeaderState.placeholderButtons[button] != current.nodePanelHeaderState.placeholderButtons[button],
         builder: (context, state) {
-          final NodePanelHeaderDraggableTargetState btnState = state.nodePanelHeaderState.btnStates[NodePanelHeaderDraggableTarget(id: id)] as NodePanelHeaderDraggableTargetState;
+          final NodePanelHeaderBtnState btnState = state.nodePanelHeaderState.placeholderButtons[button]!;
           return SizedBox(
               width: constraints.maxWidth / 11,
               child: Card(
-                  color: btnState.color.withOpacity(btnState.opacity),
+                  color: btnState.backgroundColor,
                   child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Row(children: [
                         Expanded(
                           child: Text(
                             btnState.label,
-                            style: btnState.textStyle.copyWith(color: btnState.textStyle.color?.withOpacity(btnState.opacity)),
+                            style: btnState.textStyle,
                             textAlign: TextAlign.center,
                           ),
                         ),
                       ]))));
         },
       );
+
+  List<Widget> _buildHeaderSelectableButtons(NodePanelHeaderState state) => state.selectableButtons.entries.map<Widget>((element) {
+        return _buildHeaderSelectableButton(element.key);
+      }).toList();
+
+  List<Widget> _buildHeaderActiveButtons(NodePanelHeaderState state, {required BoxConstraints constraints}) => List<Widget>.generate(4, (index) {
+        if (index < state.activeButtons.length) {
+          return _buildHeaderDraggableButton(state.activeButtons.entries.elementAt(index).key, isActive: true, constraints: constraints, index: index);
+        } else {
+          return _buildHeaderPlaceholderButton(NodePanelHeaderPlaceholderBtn.activeByIndex(index), constraints: constraints);
+        }
+      });
+
+  List<Widget> _buildHeaderInactiveButtons(NodePanelHeaderState state, {required BoxConstraints constraints}) => List<Widget>.generate(4, (index) {
+        if (index < state.inactiveButtons.length) {
+          return _buildHeaderDraggableButton(state.inactiveButtons.entries.elementAt(index).key, isActive: false, constraints: constraints, index: index);
+        } else {
+          return _buildHeaderPlaceholderButton(NodePanelHeaderPlaceholderBtn.inactiveByIndex(index), constraints: constraints);
+        }
+      });
 
   Widget _buildGrid() => BlocBuilder<UIBloc, UIState>(
       buildWhen: (previous, current) => previous.nodes != current.nodes || previous.nodeCardCrossAxisCount != current.nodeCardCrossAxisCount,
