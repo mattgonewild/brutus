@@ -395,10 +395,18 @@ final class NodePanelHeaderDraggableBtnState extends Equatable implements NodePa
     required String label,
     required Color color,
     required double opacity,
+    required Color iconTopColor,
+    required double iconTopOpacity,
+    required Color iconBottomColor,
+    required double iconBottomOpacity,
   })  : _textStyle = textStyle,
         _label = label,
         _color = color,
-        _opacity = opacity;
+        _opacity = opacity,
+        _iconTopColor = iconTopColor,
+        _iconTopOpacity = iconTopOpacity,
+        _iconBottomColor = iconBottomColor,
+        _iconBottomOpacity = iconBottomOpacity;
 
   final TextStyle _textStyle;
   TextStyle get textStyle => _textStyle;
@@ -412,30 +420,60 @@ final class NodePanelHeaderDraggableBtnState extends Equatable implements NodePa
   final double _opacity;
   double get opacity => _opacity;
 
+  final Color _iconTopColor;
+  Color get iconTopColor => _iconTopColor;
+
+  final double _iconTopOpacity;
+  double get iconTopOpacity => _iconTopOpacity;
+
+  final Color _iconBottomColor;
+  Color get iconBottomColor => _iconBottomColor;
+
+  final double _iconBottomOpacity;
+  double get iconBottomOpacity => _iconBottomOpacity;
+
   NodePanelHeaderDraggableBtnState copyWith({
     TextStyle? textStyle,
     String? label,
     Color? color,
     double? opacity,
+    Color? iconTopColor,
+    double? iconTopOpacity,
+    Color? iconBottomColor,
+    double? iconBottomOpacity,
   }) =>
       NodePanelHeaderDraggableBtnState(
         textStyle: textStyle ?? _textStyle,
         label: label ?? _label,
         color: color ?? _color,
         opacity: opacity ?? _opacity,
+        iconTopColor: iconTopColor ?? _iconTopColor,
+        iconTopOpacity: iconTopOpacity ?? _iconTopOpacity,
+        iconBottomColor: iconBottomColor ?? _iconBottomColor,
+        iconBottomOpacity: iconBottomOpacity ?? _iconBottomOpacity,
       );
 
   @override
-  List<Object?> get props => [_textStyle, _label, _color, _opacity];
+  List<Object?> get props => [
+        _textStyle,
+        _label,
+        _color,
+        _opacity,
+        _iconTopColor,
+        _iconTopOpacity,
+        _iconBottomColor,
+        _iconBottomOpacity,
+      ];
 }
 
 class NodePanelHeaderDraggableTarget extends Equatable implements NodePanelHeaderBtnBase {
-  const NodePanelHeaderDraggableTarget(this.index);
+  const NodePanelHeaderDraggableTarget({required int id}) : _id = id;
 
-  final int index;
+  final int _id;
+  int get id => _id;
 
   @override
-  List<Object> get props => [index];
+  List<Object> get props => [_id];
 }
 
 final class NodePanelHeaderDraggableTargetState extends Equatable implements NodePanelHeaderBtnStateBase {
@@ -507,44 +545,60 @@ class NodePanelHeaderState extends Equatable {
                 label: 'CPU',
                 color: themeData.cardColor,
                 opacity: 1.0,
+                iconTopColor: Colors.white,
+                iconTopOpacity: 1.0,
+                iconBottomColor: Colors.black,
+                iconBottomOpacity: 0.25,
               ),
               NodePanelHeaderDraggableBtns.mem: NodePanelHeaderDraggableBtnState(
                 textStyle: themeData.labelMedium,
                 label: 'MEM',
                 color: themeData.cardColor,
                 opacity: 1.0,
+                iconTopColor: Colors.white,
+                iconTopOpacity: 1.0,
+                iconBottomColor: Colors.black,
+                iconBottomOpacity: 0.25,
               ),
               NodePanelHeaderDraggableBtns.ops: NodePanelHeaderDraggableBtnState(
                 textStyle: themeData.labelMedium,
                 label: 'OPS',
                 color: themeData.cardColor,
                 opacity: 1.0,
+                iconTopColor: Colors.white,
+                iconTopOpacity: 1.0,
+                iconBottomColor: Colors.black,
+                iconBottomOpacity: 0.25,
               ),
               NodePanelHeaderDraggableBtns.uptime: NodePanelHeaderDraggableBtnState(
                 textStyle: themeData.labelMedium,
                 label: 'UP',
                 color: themeData.cardColor,
                 opacity: 1.0,
+                iconTopColor: Colors.white,
+                iconTopOpacity: 1.0,
+                iconBottomColor: Colors.black,
+                iconBottomOpacity: 0.25,
               ),
-              const NodePanelHeaderDraggableTarget(0): NodePanelHeaderDraggableTargetState(
+              const NodePanelHeaderDraggableTarget(id: 0): NodePanelHeaderDraggableTargetState(
                 textStyle: themeData.labelMedium,
                 label: 'X',
                 color: themeData.cardColor,
                 opacity: 0.5,
               ),
-              const NodePanelHeaderDraggableTarget(1): NodePanelHeaderDraggableTargetState(
+              const NodePanelHeaderDraggableTarget(id: 1): NodePanelHeaderDraggableTargetState(
                 textStyle: themeData.labelMedium,
                 label: 'X',
                 color: themeData.cardColor,
                 opacity: 0.5,
               ),
-              const NodePanelHeaderDraggableTarget(2): NodePanelHeaderDraggableTargetState(
+              const NodePanelHeaderDraggableTarget(id: 2): NodePanelHeaderDraggableTargetState(
                 textStyle: themeData.labelMedium,
                 label: 'X',
                 color: themeData.cardColor,
                 opacity: 0.5,
               ),
-              const NodePanelHeaderDraggableTarget(3): NodePanelHeaderDraggableTargetState(
+              const NodePanelHeaderDraggableTarget(id: 3): NodePanelHeaderDraggableTargetState(
                 textStyle: themeData.labelMedium,
                 label: 'X',
                 color: themeData.cardColor,
