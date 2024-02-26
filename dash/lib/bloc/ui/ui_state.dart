@@ -52,8 +52,17 @@ enum ButtonState { unselected, thinking, selected }
 enum ActionRailButtons { start, stop, log, settings }
 
 final class UIState extends Equatable {
-  UIState({int? UIStateVersion, double? screenMaxWidth, double? screenMaxHeight, UIThemeData? themeData, LinkedHashMap<ActionRailButtons, ActionRailButtonState>? actionRailButtonStates, List<Worker>? nodes, HashMap<String, NodeCardState>? nodeCardStates, int? nodeCardCrossAxisCount})
-      : _UIStateVersion = UIStateVersion ?? 0,
+  UIState({
+    int? UIStateVersion,
+    double? screenMaxWidth,
+    double? screenMaxHeight,
+    UIThemeData? themeData,
+    LinkedHashMap<ActionRailButtons, ActionRailButtonState>? actionRailButtonStates,
+    NodePanelHeaderState? nodePanelHeaderState,
+    List<Worker>? nodes,
+    HashMap<String, NodeCardState>? nodeCardStates,
+    int? nodeCardCrossAxisCount,
+  })  : _UIStateVersion = UIStateVersion ?? 0,
         _screenMaxWidth = screenMaxWidth ?? 800,
         _screenMaxHeight = screenMaxHeight ?? 600,
         _themeData = themeData ?? const UIThemeData(),
@@ -63,6 +72,7 @@ final class UIState extends Equatable {
               key: (button) => button,
               value: (button) => ActionRailButtonState.defaultState(__labelMedium),
             ),
+        _nodePanelHeaderState = nodePanelHeaderState ?? NodePanelHeaderState(themeData: themeData ?? const UIThemeData()),
         _nodes = nodes ?? <Worker>[],
         _nodeCardStates = nodeCardStates ?? HashMap<String, NodeCardState>(),
         _nodeCardCrossAxisCount = nodeCardCrossAxisCount ?? 4;
@@ -79,6 +89,9 @@ final class UIState extends Equatable {
   final LinkedHashMap<ActionRailButtons, ActionRailButtonState> _actionRailButtonStates;
   LinkedHashMap<ActionRailButtons, ActionRailButtonState> get actionRailButtonStates => LinkedHashMap.from(_actionRailButtonStates);
 
+  final NodePanelHeaderState _nodePanelHeaderState;
+  NodePanelHeaderState get nodePanelHeaderState => _nodePanelHeaderState;
+
   final List<Worker> _nodes;
   List<Worker> get nodes => List<Worker>.from(_nodes);
 
@@ -88,13 +101,24 @@ final class UIState extends Equatable {
   final int _nodeCardCrossAxisCount;
   int get nodeCardCrossAxisCount => _nodeCardCrossAxisCount;
 
-  UIState copyWith({int? UIStateVersion, double? screenMaxWidth, double? screenMaxHeight, UIThemeData? themeData, LinkedHashMap<ActionRailButtons, ActionRailButtonState>? actionRailButtonStates, List<Worker>? nodes, HashMap<String, NodeCardState>? nodeCardStates, int? nodeCardCrossAxisCount}) =>
+  UIState copyWith({
+    int? UIStateVersion,
+    double? screenMaxWidth,
+    double? screenMaxHeight,
+    UIThemeData? themeData,
+    LinkedHashMap<ActionRailButtons, ActionRailButtonState>? actionRailButtonStates,
+    NodePanelHeaderState? nodePanelHeaderState,
+    List<Worker>? nodes,
+    HashMap<String, NodeCardState>? nodeCardStates,
+    int? nodeCardCrossAxisCount,
+  }) =>
       UIState(
           UIStateVersion: UIStateVersion ?? _UIStateVersion + 1,
           screenMaxWidth: screenMaxWidth ?? _screenMaxWidth,
           screenMaxHeight: screenMaxHeight ?? _screenMaxHeight,
           themeData: themeData ?? _themeData,
           actionRailButtonStates: actionRailButtonStates ?? _actionRailButtonStates,
+          nodePanelHeaderState: nodePanelHeaderState ?? _nodePanelHeaderState,
           nodes: nodes ?? _nodes,
           nodeCardStates: nodeCardStates ?? _nodeCardStates,
           nodeCardCrossAxisCount: nodeCardCrossAxisCount ?? _nodeCardCrossAxisCount);
@@ -107,6 +131,9 @@ final class UIThemeData extends Equatable {
   const UIThemeData(
       {Color? canvasColor,
       Color? cardColor,
+      Color? combColor,
+      Color? permColor,
+      Color? decrColor,
       Color? percentageBarStartColor,
       Color? percentageBarMidColor,
       Color? percentageBarEndColor,
@@ -127,6 +154,9 @@ final class UIThemeData extends Equatable {
       TextStyle? bodySmall})
       : _canvasColor = canvasColor ?? __canvasColor,
         _cardColor = cardColor ?? __cardColor,
+        _combColor = combColor ?? __combWorkerColor,
+        _permColor = permColor ?? __permWorkerColor,
+        _decrColor = decrColor ?? __decrWorkerColor,
         _percentageBarStartColor = percentageBarStartColor ?? __percentageBarStartColor,
         _percentageBarMidColor = percentageBarMidColor ?? __percentageBarMidColor,
         _percentageBarEndColor = percentageBarEndColor ?? __percentageBarEndColor,
@@ -150,6 +180,12 @@ final class UIThemeData extends Equatable {
   Color get canvasColor => _canvasColor;
   final Color _cardColor;
   Color get cardColor => _cardColor;
+  final Color _combColor;
+  Color get combColor => _combColor;
+  final Color _permColor;
+  Color get permColor => _permColor;
+  final Color _decrColor;
+  Color get decrColor => _decrColor;
   final Color _percentageBarStartColor;
   Color get percentageBarStartColor => _percentageBarStartColor;
   final Color _percentageBarMidColor;
@@ -190,6 +226,9 @@ final class UIThemeData extends Equatable {
   UIThemeData copyWith(
           {Color? canvasColor,
           Color? cardColor,
+          Color? combColor,
+          Color? permColor,
+          Color? decrColor,
           Color? percentageBarStartColor,
           Color? percentageBarMidColor,
           Color? percentageBarEndColor,
@@ -211,6 +250,9 @@ final class UIThemeData extends Equatable {
       UIThemeData(
           canvasColor: canvasColor ?? _canvasColor,
           cardColor: cardColor ?? _cardColor,
+          combColor: combColor ?? _combColor,
+          permColor: permColor ?? _permColor,
+          decrColor: decrColor ?? _decrColor,
           percentageBarStartColor: percentageBarStartColor ?? _percentageBarStartColor,
           percentageBarMidColor: percentageBarMidColor ?? _percentageBarMidColor,
           percentageBarEndColor: percentageBarEndColor ?? _percentageBarEndColor,
@@ -234,6 +276,9 @@ final class UIThemeData extends Equatable {
   List<Object> get props => [
         _canvasColor,
         _cardColor,
+        _combColor,
+        _permColor,
+        _decrColor,
         _percentageBarStartColor,
         _percentageBarMidColor,
         _percentageBarEndColor,
@@ -281,6 +326,237 @@ final class ActionRailButtonState extends Equatable {
 
   @override
   List<Object> get props => [_backgroundColor, _iconColor, _iconOpacity, _textStyle];
+}
+
+abstract class NodePanelHeaderBtnBase {}
+
+abstract class NodePanelHeaderBtnStateBase {}
+
+class NodePanelHeaderSelectableBtns implements NodePanelHeaderBtnBase {
+  const NodePanelHeaderSelectableBtns._(this.index);
+
+  final int index;
+
+  static const combination = NodePanelHeaderSelectableBtns._(0);
+  static const permutation = NodePanelHeaderSelectableBtns._(1);
+  static const decryption = NodePanelHeaderSelectableBtns._(2);
+}
+
+final class NodePanelHeaderSelectableBtnState extends Equatable implements NodePanelHeaderBtnStateBase {
+  const NodePanelHeaderSelectableBtnState({required TextStyle textStyle, required String label, required Color color, required double opacity})
+      : _textStyle = textStyle,
+        _label = label,
+        _color = color,
+        _opacity = opacity;
+
+  final TextStyle _textStyle;
+  TextStyle get textStyle => _textStyle;
+
+  final String _label;
+  String get label => _label;
+
+  final Color _color;
+  Color get color => _color;
+
+  final double _opacity;
+  double get opacity => _opacity;
+
+  NodePanelHeaderSelectableBtnState copyWith({
+    TextStyle? textStyle,
+    String? label,
+    Color? color,
+    double? opacity,
+  }) =>
+      NodePanelHeaderSelectableBtnState(
+        textStyle: textStyle ?? _textStyle,
+        label: label ?? _label,
+        color: color ?? _color,
+        opacity: opacity ?? _opacity,
+      );
+
+  @override
+  List<Object?> get props => [_textStyle, _label, _color, _opacity];
+}
+
+class NodePanelHeaderDraggableBtns implements NodePanelHeaderBtnBase {
+  const NodePanelHeaderDraggableBtns._(this.index);
+
+  final int index;
+
+  static const cpu = NodePanelHeaderDraggableBtns._(0);
+  static const mem = NodePanelHeaderDraggableBtns._(1);
+  static const ops = NodePanelHeaderDraggableBtns._(2);
+  static const uptime = NodePanelHeaderDraggableBtns._(3);
+}
+
+final class NodePanelHeaderDraggableBtnState extends Equatable implements NodePanelHeaderBtnStateBase {
+  const NodePanelHeaderDraggableBtnState({
+    required TextStyle textStyle,
+    required String label,
+    required Color color,
+    required double opacity,
+  })  : _textStyle = textStyle,
+        _label = label,
+        _color = color,
+        _opacity = opacity;
+
+  final TextStyle _textStyle;
+  TextStyle get textStyle => _textStyle;
+
+  final String _label;
+  String get label => _label;
+
+  final Color _color;
+  Color get color => _color;
+
+  final double _opacity;
+  double get opacity => _opacity;
+
+  NodePanelHeaderDraggableBtnState copyWith({
+    TextStyle? textStyle,
+    String? label,
+    Color? color,
+    double? opacity,
+  }) =>
+      NodePanelHeaderDraggableBtnState(
+        textStyle: textStyle ?? _textStyle,
+        label: label ?? _label,
+        color: color ?? _color,
+        opacity: opacity ?? _opacity,
+      );
+
+  @override
+  List<Object?> get props => [_textStyle, _label, _color, _opacity];
+}
+
+class NodePanelHeaderDraggableTarget extends Equatable implements NodePanelHeaderBtnBase {
+  const NodePanelHeaderDraggableTarget(this.index);
+
+  final int index;
+
+  @override
+  List<Object> get props => [index];
+}
+
+final class NodePanelHeaderDraggableTargetState extends Equatable implements NodePanelHeaderBtnStateBase {
+  const NodePanelHeaderDraggableTargetState({
+    required TextStyle textStyle,
+    required String label,
+    required Color color,
+    required double opacity,
+  })  : _textStyle = textStyle,
+        _label = label,
+        _color = color,
+        _opacity = opacity;
+
+  final TextStyle _textStyle;
+  TextStyle get textStyle => _textStyle;
+
+  final String _label;
+  String get label => _label;
+
+  final Color _color;
+  Color get color => _color;
+
+  final double _opacity;
+  double get opacity => _opacity;
+
+  NodePanelHeaderDraggableTargetState copyWith({
+    TextStyle? textStyle,
+    String? label,
+    Color? color,
+    double? opacity,
+  }) =>
+      NodePanelHeaderDraggableTargetState(
+        textStyle: textStyle ?? _textStyle,
+        label: label ?? _label,
+        color: color ?? _color,
+        opacity: opacity ?? _opacity,
+      );
+
+  @override
+  List<Object?> get props => [_textStyle, _label, _color, _opacity];
+}
+
+class NodePanelHeaderState extends Equatable {
+  NodePanelHeaderState({
+    required UIThemeData themeData,
+    LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnStateBase>? btnStates,
+  }) : _btnStates = btnStates ??
+            LinkedHashMap.from({
+              NodePanelHeaderSelectableBtns.combination: NodePanelHeaderSelectableBtnState(
+                textStyle: themeData.labelMedium,
+                label: 'COMB',
+                color: themeData.combColor,
+                opacity: 1.0,
+              ),
+              NodePanelHeaderSelectableBtns.permutation: NodePanelHeaderSelectableBtnState(
+                textStyle: themeData.labelMedium,
+                label: 'PERM',
+                color: themeData.permColor,
+                opacity: 1.0,
+              ),
+              NodePanelHeaderSelectableBtns.decryption: NodePanelHeaderSelectableBtnState(
+                textStyle: themeData.labelMedium,
+                label: 'DECRYPT',
+                color: themeData.decrColor,
+                opacity: 1.0,
+              ),
+              NodePanelHeaderDraggableBtns.cpu: NodePanelHeaderDraggableBtnState(
+                textStyle: themeData.labelMedium,
+                label: 'CPU',
+                color: themeData.cardColor,
+                opacity: 1.0,
+              ),
+              NodePanelHeaderDraggableBtns.mem: NodePanelHeaderDraggableBtnState(
+                textStyle: themeData.labelMedium,
+                label: 'MEM',
+                color: themeData.cardColor,
+                opacity: 1.0,
+              ),
+              NodePanelHeaderDraggableBtns.ops: NodePanelHeaderDraggableBtnState(
+                textStyle: themeData.labelMedium,
+                label: 'OPS',
+                color: themeData.cardColor,
+                opacity: 1.0,
+              ),
+              NodePanelHeaderDraggableBtns.uptime: NodePanelHeaderDraggableBtnState(
+                textStyle: themeData.labelMedium,
+                label: 'UP',
+                color: themeData.cardColor,
+                opacity: 1.0,
+              ),
+              const NodePanelHeaderDraggableTarget(0): NodePanelHeaderDraggableTargetState(
+                textStyle: themeData.labelMedium,
+                label: 'X',
+                color: themeData.cardColor,
+                opacity: 0.5,
+              ),
+              const NodePanelHeaderDraggableTarget(1): NodePanelHeaderDraggableTargetState(
+                textStyle: themeData.labelMedium,
+                label: 'X',
+                color: themeData.cardColor,
+                opacity: 0.5,
+              ),
+              const NodePanelHeaderDraggableTarget(2): NodePanelHeaderDraggableTargetState(
+                textStyle: themeData.labelMedium,
+                label: 'X',
+                color: themeData.cardColor,
+                opacity: 0.5,
+              ),
+              const NodePanelHeaderDraggableTarget(3): NodePanelHeaderDraggableTargetState(
+                textStyle: themeData.labelMedium,
+                label: 'X',
+                color: themeData.cardColor,
+                opacity: 0.5,
+              ),
+            });
+
+  final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnStateBase> _btnStates;
+  LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnStateBase> get btnStates => LinkedHashMap.from(_btnStates);
+
+  @override
+  List<Object> get props => _btnStates.values.toList();
 }
 
 final class NodeCardState extends Equatable {

@@ -5,21 +5,112 @@ part of 'panel_node_amal.dart';
 class NodePanel extends StatelessWidget {
   const NodePanel({super.key});
 
+  Widget _buildHeader() {
+    return LayoutBuilder(
+        builder: (context, constraints) => BlocBuilder<UIBloc, UIState>(
+              buildWhen: (previous, current) => previous.nodePanelHeaderState != current.nodePanelHeaderState,
+              builder: (context, state) => Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: state.nodePanelHeaderState.btnStates.entries.map<Widget>((element) {
+                    switch (element.key.runtimeType) {
+                      case const (NodePanelHeaderSelectableBtns):
+                        return _buildHeaderSelectableButton(element.key as NodePanelHeaderSelectableBtns);
+                      case const (NodePanelHeaderDraggableBtns):
+                        return _buildHeaderDraggableButton(constraints, element.key as NodePanelHeaderDraggableBtns);
+                      case const (NodePanelHeaderDraggableTarget):
+                        return _buildHeaderDraggableTarget(constraints, (element.key as NodePanelHeaderDraggableTarget).index);
+                      default:
+                        return const SizedBox.shrink();
+                    }
+                  }).toList()),
+            ));
+  }
+
+  Widget _buildHeaderSelectableButton(NodePanelHeaderSelectableBtns button) => BlocBuilder<UIBloc, UIState>(
+        buildWhen: (previous, current) => previous.nodePanelHeaderState.btnStates[button] != current.nodePanelHeaderState.btnStates[button],
+        builder: (context, state) => Card(
+            color: (state.nodePanelHeaderState.btnStates[button] as NodePanelHeaderSelectableBtnState).color,
+            child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Row(children: [
+                  Text(
+                    (state.nodePanelHeaderState.btnStates[button] as NodePanelHeaderSelectableBtnState).label,
+                    style: (state.nodePanelHeaderState.btnStates[button] as NodePanelHeaderSelectableBtnState).textStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                ]))),
+      );
+
+  Widget _buildHeaderDraggableButton(BoxConstraints constraints, NodePanelHeaderDraggableBtns button) => BlocBuilder<UIBloc, UIState>(
+        buildWhen: (previous, current) => previous.nodePanelHeaderState.btnStates[button] != current.nodePanelHeaderState.btnStates[button],
+        builder: (context, state) => SizedBox(
+            width: constraints.maxWidth / 11,
+            child: Card(
+                color: state.themeData.cardColor,
+                child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Row(children: [
+                      Expanded(
+                          flex: 20,
+                          child: Text(
+                            (state.nodePanelHeaderState.btnStates[button] as NodePanelHeaderDraggableBtnState).label,
+                            style: (state.nodePanelHeaderState.btnStates[button] as NodePanelHeaderDraggableBtnState).textStyle,
+                            textAlign: TextAlign.center,
+                          )),
+                      Expanded(
+                          flex: 5,
+                          child: FractionallySizedBox(
+                            widthFactor: sqrt(constraints.maxWidth * constraints.maxHeight) * 0.0012,
+                            child: const SortPaint(topColor: Colors.white, topOpacity: 1.0, bottomColor: Colors.black, bottomOpacity: 0.25),
+                          ))
+                    ])))),
+      );
+
+  Widget _buildHeaderDraggableTarget(BoxConstraints constraints, int index) => BlocBuilder<UIBloc, UIState>(
+        buildWhen: (previous, current) => previous.nodePanelHeaderState != current.nodePanelHeaderState,
+        builder: (context, state) => SizedBox(
+            width: constraints.maxWidth / 11,
+            child: Card(
+                color: (state.nodePanelHeaderState.btnStates[NodePanelHeaderDraggableTarget(index)] as NodePanelHeaderDraggableTargetState).color.withOpacity((state.nodePanelHeaderState.btnStates[NodePanelHeaderDraggableTarget(index)] as NodePanelHeaderDraggableTargetState).opacity),
+                child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Row(children: [
+                      Expanded(
+                        child: Text(
+                          index.isNegative ? 'X' : (index + 1).toString(),
+                          style: (state.nodePanelHeaderState.btnStates[NodePanelHeaderDraggableTarget(index)] as NodePanelHeaderDraggableTargetState).textStyle.copyWith(
+                              color: (state.nodePanelHeaderState.btnStates[NodePanelHeaderDraggableTarget(index)] as NodePanelHeaderDraggableTargetState)
+                                  .textStyle
+                                  .color
+                                  ?.withOpacity((state.nodePanelHeaderState.btnStates[NodePanelHeaderDraggableTarget(index)] as NodePanelHeaderDraggableTargetState).opacity)),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ])))),
+      );
+
+  Widget _buildGrid() => BlocBuilder<UIBloc, UIState>(
+      buildWhen: (previous, current) => previous.nodes != current.nodes || previous.nodeCardCrossAxisCount != current.nodeCardCrossAxisCount,
+      builder: (context, state) => GridView.builder(
+            itemCount: state.nodes.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: state.nodeCardCrossAxisCount, crossAxisSpacing: 11, mainAxisSpacing: 11, childAspectRatio: 1.0),
+            itemBuilder: (context, index) => AnimatedSwitcher(duration: const Duration(milliseconds: 200), child: NodeCard(key: ValueKey(state.nodes.elementAt(index).id), node: state.nodes.elementAt(index))),
+          ));
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<UIBloc, UIState>(
-        buildWhen: (previous, current) => previous.nodes != current.nodes || previous.nodeCardCrossAxisCount != current.nodeCardCrossAxisCount,
-        builder: (context, state) => Column(
-              children: [
-                // TODO: add sortable header
-                Expanded(
-                  child: GridView.builder(
-                      itemCount: state.nodes.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: state.nodeCardCrossAxisCount, crossAxisSpacing: 11, mainAxisSpacing: 11, childAspectRatio: 1.0),
-                      itemBuilder: (context, index) => AnimatedSwitcher(duration: const Duration(milliseconds: 200), child: NodeCard(key: ValueKey(state.nodes.elementAt(index).id), node: state.nodes.elementAt(index)))),
-                ),
-              ],
-            ));
+    return Column(
+      children: [
+        Expanded(
+          flex: 1,
+          child: _buildHeader(),
+        ),
+        Expanded(
+          flex: 10,
+          child: _buildGrid(),
+        ),
+      ],
+    );
   }
 }
 

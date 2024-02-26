@@ -65,9 +65,9 @@ class DashboardDesktopLandscape extends StatelessWidget {
         builder: (context, state) => Container(
               color: state.themeData.canvasColor,
               child: const Row(children: [
-                Expanded(flex: 1, child: ActionRail()),
+                Expanded(flex: 8, child: ActionRail()),
                 Expanded(
-                    flex: 10,
+                    flex: 100,
                     child: Row(children: [
                       Expanded(
                           flex: 2,

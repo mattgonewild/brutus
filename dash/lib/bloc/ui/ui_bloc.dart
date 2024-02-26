@@ -71,6 +71,23 @@ class UIBloc extends Bloc<UIEvent, UIState> {
 
     TextStyle updateTextStyle(TextStyle style, double ratio) => style.copyWith(fontSize: calculateFontSize(ratio));
 
+    final UIThemeData themeData = state.themeData.copyWith(
+        displayLarge: updateTextStyle(state.themeData.displayLarge, __displayLargeFontHeightRatio),
+        displayMedium: updateTextStyle(state.themeData.displayMedium, __displayMediumFontHeightRatio),
+        displaySmall: updateTextStyle(state.themeData.displaySmall, __displaySmallFontHeightRatio),
+        headlineLarge: updateTextStyle(state.themeData.headlineLarge, __headlineLargeFontHeightRatio),
+        headlineMedium: updateTextStyle(state.themeData.headlineMedium, __headlineMediumFontHeightRatio),
+        headlineSmall: updateTextStyle(state.themeData.headlineSmall, __headlineSmallFontHeightRatio),
+        titleLarge: updateTextStyle(state.themeData.titleLarge, __titleLargeFontHeightRatio),
+        titleMedium: updateTextStyle(state.themeData.titleMedium, __titleMediumFontHeightRatio),
+        titleSmall: updateTextStyle(state.themeData.titleSmall, __titleSmallFontHeightRatio),
+        labelLarge: updateTextStyle(state.themeData.labelLarge, __labelLargeFontHeightRatio),
+        labelMedium: updateTextStyle(state.themeData.labelMedium, __labelMediumFontHeightRatio),
+        labelSmall: updateTextStyle(state.themeData.labelSmall, __labelSmallFontHeightRatio),
+        bodyLarge: updateTextStyle(state.themeData.bodyLarge, __bodyLargeFontHeightRatio),
+        bodyMedium: updateTextStyle(state.themeData.bodyMedium, __bodyMediumFontHeightRatio),
+        bodySmall: updateTextStyle(state.themeData.bodySmall, __bodySmallFontHeightRatio));
+
     final HashMap<String, NodeCardState> nodeCardStates = state.nodeCardStates;
     nodeCardStates.forEach((key, value) {
       nodeCardStates[key] = value.copyWith(bodyTextStyle: updateTextStyle(value.bodyTextStyle, __bodySmallFontHeightRatio), labelTextStyle: updateTextStyle(value.labelTextStyle, __labelMediumFontHeightRatio));
@@ -81,29 +98,28 @@ class UIBloc extends Bloc<UIEvent, UIState> {
       actionRailButtonStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
     });
 
+    final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnStateBase> btnStates = state.nodePanelHeaderState.btnStates;
+
+    btnStates.forEach((key, value) {
+      switch (value.runtimeType) {
+        case const (NodePanelHeaderSelectableBtnState):
+          btnStates[key] = (value as NodePanelHeaderSelectableBtnState).copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
+        case const (NodePanelHeaderDraggableBtnState):
+          btnStates[key] = (value as NodePanelHeaderDraggableBtnState).copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
+        case const (NodePanelHeaderDraggableTargetState):
+          btnStates[key] = (value as NodePanelHeaderDraggableTargetState).copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
+      }
+    });
+
     emit(state.copyWith(
-        screenMaxWidth: event.maxWidth,
-        screenMaxHeight: event.maxHeight,
-        nodeCardCrossAxisCount: max(4, (event.maxWidth / event.maxHeight * 1.64).floor()),
-        nodeCardStates: nodeCardStates,
-        actionRailButtonStates: actionRailButtonStates,
-        themeData: state.themeData.copyWith(
-          displayLarge: updateTextStyle(state.themeData.displayLarge, __displayLargeFontHeightRatio),
-          displayMedium: updateTextStyle(state.themeData.displayMedium, __displayMediumFontHeightRatio),
-          displaySmall: updateTextStyle(state.themeData.displaySmall, __displaySmallFontHeightRatio),
-          headlineLarge: updateTextStyle(state.themeData.headlineLarge, __headlineLargeFontHeightRatio),
-          headlineMedium: updateTextStyle(state.themeData.headlineMedium, __headlineMediumFontHeightRatio),
-          headlineSmall: updateTextStyle(state.themeData.headlineSmall, __headlineSmallFontHeightRatio),
-          titleLarge: updateTextStyle(state.themeData.titleLarge, __titleLargeFontHeightRatio),
-          titleMedium: updateTextStyle(state.themeData.titleMedium, __titleMediumFontHeightRatio),
-          titleSmall: updateTextStyle(state.themeData.titleSmall, __titleSmallFontHeightRatio),
-          labelLarge: updateTextStyle(state.themeData.labelLarge, __labelLargeFontHeightRatio),
-          labelMedium: updateTextStyle(state.themeData.labelMedium, __labelMediumFontHeightRatio),
-          labelSmall: updateTextStyle(state.themeData.labelSmall, __labelSmallFontHeightRatio),
-          bodyLarge: updateTextStyle(state.themeData.bodyLarge, __bodyLargeFontHeightRatio),
-          bodyMedium: updateTextStyle(state.themeData.bodyMedium, __bodyMediumFontHeightRatio),
-          bodySmall: updateTextStyle(state.themeData.bodySmall, __bodySmallFontHeightRatio),
-        )));
+      screenMaxWidth: event.maxWidth,
+      screenMaxHeight: event.maxHeight,
+      nodeCardCrossAxisCount: max(4, (event.maxWidth / event.maxHeight * 1.64).floor()),
+      nodeCardStates: nodeCardStates,
+      actionRailButtonStates: actionRailButtonStates,
+      nodePanelHeaderState: NodePanelHeaderState(themeData: themeData, btnStates: btnStates),
+      themeData: themeData,
+    ));
   }
 
   Future<void> _updateARBbackgroundColor(ActionRailButtons button, Color color, Emitter<UIState> emit) async {
