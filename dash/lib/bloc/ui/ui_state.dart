@@ -328,90 +328,29 @@ final class ActionRailButtonState extends Equatable {
   List<Object> get props => [_backgroundColor, _iconColor, _iconOpacity, _textStyle];
 }
 
-abstract class NodePanelHeaderBtnBase {}
-
-final class NodePanelHeaderSelectableBtn implements NodePanelHeaderBtnBase {
-  const NodePanelHeaderSelectableBtn._(this.index);
-
-  final int index;
-
-  static const combination = NodePanelHeaderSelectableBtn._(0);
-  static const permutation = NodePanelHeaderSelectableBtn._(1);
-  static const decryption = NodePanelHeaderSelectableBtn._(2);
-}
-
-final class NodePanelHeaderDraggableBtn implements NodePanelHeaderBtnBase {
-  const NodePanelHeaderDraggableBtn._(this.index);
-
-  final int index;
-
-  static const cpu = NodePanelHeaderDraggableBtn._(0);
-  static const mem = NodePanelHeaderDraggableBtn._(1);
-  static const ops = NodePanelHeaderDraggableBtn._(2);
-  static const uptime = NodePanelHeaderDraggableBtn._(3);
-}
-
-class NodePanelHeaderPlaceholderBtn implements NodePanelHeaderBtnBase {
-  const NodePanelHeaderPlaceholderBtn._(this.index);
-
-  final int index;
-
-  static const active1 = NodePanelHeaderPlaceholderBtn._(0);
-  static const active2 = NodePanelHeaderPlaceholderBtn._(1);
-  static const active3 = NodePanelHeaderPlaceholderBtn._(2);
-  static const active4 = NodePanelHeaderPlaceholderBtn._(3);
-
-  static const inactive1 = NodePanelHeaderPlaceholderBtn._(4);
-  static const inactive2 = NodePanelHeaderPlaceholderBtn._(5);
-  static const inactive3 = NodePanelHeaderPlaceholderBtn._(6);
-  static const inactive4 = NodePanelHeaderPlaceholderBtn._(7);
-
-  static NodePanelHeaderPlaceholderBtn activeByIndex(int index) {
-    switch (index) {
-      case 0:
-        return active1;
-      case 1:
-        return active2;
-      case 2:
-        return active3;
-      case 3:
-        return active4;
-      default:
-        return NodePanelHeaderPlaceholderBtn._(index);
-    }
-  }
-
-  static NodePanelHeaderPlaceholderBtn inactiveByIndex(int index) {
-    switch (index) {
-      case 0:
-        return inactive1;
-      case 1:
-        return inactive2;
-      case 2:
-        return inactive3;
-      case 3:
-        return inactive4;
-      default:
-        return NodePanelHeaderPlaceholderBtn._(index);
-    }
-  }
-}
+enum NodePanelHeaderBtn { plhBtn, drgBtn, typeBtn }
 
 final class NodePanelHeaderBtnState extends Equatable {
   const NodePanelHeaderBtnState({
+    required NodePanelHeaderBtn type,
     required String label,
     required TextStyle textStyle,
     required Color backgroundColor,
     required Color iconActiveColor,
     required Color iconInactiveColor,
     required bool isAscending,
-  })  : _label = label,
+    required bool hasIcon,
+  })  : _type = type,
+        _label = label,
         _textStyle = textStyle,
         _backgroundColor = backgroundColor,
         _iconActiveColor = iconActiveColor,
         _iconInactiveColor = iconInactiveColor,
-        _isAscending = isAscending;
+        _isAscending = isAscending,
+        _hasIcon = hasIcon;
 
+  final NodePanelHeaderBtn _type;
+  NodePanelHeaderBtn get type => _type;
   final String _label;
   String get label => _label;
   final TextStyle _textStyle;
@@ -424,201 +363,337 @@ final class NodePanelHeaderBtnState extends Equatable {
   Color get iconInactiveColor => _iconInactiveColor;
   final bool _isAscending;
   bool get isAscending => _isAscending;
+  final bool _hasIcon;
+  bool get hasIcon => _hasIcon;
+
+  NodePanelHeaderBtnState withOpacity() => copyWith(
+        textStyle: _textStyle.copyWith(color: _textStyle.color?.withOpacity(0.5)),
+        backgroundColor: _backgroundColor.withOpacity(0.5),
+        iconActiveColor: _iconActiveColor.withOpacity(0.5),
+        iconInactiveColor: _iconInactiveColor.withOpacity(0.25),
+      );
+
+  NodePanelHeaderBtnState withoutOpacity() => copyWith(
+        textStyle: _textStyle.copyWith(color: _textStyle.color?.withOpacity(1.0)),
+        backgroundColor: _backgroundColor.withOpacity(1.0),
+        iconActiveColor: _iconActiveColor.withOpacity(1.0),
+        iconInactiveColor: _iconInactiveColor.withOpacity(0.5),
+      );
+
+  NodePanelHeaderBtnState toggleAscending() => copyWith(
+        isAscending: !_isAscending,
+      );
 
   NodePanelHeaderBtnState copyWith({
+    NodePanelHeaderBtn? type,
     String? label,
     TextStyle? textStyle,
     Color? backgroundColor,
     Color? iconActiveColor,
     Color? iconInactiveColor,
     bool? isAscending,
+    bool? hasIcon,
   }) =>
       NodePanelHeaderBtnState(
+        type: type ?? _type,
         label: label ?? _label,
         textStyle: textStyle ?? _textStyle,
         backgroundColor: backgroundColor ?? _backgroundColor,
         iconActiveColor: iconActiveColor ?? _iconActiveColor,
         iconInactiveColor: iconInactiveColor ?? _iconInactiveColor,
         isAscending: isAscending ?? _isAscending,
+        hasIcon: hasIcon ?? _hasIcon,
       );
 
   @override
   List<Object?> get props => [
+        _type,
         _label,
         _textStyle,
         _backgroundColor,
         _iconActiveColor,
         _iconInactiveColor,
         _isAscending,
+        _hasIcon,
       ];
 }
 
 final class NodePanelHeaderState extends Equatable {
   NodePanelHeaderState({
     required UIThemeData themeData,
-    LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState>? selectableButtons,
-    LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState>? activeButtons,
-    LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState>? inactiveButtons,
-    LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState>? placeholderButtons,
-  })  : _selectableButtons = selectableButtons ??
-            LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState>.from({
-              NodePanelHeaderSelectableBtn.combination: NodePanelHeaderBtnState(
-                label: 'COMB',
-                backgroundColor: themeData.combColor,
-                textStyle: themeData.labelMedium,
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-              NodePanelHeaderSelectableBtn.permutation: NodePanelHeaderBtnState(
-                label: 'PERM',
-                backgroundColor: themeData.permColor,
-                textStyle: themeData.labelMedium,
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-              NodePanelHeaderSelectableBtn.decryption: NodePanelHeaderBtnState(
-                label: 'DECR',
-                backgroundColor: themeData.decrColor,
-                textStyle: themeData.labelMedium,
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-            }),
-        _activeButtons = activeButtons ??
-            LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState>.from({
-              NodePanelHeaderDraggableBtn.cpu: NodePanelHeaderBtnState(
-                label: 'CPU',
-                backgroundColor: themeData.cardColor,
-                textStyle: themeData.labelMedium,
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-            }),
-        _inactiveButtons = inactiveButtons ??
-            LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState>.from({
-              NodePanelHeaderDraggableBtn.mem: NodePanelHeaderBtnState(
-                label: 'MEM',
-                backgroundColor: themeData.cardColor,
-                textStyle: themeData.labelMedium,
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-              NodePanelHeaderDraggableBtn.ops: NodePanelHeaderBtnState(
-                label: 'OPS',
-                backgroundColor: themeData.cardColor,
-                textStyle: themeData.labelMedium,
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-              NodePanelHeaderDraggableBtn.uptime: NodePanelHeaderBtnState(
-                label: 'UPT',
-                backgroundColor: themeData.cardColor,
-                textStyle: themeData.labelMedium,
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-            }),
-        _placeholderButtons = placeholderButtons ??
-            LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState>.from({
-              NodePanelHeaderPlaceholderBtn.active1: NodePanelHeaderBtnState(
-                label: '1',
-                backgroundColor: themeData.cardColor.withOpacity(0.5),
-                textStyle: themeData.labelMedium.copyWith(color: themeData.labelMedium.color?.withOpacity(0.5)),
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-              NodePanelHeaderPlaceholderBtn.active2: NodePanelHeaderBtnState(
-                label: '2',
-                backgroundColor: themeData.cardColor.withOpacity(0.5),
-                textStyle: themeData.labelMedium.copyWith(color: themeData.labelMedium.color?.withOpacity(0.5)),
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-              NodePanelHeaderPlaceholderBtn.active3: NodePanelHeaderBtnState(
-                label: '3',
-                backgroundColor: themeData.cardColor.withOpacity(0.5),
-                textStyle: themeData.labelMedium.copyWith(color: themeData.labelMedium.color?.withOpacity(0.5)),
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-              NodePanelHeaderPlaceholderBtn.active4: NodePanelHeaderBtnState(
-                label: '4',
-                backgroundColor: themeData.cardColor.withOpacity(0.5),
-                textStyle: themeData.labelMedium.copyWith(color: themeData.labelMedium.color?.withOpacity(0.5)),
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-              NodePanelHeaderPlaceholderBtn.inactive1: NodePanelHeaderBtnState(
-                label: 'X',
-                backgroundColor: themeData.cardColor.withOpacity(0.5),
-                textStyle: themeData.labelMedium.copyWith(color: themeData.labelMedium.color?.withOpacity(0.5)),
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-              NodePanelHeaderPlaceholderBtn.inactive2: NodePanelHeaderBtnState(
-                label: 'X',
-                backgroundColor: themeData.cardColor.withOpacity(0.5),
-                textStyle: themeData.labelMedium.copyWith(color: themeData.labelMedium.color?.withOpacity(0.5)),
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-              NodePanelHeaderPlaceholderBtn.inactive3: NodePanelHeaderBtnState(
-                label: 'X',
-                backgroundColor: themeData.cardColor.withOpacity(0.5),
-                textStyle: themeData.labelMedium.copyWith(color: themeData.labelMedium.color?.withOpacity(0.5)),
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-              NodePanelHeaderPlaceholderBtn.inactive4: NodePanelHeaderBtnState(
-                label: 'X',
-                backgroundColor: themeData.cardColor.withOpacity(0.5),
-                textStyle: themeData.labelMedium.copyWith(color: themeData.labelMedium.color?.withOpacity(0.5)),
-                iconActiveColor: Colors.white,
-                iconInactiveColor: Colors.black.withOpacity(0.5),
-                isAscending: false,
-              ),
-            });
+    List<NodePanelHeaderBtnState>? btnStateTemp,
+    List<NodePanelHeaderBtnState>? childWhenDragging,
+    List<NodePanelHeaderBtnState>? btnStatePerm,
+  })  : _btnStateTemp = btnStateTemp ?? NodePanelHeaderState.defaultState(themeData),
+        _childWhenDragging = childWhenDragging ?? NodePanelHeaderState.defaultChildWhenDragging(themeData),
+        _btnStatePerm = btnStatePerm ?? NodePanelHeaderState.defaultState(themeData);
 
-  final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> _selectableButtons;
-  LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> get selectableButtons => LinkedHashMap.from(_selectableButtons);
-  final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> _activeButtons;
-  LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> get activeButtons => LinkedHashMap.from(_activeButtons);
-  final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> _inactiveButtons;
-  LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> get inactiveButtons => LinkedHashMap.from(_inactiveButtons);
-  final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> _placeholderButtons;
-  LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> get placeholderButtons => LinkedHashMap.from(_placeholderButtons);
+  final List<NodePanelHeaderBtnState> _btnStateTemp;
+  List<NodePanelHeaderBtnState> get btnStateTemp => _btnStateTemp;
+
+  final List<NodePanelHeaderBtnState> _childWhenDragging;
+  List<NodePanelHeaderBtnState> get childWhenDragging => _childWhenDragging;
+
+  final List<NodePanelHeaderBtnState> _btnStatePerm;
+  List<NodePanelHeaderBtnState> get btnStatePerm => _btnStatePerm;
+
+  static List<NodePanelHeaderBtnState> defaultChildWhenDragging(UIThemeData themeData) => List<NodePanelHeaderBtnState>.from([
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: '1',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: '2',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: '3',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: '4',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: '1',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: '2',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: '3',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: '4',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: 'X',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: 'X',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: 'X',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: 'X',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+      ]);
+
+  static List<NodePanelHeaderBtnState> defaultState(UIThemeData themeData) => List<NodePanelHeaderBtnState>.from([
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.typeBtn,
+          label: 'comb',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.combColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withoutOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.typeBtn,
+          label: 'perm',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.combColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withoutOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.typeBtn,
+          label: 'decr',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.combColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withoutOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.drgBtn,
+          label: 'mem',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.combColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: true,
+          hasIcon: true,
+        ).withoutOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: '2',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: '3',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: '4',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.plhBtn,
+          label: 'X',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.cardColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: false,
+          hasIcon: false,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.drgBtn,
+          label: 'cpu',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.combColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: true,
+          hasIcon: true,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.drgBtn,
+          label: 'ops',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.combColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: true,
+          hasIcon: true,
+        ).withOpacity(),
+        NodePanelHeaderBtnState(
+          type: NodePanelHeaderBtn.drgBtn,
+          label: 'upt',
+          textStyle: themeData.labelMedium,
+          backgroundColor: themeData.combColor,
+          iconActiveColor: themeData.cardColor,
+          iconInactiveColor: themeData.cardColor,
+          isAscending: true,
+          hasIcon: true,
+        ).withOpacity(),
+      ]);
+
+  NodePanelHeaderState revert({required UIThemeData themeData}) => copyWith(themeData: themeData, btnStateTemp: _btnStatePerm, childWhenDragging: NodePanelHeaderState.defaultChildWhenDragging(themeData));
+
+  NodePanelHeaderState commit({required UIThemeData themeData, required List<NodePanelHeaderBtnState> btnState}) => copyWith(themeData: themeData, btnStateTemp: btnState);
+
+  NodePanelHeaderState apply({required UIThemeData themeData}) => copyWith(themeData: themeData, btnStatePerm: _btnStateTemp);
 
   NodePanelHeaderState copyWith({
     required UIThemeData themeData,
-    LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState>? selectableButtons,
-    LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState>? activeButtons,
-    LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState>? inactiveButtons,
-    LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState>? placeholderButtons,
+    List<NodePanelHeaderBtnState>? btnStateTemp,
+    List<NodePanelHeaderBtnState>? childWhenDragging,
+    List<NodePanelHeaderBtnState>? btnStatePerm,
   }) =>
       NodePanelHeaderState(
         themeData: themeData,
-        selectableButtons: selectableButtons ?? _selectableButtons,
-        activeButtons: activeButtons ?? _activeButtons,
-        inactiveButtons: inactiveButtons ?? _inactiveButtons,
-        placeholderButtons: placeholderButtons ?? _placeholderButtons,
+        btnStateTemp: btnStateTemp ?? _btnStateTemp,
+        childWhenDragging: childWhenDragging ?? _childWhenDragging,
+        btnStatePerm: btnStatePerm ?? _btnStatePerm,
       );
 
   @override
-  List<Object> get props => [_selectableButtons, _activeButtons, _inactiveButtons, _placeholderButtons];
+  List<Object> get props => [_btnStateTemp, _childWhenDragging, _btnStatePerm];
 }
 
 final class NodeCardState extends Equatable {

@@ -92,6 +92,30 @@ final class ARBSettingsOff extends UIEvent {
   const ARBSettingsOff();
 }
 
+final class NodePanelHeaderTargetOnWillAcceptWithDetails extends UIEvent {
+  const NodePanelHeaderTargetOnWillAcceptWithDetails(this.index, this.btnState);
+
+  final int index;
+  final NodePanelHeaderBtnState btnState;
+
+  @override
+  List<Object> get props => [index, btnState];
+}
+
+final class NodePanelHeaderTargetOnAcceptWithDetails extends UIEvent {
+  const NodePanelHeaderTargetOnAcceptWithDetails();
+
+  @override
+  List<Object> get props => [];
+}
+
+final class NodePanelHeaderTargetOnLeave extends UIEvent {
+  const NodePanelHeaderTargetOnLeave();
+
+  @override
+  List<Object> get props => [];
+}
+
 final class NodeCardIDCopyHovered extends UIEvent {
   const NodeCardIDCopyHovered(this.id);
 

@@ -40,6 +40,10 @@ class UIBloc extends Bloc<UIEvent, UIState> {
     on<ARBSettingsOn>(_onARBSettingsOn);
     on<ARBSettingsOff>(_onARBSettingsOff);
 
+    on<NodePanelHeaderTargetOnWillAcceptWithDetails>(_onNodePanelHeaderTargetOnWillAcceptWithDetails);
+    on<NodePanelHeaderTargetOnAcceptWithDetails>(_onNodePanelHeaderTargetOnAcceptWithDetails);
+    on<NodePanelHeaderTargetOnLeave>(_onNodePanelHeaderTargetOnLeave);
+
     on<NodeCardIDCopyHovered>(_onNodeCardIDCopyHovered);
     on<NodeCardIDCopyUnhovered>(_onNodeCardIDCopyUnhovered);
     on<NodeCardIPCopyHovered>(_onNodeCardIPCopyHovered);
@@ -98,26 +102,9 @@ class UIBloc extends Bloc<UIEvent, UIState> {
       actionRailButtonStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
     });
 
-    final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> selectableButtonStates = state.nodePanelHeaderState.selectableButtons;
-    final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> activeButtonStates = state.nodePanelHeaderState.activeButtons;
-    final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> inactiveButtonStates = state.nodePanelHeaderState.inactiveButtons;
-    final LinkedHashMap<NodePanelHeaderBtnBase, NodePanelHeaderBtnState> placeholderButtons = state.nodePanelHeaderState.placeholderButtons;
-
-    selectableButtonStates.forEach((key, value) {
-      selectableButtonStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
-    });
-
-    activeButtonStates.forEach((key, value) {
-      activeButtonStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
-    });
-
-    inactiveButtonStates.forEach((key, value) {
-      inactiveButtonStates[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
-    });
-
-    placeholderButtons.forEach((key, value) {
-      placeholderButtons[key] = value.copyWith(textStyle: updateTextStyle(value.textStyle, __labelMediumFontHeightRatio));
-    });
+    final List<NodePanelHeaderBtnState> btnStateTemp = state.nodePanelHeaderState.btnStateTemp.map((e) => e.copyWith(textStyle: updateTextStyle(e.textStyle, __labelMediumFontHeightRatio))).toList();
+    final List<NodePanelHeaderBtnState> childWhenDragging = state.nodePanelHeaderState.childWhenDragging.map((e) => e.copyWith(textStyle: updateTextStyle(e.textStyle, __labelMediumFontHeightRatio))).toList();
+    final List<NodePanelHeaderBtnState> btnStatePerm = state.nodePanelHeaderState.btnStatePerm.map((e) => e.copyWith(textStyle: updateTextStyle(e.textStyle, __labelMediumFontHeightRatio))).toList();
 
     emit(state.copyWith(
       screenMaxWidth: event.maxWidth,
@@ -127,9 +114,9 @@ class UIBloc extends Bloc<UIEvent, UIState> {
       actionRailButtonStates: actionRailButtonStates,
       nodePanelHeaderState: NodePanelHeaderState(
         themeData: themeData,
-        selectableButtons: selectableButtonStates,
-        activeButtons: activeButtonStates,
-        inactiveButtons: inactiveButtonStates,
+        btnStateTemp: btnStateTemp,
+        childWhenDragging: childWhenDragging,
+        btnStatePerm: btnStatePerm,
       ),
       themeData: themeData,
     ));
@@ -201,6 +188,19 @@ class UIBloc extends Bloc<UIEvent, UIState> {
 
   Future<void> _onARBSettingsOff(ARBSettingsOff event, Emitter<UIState> emit) async {
     _updateARBState(ActionRailButtons.settings, ButtonState.unselected, emit);
+  }
+
+  Future<void> _onNodePanelHeaderTargetOnWillAcceptWithDetails(NodePanelHeaderTargetOnWillAcceptWithDetails event, Emitter<UIState> emit) async {
+    final List<NodePanelHeaderBtnState> btnStateTemp = state.nodePanelHeaderState.btnStateTemp;
+    final List<NodePanelHeaderBtnState> btnStatePerm = state.nodePanelHeaderState.btnStatePerm;
+  }
+
+  Future<void> _onNodePanelHeaderTargetOnAcceptWithDetails(NodePanelHeaderTargetOnAcceptWithDetails event, Emitter<UIState> emit) async {
+    emit(state.copyWith(nodePanelHeaderState: state.nodePanelHeaderState.apply(themeData: state.themeData)));
+  }
+
+  Future<void> _onNodePanelHeaderTargetOnLeave(NodePanelHeaderTargetOnLeave event, Emitter<UIState> emit) async {
+    emit(state.copyWith(nodePanelHeaderState: state.nodePanelHeaderState.revert(themeData: state.themeData)));
   }
 
   Future<void> _onNodeCardIDCopyHovered(NodeCardIDCopyHovered event, Emitter<UIState> emit) async {

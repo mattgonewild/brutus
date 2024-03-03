@@ -4,29 +4,21 @@ class SortPaint extends StatelessWidget {
   const SortPaint({
     super.key,
     required Color topColor,
-    required double topOpacity,
     required Color bottomColor,
-    required double bottomOpacity,
   })  : _topColor = topColor,
-        _topOpacity = topOpacity,
-        _bottomColor = bottomColor,
-        _bottomOpacity = bottomOpacity;
+        _bottomColor = bottomColor;
 
   final Color _topColor;
   Color get topColor => _topColor;
-  final double _topOpacity;
-  double get topOpacity => _topOpacity;
   final Color _bottomColor;
   Color get bottomColor => _bottomColor;
-  final double _bottomOpacity;
-  double get bottomOpacity => _bottomOpacity;
 
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 0.667,
       child: CustomPaint(
-        painter: SortPainter(topColor: _topColor, topOpacity: _topOpacity, bottomColor: _bottomColor, bottomOpacity: _bottomOpacity),
+        painter: SortPainter(topColor: _topColor, bottomColor: _bottomColor),
       ),
     );
   }
@@ -35,22 +27,14 @@ class SortPaint extends StatelessWidget {
 class SortPainter extends CustomPainter {
   const SortPainter({
     required Color topColor,
-    required double topOpacity,
     required Color bottomColor,
-    required double bottomOpacity,
   })  : _topColor = topColor,
-        _topOpacity = topOpacity,
-        _bottomColor = bottomColor,
-        _bottomOpacity = bottomOpacity;
+        _bottomColor = bottomColor;
 
   final Color _topColor;
   Color get topColor => _topColor;
-  final double _topOpacity;
-  double get topOpacity => _topOpacity;
   final Color _bottomColor;
   Color get bottomColor => _bottomColor;
-  final double _bottomOpacity;
-  double get bottomOpacity => _bottomOpacity;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -79,10 +63,10 @@ class SortPainter extends CustomPainter {
     pathBottom.cubicTo(size.width * 0.5318750, size.height * 0.9437500, size.width * 0.4684375, size.height * 0.9437500, size.width * 0.4293750, size.height * 0.9193359);
     pathBottom.close();
 
-    canvas.drawPath(pathTop, Paint()..color = _topColor.withOpacity(_topOpacity));
-    canvas.drawPath(pathBottom, Paint()..color = _bottomColor.withOpacity(_bottomOpacity));
+    canvas.drawPath(pathTop, Paint()..color = _topColor);
+    canvas.drawPath(pathBottom, Paint()..color = _bottomColor);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => (oldDelegate as SortPainter).topColor != _topColor || oldDelegate.topOpacity != _topOpacity || oldDelegate.bottomColor != _bottomColor || oldDelegate.bottomOpacity != _bottomOpacity;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => (oldDelegate as SortPainter).topColor != _topColor || oldDelegate.bottomColor != _bottomColor;
 }
