@@ -50,7 +50,7 @@ class NodePanel extends StatelessWidget {
     );
   }
 
-  Widget _buildChildWhileDragging(int index, BoxConstraints constraints) {
+  Widget _buildChildWhenDragging(int index, BoxConstraints constraints) {
     return BlocBuilder<UIBloc, UIState>(
       buildWhen: (previous, current) => previous.nodePanelHeaderState.childWhenDragging[index] != current.nodePanelHeaderState.childWhenDragging[index],
       builder: (context, state) => _buildButton(state.nodePanelHeaderState.childWhenDragging[index], constraints),
@@ -81,7 +81,7 @@ class NodePanel extends StatelessWidget {
               return Draggable<NodePanelHeaderBtnState>(
                 data: buttonState,
                 feedback: SizedBox(width: buttonWidth, child: button),
-                childWhenDragging: SizedBox(width: buttonWidth, child: _buildChildWhileDragging(index, constraints)),
+                childWhenDragging: SizedBox(width: buttonWidth, child: _buildChildWhenDragging(index, constraints)),
                 child: SizedBox(width: buttonWidth, child: button),
               );
             }
