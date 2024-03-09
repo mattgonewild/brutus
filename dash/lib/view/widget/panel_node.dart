@@ -52,17 +52,17 @@ class NodePanel extends StatelessWidget {
 
   Widget _buildChildWhenDragging(int index, BoxConstraints constraints) {
     return BlocBuilder<UIBloc, UIState>(
-      buildWhen: (previous, current) => previous.nodePanelHeaderState.childWhenDragging[index] != current.nodePanelHeaderState.childWhenDragging[index],
+      buildWhen: (previous, current) => true, //previous.nodePanelHeaderState.childWhenDragging[index] != current.nodePanelHeaderState.childWhenDragging[index],
       builder: (context, state) => _buildButton(state.nodePanelHeaderState.childWhenDragging[index], constraints),
     );
   }
 
   Widget _buildDragTarget(int index, BoxConstraints constraints) {
     return BlocBuilder<UIBloc, UIState>(
-      buildWhen: (previous, current) => previous.nodePanelHeaderState.btnStateTemp[index] != current.nodePanelHeaderState.btnStateTemp[index],
+      buildWhen: (previous, current) => true, //previous.nodePanelHeaderState.btnStateTemp[index] != current.nodePanelHeaderState.btnStateTemp[index],
       builder: (context, state) {
         final buttonState = state.nodePanelHeaderState.btnStateTemp[index];
-        final buttonWidth = buttonState.type != NodePanelHeaderBtn.typeBtn ? constraints.maxWidth / 12 : constraints.maxWidth / 15;
+        final buttonWidth = index < 3 ? constraints.maxWidth / 15 : constraints.maxWidth / 12;
         final button = _buildButton(buttonState, constraints);
 
         return DragTarget<NodePanelHeaderBtnState>(
@@ -75,7 +75,7 @@ class NodePanel extends StatelessWidget {
             }
             return false;
           },
-          onAcceptWithDetails: (details) => context.read<UIBloc>().add(const NodePanelHeaderTargetOnAcceptWithDetails()),
+          onAcceptWithDetails: (details) => context.read<UIBloc>().add(NodePanelHeaderTargetOnAcceptWithDetails(index, details.data)),
           builder: (context, candidateData, rejectedData) {
             if (buttonState.type != NodePanelHeaderBtn.plhBtn) {
               return Draggable<NodePanelHeaderBtnState>(
